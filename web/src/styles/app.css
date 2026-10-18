@@ -321,7 +321,16 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   background: color-mix(in srgb, var(--canvas) 86%, transparent);
   backdrop-filter: saturate(1.6) blur(12px); -webkit-backdrop-filter: saturate(1.6) blur(12px);
 }
-.toolbar select, .toolbar input[type="search"] { height: 36px; padding-top: 0; padding-bottom: 0; }
+.toolbar select, .toolbar input[type="search"] { height: 36px; padding-top: 0; padding-bottom: 0; border-radius: var(--r-md); font-size: 14px; }
+/* The sort sits between the menus, so it reads as one: their weight, hover, chevron and focus ring, not a form
+   field's blue border that stays after picking (which would look like an active filter). The 2px top padding:
+   a select centres on font metrics, not on a line box like the buttons, and sits a pixel high without it. */
+.sort-box { position: relative; display: inline-flex; align-items: center; }
+.sort-box select { appearance: none; -webkit-appearance: none; padding: 2px 30px 0 12px; font-weight: 500; }
+.sort-box select:hover { background: var(--surface-soft); }
+.sort-box select:focus { border-color: var(--hairline-strong); box-shadow: none; }
+.sort-box select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.sort-box svg { position: absolute; right: 10px; width: 14px; height: 14px; color: var(--muted); pointer-events: none; }
 .search-box { flex: 1 1 200px; min-width: 160px; position: relative; display: flex; align-items: center; }
 .search-box svg { position: absolute; left: 11px; width: 15px; height: 15px; color: var(--faint); pointer-events: none; }
 .search-box input { padding-left: 33px; }
@@ -813,14 +822,18 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
 .map-tip b { display: block; font-weight: 600; color: var(--ink); }
 .map-tip span { color: var(--muted); }
 .graph-panel { margin-bottom: 12px; }
-.graph-canvas { border-radius: var(--r-xl); overflow: hidden; background: #141d52; min-height: 560px; position: relative; }
+/* A deeper night than the hero band, lit from the middle, so the glowing nodes carry the colour. */
+.graph-canvas {
+  border-radius: var(--r-xl); overflow: hidden; min-height: 560px; position: relative;
+  background: radial-gradient(120% 95% at 50% 40%, #1a2463 0%, #0c1233 55%, #05081a 100%);
+}
 .graph-loading { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255, 255, 255, 0.7); font-size: 14px; }
 .graph-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 2px 0; font-size: 13px; color: var(--muted); }
 .graph-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #2a9d99, #dd5b00, #62aef0); }
 .swatch.seed { background: #fff; box-shadow: inset 0 0 0 1px var(--hairline-strong); }
 .scene-tooltip .graph-tip, .graph-tip {
-  max-width: 300px; padding: 6px 9px; border-radius: var(--r-md); background: rgba(20, 29, 82, 0.92); color: #fff;
+  max-width: 300px; padding: 6px 9px; border-radius: var(--r-md); background: rgba(12, 18, 51, 0.92); color: #fff;
   font: 500 13px/1.4 var(--font); white-space: normal;
 }
 @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
@@ -858,7 +871,7 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .drawer { padding: 0 16px 24px; }
   .drawer-bar { margin: 0 -16px 12px; padding: 10px 16px; }
   .drawer-head { grid-template-columns: minmax(0, 1fr); }
-  .drawer-nav .kbd-hint, .summary .kbd-hint { display: none; }
+  .drawer-nav .kbd-hint { display: none; }
   .live-head { flex-direction: column; gap: 6px; }
   .live-clock { align-items: flex-start; }
   .stepper { display: none; }
