@@ -417,8 +417,18 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* --- landing: hero-band ------------------------------------------------------------------ */
-.hero-band { background: var(--night); color: #fff; overflow: hidden; }
+.hero-band { background: var(--night); color: #fff; overflow: hidden; position: relative; isolation: isolate; }
+/* The live field (SeedField) fills the band behind the copy. It never takes a click: the band tracks the
+ * pointer. The masks keep the text column clean by construction and let the clusters fade at the edges. */
+.seed-field {
+  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 36%, #000 50%), linear-gradient(to bottom, transparent, #000 6%, #000 92%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 36%, #000 50%), linear-gradient(to bottom, transparent, #000 6%, #000 92%, transparent);
+  mask-composite: intersect;
+}
 .hero-inner {
+  position: relative; z-index: 1;
   max-width: 1200px; margin: 0 auto; padding: 72px 32px 76px;
   display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 40px; align-items: center;
 }
@@ -428,6 +438,14 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .hero-band .btn.secondary { box-shadow: var(--shadow-2); border-color: transparent; color: #000; background: #fff; }
 .constellation { width: 100%; height: auto; display: block; }
+.hero-art { display: none; }      /* two columns: SeedField draws this live; one column brings the still back */
+.field-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 28px; font-size: 13px; color: rgba(255, 255, 255, 0.72); }
+.field-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.field-legend i { display: inline-block; flex: none; }
+.field-legend .key-seed { width: 8px; height: 8px; background: #fff; transform: rotate(45deg); margin: 0 1px; }
+.field-legend .key-dot { width: 9px; height: 9px; border-radius: 50%; background: linear-gradient(135deg, #2a9d99, #dd5b00, #62aef0); }
+.field-legend .key-line { width: 18px; border-top: 1.5px solid rgba(255, 255, 255, 0.6); }
+.field-legend .key-line.dashed { border-top-style: dashed; }
 
 /* --- landing: sections, feature-cards, steps, metrics, footer ------------------------------ */
 .section { margin-top: 64px; }
@@ -489,6 +507,7 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 /* --- responsive ----------------------------------------------------------------------- */
 @media (max-width: 1080px) {
   .hero-inner { grid-template-columns: minmax(0, 1fr); padding: 56px 32px; }
+  .hero-art { display: block; }
   .constellation { max-width: 460px; }
   .features, .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
