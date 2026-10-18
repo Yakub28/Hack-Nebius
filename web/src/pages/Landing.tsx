@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import type { Discovery } from "../api/types";
-import { GRADES } from "../lib/format";
+import { GRADES, plural } from "../lib/format";
 import { SeedField } from "../components/SeedField";
 
 /** The hero's constellation is a citation graph: two seeds (diamonds) and the papers they lead to. A still
@@ -35,11 +35,7 @@ function Constellation() {
 
 export function Landing() {
   const [run, setRun] = useState<Discovery | null>(null);
-  useEffect(() => { document.title = "TUMor"; api.recorded().then(setRun).catch(() => {}); }, []);
-
-  const top10 = run?.results.slice(0, 10) ?? [];
-  const total = run ? Math.round(Object.values(run.timings).reduce((a, b) => a + b, 0)) : 110;
-  const webOnly = run?.results.filter((r) => r.channels.length === 1 && r.channels[0] === "web").length ?? 0;
+  useEffect(() => { document.title = "Snowball"; api.recorded().then(setRun).catch(() => {}); }, []);
 
   return (
     <>
@@ -47,20 +43,13 @@ export function Landing() {
         <SeedField />
         <div className="hero-inner">
           <div>
-            <span className="badge">Biomedical literature · Nebius Token Factory</span>
+            <span className="badge">Biomedical literature</span>
             <h1>Start from the papers you trust.</h1>
-            <p>Give a research question and a few seed papers. Watch TUMor follow their citations, search
-              PubMed, preprints and the web, and rank new papers live, each with where it was found and a quote
-              that shows why.</p>
+            <p>Add a question and a few papers you trust. It follows their citations, searches PubMed, preprints and
+              the web, and ranks what it finds, each paper with a quote that shows why it fits.</p>
             <div className="cta-row">
               <Link className="btn primary" to="/search">Start a search</Link>
-              <Link className="btn secondary" to="/recorded">See a recorded run</Link>
-            </div>
-            <div className="field-legend" aria-label="What the picture shows">
-              <span><i className="key-seed" aria-hidden="true" /> a seed you trust</span>
-              <span><i className="key-dot" aria-hidden="true" /> a paper it leads to, coloured by theme</span>
-              <span><i className="key-line" aria-hidden="true" /> cites</span>
-              <span><i className="key-line dashed" aria-hidden="true" /> similar content</span>
+              <Link className="btn secondary" to="/recorded">See an example</Link>
             </div>
           </div>
           <div className="hero-art"><Constellation /></div>
@@ -69,104 +58,83 @@ export function Landing() {
 
       <main className="page">
         <section className="section">
-          <h2>Every result is a real record, and shows its work.</h2>
-          <p className="lead">Each paper comes from PubMed or Europe PMC, found by following your seeds' citations and by
-            searching for what they describe. Nothing comes from the model's memory.</p>
-          <div className="features">
-            <Feature band="sky" title="Find what your seeds point to" ask="Which papers belong next to the ones I already trust?"
-              cta={<Link className="go" to="/search">Start a search →</Link>} art={<SeedsArt />}>
-              <li>Follows the seeds' <strong>citations both ways</strong>, plus papers co-cited with them.</li>
-              <li>PubMed's own <strong>similar articles</strong> for every seed.</li>
-              <li><strong>LLM-written PubMed searches</strong>: one per seed, plus the facets of your question.</li>
-              <li>Preprints, and a <strong>web search agent</strong> that reads what it finds and picks its next searches.</li>
-            </Feature>
-            <Feature band="purple" title="See why each paper is there" ask="Can I trust a result without reading the whole paper?"
-              cta={<Link className="go" to="/recorded">See a recorded run →</Link>} art={<GradeArt />}>
-              <li>An LLM <strong>grades every strong candidate 0–4</strong> against criteria drawn from your question.</li>
-              <li>Your seeds are graded too, which draws a <strong>relevance line</strong>: above it, as relevant as your seeds.</li>
-              <li>Each result quotes its abstract, and the quote is <strong>checked word for word</strong>.</li>
-              <li>Every link to a seed is <strong>a citation or a similarity score</strong> you can check.</li>
-            </Feature>
-            <Feature band="orange" title="Explore what it found" ask="Where should I start reading?"
-              cta={<Link className="go" to="/recorded?view=graph">Open the citation graph →</Link>} art={<MapArt />}>
-              <li>A <strong>theme map</strong> and a <strong>3D citation graph</strong> of the results and your seeds.</li>
-              <li>Open any paper to walk <strong>its citations</strong> among the results, with its full abstract.</li>
-              <li><strong>Add any result as a seed</strong> and run again to follow it further.</li>
-              <li>Import your <strong>Zotero, EndNote or PubMed</strong> export; export the results as RIS or CSV.</li>
-            </Feature>
+          <h2>Finds what keyword search misses.</h2>
+          <p className="lead">We gave it the first few papers of published systematic reviews and counted how many of the rest it found in its top 50.</p>
+          <div className="stat-row">
+            <div><b>7×</b><span>more than a PubMed search</span></div>
+            <div><b>2×</b><span>more than Google Scholar</span></div>
+            <div><b>0</b><span>invented citations</span></div>
           </div>
         </section>
 
         <section className="section">
           <h2>How it works</h2>
-          <p className="lead">Six steps in about two minutes, streamed to your screen as they happen.</p>
-          <ol className="steps">
-            <li><b><span className="n">1</span>Resolve</b>Seeds, typed in or imported from a reference manager, are found in PubMed, or in Europe PMC for preprints.</li>
-            <li><b><span className="n">2</span>Plan</b>The LLM turns the question and seeds into inclusion criteria and search queries.</li>
-            <li><b><span className="n">3</span>Collect</b>Seven channels gather candidates, the web agent among them. Each records where it came from.</li>
-            <li><b><span className="n">4</span>Rank</b>Embedding similarity to each seed and to the question, fused with citation signals.</li>
-            <li><b><span className="n">5</span>Judge</b>The strongest ~130 candidates are graded against the criteria, each with a verified quote.</li>
-            <li><b><span className="n">6</span>Explore</b>Trials and web context for the top results, a theme map and a citation graph.</li>
+          <p className="lead">Two to three minutes, and you watch each step as it happens.</p>
+          <ol className="how">
+            <Step n={1} band="sky" art={<SeedsArt />} title="Follow your seeds">
+              It follows their citations both ways and searches PubMed, preprints and the web. A web agent reads what
+              it finds and decides where to look next.
+            </Step>
+            <Step n={2} band="purple" art={<GradeArt />} title="See why each fits">
+              The LLM grades every strong candidate from 0 to 4, with a quote checked word for word against the
+              abstract. Your seeds are graded too, so you can see what counts as relevant.
+            </Step>
+            <Step n={3} band="orange" art={<MapArt />} title="Explore the field">
+              A theme map and a citation graph show how the results connect. Add any of them as a seed and search
+              again, or export them to Zotero, EndNote or a spreadsheet.
+            </Step>
           </ol>
         </section>
 
-        <section className="section">
-          <h2>One recorded run</h2>
-          <p className="lead">Real engine output, saved so it opens instantly. Open it to see every card, the map, the graph and the web agent's searches.</p>
-          <div className="run">
-            <p className="run-q">“{run?.question ?? "Which incretin-based drugs reduce body weight in adults with obesity?"}”
-              {" "}<span className="muted">with STEP 1 and SURMOUNT-1 as seeds</span></p>
-            <div className="metrics">
-              <div className="metric"><span>Candidates screened</span><b>{run?.stats.pool?.toLocaleString() ?? "667"}</b></div>
-              <div className="metric"><span>Graded by the LLM</span><b>{run?.stats.judged ?? 128}</b></div>
-              <div className="metric"><span>Top 10 graded 4 of 4</span><b>{run ? `${top10.filter((r) => r.grade === 4).length} / ${top10.length}` : "10 / 10"}</b></div>
-              <div className="metric"><span>End to end</span><b>{total} s</b></div>
-            </div>
-            {run && (
-              <ol className="top-list">
-                {run.results.slice(0, 3).map((r) => (
-                  <li key={r.id}>
-                    <span className="g">{r.grade ?? "–"} · {r.grade != null ? GRADES[r.grade] : "Unjudged"}</span>
-                    <div><Link to={`/recorded?paper=${encodeURIComponent(r.id)}`}>{r.title}</Link>
-                      <p className="why">{[r.venue, r.year].filter(Boolean).join(" · ")} · found {r.found_via.length} ways</p></div>
-                  </li>
-                ))}
-                {webOnly > 0 && <li><span /><p className="why">…and {webOnly} of the {run.results.length} were found only by the web search agent.</p></li>}
-              </ol>
-            )}
-            <div className="run-foot">
-              <span>{run?.recorded ? `Recorded on ${run.recorded}, with ${run.results.length} results.` : "Recorded with the current engine."}</span>
-              <Link className="btn utility" to="/recorded">Open the full run</Link>
-            </div>
-          </div>
-        </section>
+        {run && <RealSearch run={run} />}
 
         <footer className="foot">
-          <div className="foot-cols">
-            <div><h3>Sources</h3><ul><li>PubMed E-utilities</li><li>NIH iCite</li><li>Europe PMC</li><li>Tavily web search</li></ul></div>
-            <div><h3>Models</h3><ul><li>Qwen3-Embedding-8B for retrieval</li><li>NVIDIA Nemotron 3.5 Lightning as judge, planner and agent</li><li>Both on Nebius Token Factory</li></ul></div>
-            <div><h3>API</h3><ul><li><a href="/docs">Reference (/docs)</a></li><li><code>POST /discover/stream</code></li><li><code>POST /collection</code></li><li><code>GET /health</code></li></ul></div>
-            <div><h3>Run it</h3><ul><li><code>NEBIUS_API_KEY</code> is required</li><li><code>TAVILY_API_KEY</code> for the web agent</li><li><code>NCBI_API_KEY</code> for faster PubMed</li></ul></div>
-          </div>
+          <span>PubMed, iCite, Europe PMC and Tavily · Qwen3 and Nemotron on Nebius Token Factory</span>
+          <a href="/docs">API reference</a>
         </footer>
       </main>
     </>
   );
 }
 
-function Feature({ band, title, ask, art, cta, children }: {
-  band: string; title: string; ask: string; art: React.ReactNode; cta: React.ReactNode; children: React.ReactNode;
-}) {
+function Step({ n, band, art, title, children }: { n: number; band: string; art: ReactNode; title: string; children: ReactNode }) {
   return (
-    <article className="feature">
+    <li>
       <div className={`band ${band}`} aria-hidden="true">{art}</div>
-      <div className="feature-body">
-        <h3>{title}</h3>
-        <p className="ask">{ask}</p>
-        <ul>{children}</ul>
-        {cta}
+      <div className="how-body">
+        <h3><span className="n">{n}</span>{title}</h3>
+        <p>{children}</p>
       </div>
-    </article>
+    </li>
+  );
+}
+
+/** The recorded run in miniature: its question, its top three, and the way in. */
+function RealSearch({ run }: { run: Discovery }) {
+  const seconds = Math.round(Object.values(run.timings).reduce((a, b) => a + b, 0));
+  const facts = [plural(run.seeds.length, "seed"), run.stats.pool != null && `${run.stats.pool.toLocaleString()} screened`, `${seconds} s`];
+  return (
+    <section className="section">
+      <h2>A real search</h2>
+      <p className="lead">Recorded with the live engine, so it opens instantly and needs no API key.</p>
+      <div className="run">
+        <p className="run-q">“{run.question}”</p>
+        <ol className="top-list">
+          {run.results.slice(0, 3).map((r) => (
+            <li key={r.id}>
+              <span className="g">{r.grade ?? "–"} · {r.grade != null ? GRADES[r.grade] : "Unjudged"}</span>
+              <div><Link to={`/recorded?paper=${encodeURIComponent(r.id)}`}>{r.title}</Link>
+                <p className="top-meta">{[r.venue, r.year].filter(Boolean).join(" · ")}</p>
+                {r.quote && <p className="top-quote">“{r.quote}”</p>}</div>
+            </li>
+          ))}
+        </ol>
+        <div className="run-foot">
+          <span>{facts.filter(Boolean).join(" · ")}</span>
+          <Link className="btn utility" to="/recorded">See all {run.results.length} results</Link>
+        </div>
+      </div>
+    </section>
   );
 }
 

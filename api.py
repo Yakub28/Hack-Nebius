@@ -23,7 +23,7 @@ async def lifespan(_: FastAPI):
     await http.close()
 
 
-app = FastAPI(title="Paper discovery", lifespan=lifespan)
+app = FastAPI(title="Snowball", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
                    allow_methods=["*"], allow_headers=["*"])
 

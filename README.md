@@ -1,4 +1,4 @@
-# Paper discovery
+# Snowball
 
 Give it a research question and the papers you already trust. It returns new papers, ranked, each with where it was found, how it links to your seeds, and a verified quote showing why it is relevant.
 

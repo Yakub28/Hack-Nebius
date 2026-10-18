@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { NavLink, Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useSession } from "../lib/session";
+import { StarIcon } from "./Icons";
 
 export function BrandMark() {
   return (
@@ -41,9 +43,15 @@ function ThemeToggle() {
 
   function toggle() {
     const next = dark ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
     try { localStorage.setItem("pd:theme", JSON.stringify(next)); } catch { /* still switches */ }
-    setTheme(next);
+    // The icon must change inside the transition's snapshot too, hence flushSync.
+    const apply = () => {
+      document.documentElement.dataset.theme = next;
+      flushSync(() => setTheme(next));
+    };
+    // A cross-fade instead of a hard flash from light to dark, where the browser can (app.css).
+    if ("startViewTransition" in document) document.startViewTransition(apply);
+    else apply();
   }
 
   const label = dark ? "Switch to the light theme" : "Switch to the dark theme";
@@ -62,7 +70,18 @@ function ThemeToggle() {
 function RunPill() {
   const { run } = useSession();
   if (!run || run.status !== "running") return null;
-  return <Link to="/search" className="badge run-pill"><span className="pulse" />Searching…</Link>;
+  return <Link to="/search" className="badge run-pill" title="A search is running"><span className="pulse" /><span className="label-text">Searching…</span></Link>;
+}
+
+/** The shortlist's count rides along in the nav; on a phone the star stands in for the word. */
+function ShortlistLink() {
+  const { kept } = useSession();
+  const n = Object.keys(kept).length;
+  return (
+    <NavLink to="/shortlist" className="nav-shortlist" aria-label={n ? `Shortlist, ${n} kept` : "Shortlist"}>
+      <StarIcon filled={n > 0} /><span className="nav-word">Shortlist</span>{n > 0 && <span className="nav-count">{n}</span>}
+    </NavLink>
+  );
 }
 
 export function Nav() {
@@ -80,13 +99,14 @@ export function Nav() {
   return (
     <header className="nav" ref={bar}>
       <div className="nav-inner">
-        <Link className="brand" to="/" aria-label="TUMor, overview">
-          <BrandMark /><span>TUMor</span>
+        <Link className="brand" to="/" aria-label="Snowball, overview">
+          <BrandMark /><span>Snowball</span>
         </Link>
         <nav className="nav-links" aria-label="Sections">
           <NavLink to="/" end>Overview</NavLink>
           <NavLink to="/search">Search</NavLink>
           <NavLink to="/recorded">Recorded run</NavLink>
+          <ShortlistLink />
         </nav>
         <div className="nav-right">
           <RunPill />

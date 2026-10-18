@@ -1,4 +1,4 @@
-import type { Discovery, Result } from "../api/types";
+import type { Discovery, Paper, Result } from "../api/types";
 import { CHANNELS, GRADES, authors, foundByKeywords, firstLink, plural, refOf, shortAuthors, studyDesign } from "../lib/format";
 import { useSession } from "../lib/session";
 import { CheckIcon, ExternalIcon, PlusIcon, StarIcon, XIcon } from "./Icons";
@@ -36,8 +36,9 @@ export function useSeedAction() {
   };
 }
 
-/** Keep, set aside, use as a seed, open the source: the review actions, on cards and in the drawer. */
-export function PaperActions({ paper, labels = false }: { paper: Result; labels?: boolean }) {
+/** Keep, set aside, use as a seed, open the source: the review actions, on cards and in the drawer. The
+ *  shortlist leaves out "set aside": a paper there was already judged worth keeping. */
+export function PaperActions({ paper, labels = false, dismiss = true }: { paper: Result; labels?: boolean; dismiss?: boolean }) {
   const { kept, toggleKeep, dismissed, toggleDismiss, isSeed } = useSession();
   const seedAction = useSeedAction();
   const isKept = !!kept[paper.id];
@@ -50,10 +51,12 @@ export function PaperActions({ paper, labels = false }: { paper: Result; labels?
         title={isKept ? "In your shortlist (S to remove)" : "Keep in your shortlist (S)"}>
         <StarIcon filled={isKept} />{labels && (isKept ? "Kept" : "Keep")}
       </button>
-      <button type="button" className={`act${isOut ? " on out" : ""}`} aria-pressed={isOut} onClick={stop(() => toggleDismiss(paper.id))}
-        title={isOut ? "Set aside (X to restore)" : "Not relevant: set it aside (X)"}>
-        <XIcon />{labels && (isOut ? "Set aside" : "Not relevant")}
-      </button>
+      {dismiss && (
+        <button type="button" className={`act${isOut ? " on out" : ""}`} aria-pressed={isOut} onClick={stop(() => toggleDismiss(paper.id))}
+          title={isOut ? "Set aside (X to restore)" : "Not relevant: set it aside (X)"}>
+          <XIcon />{labels && (isOut ? "Set aside" : "Not relevant")}
+        </button>
+      )}
       <button type="button" className={`act seed${seeded ? " on" : ""}`} aria-pressed={seeded} disabled={seeded}
         onClick={stop(() => seedAction(paper))} title={seeded ? "Already a seed" : "Add as a seed, then run again to follow its citations (A)"}>
         {seeded ? <CheckIcon /> : <PlusIcon />}Seed
@@ -99,6 +102,12 @@ export function Facts({ r }: { r: Result }) {
   return facts.length ? <div className="facts">{facts.map((f) => <span key={f}>{f}</span>)}</div> : null;
 }
 
+/** The facts a reader screens a card on: first author, journal, year, study design, citations. */
+export function cardFacts(r: Paper): string[] {
+  return [shortAuthors(r.authors), r.venue, r.year, studyDesign(r.types), r.citations != null ? plural(r.citations, "citation") : ""]
+    .filter((f): f is string | number => !!f).map(String);
+}
+
 export function Meta({ r }: { r: Result }) {
   return (
     <div className="meta">
@@ -127,9 +136,8 @@ export function ResultCard({ r, data, live, selected, cursor, below, isNew, show
   const { dismissed } = useSession();
   const out = dismissed.has(r.id);
   const theme = themeName(data, r.theme);
-  const design = studyDesign(r.types);
   const beyond = beyondKeywords(r, data);
-  const facts =[shortAuthors(r.authors), r.venue, r.year, design, r.citations != null ? plural(r.citations, "citation") : ""].filter(Boolean);
+  const facts = cardFacts(r);
   const cls = ["card", below && "below", selected && "selected", cursor && "cursor", out && "out"].filter(Boolean).join(" ");
   return (
     // The whole card opens the paper, except its own links and buttons, and a drag that selected text to copy.

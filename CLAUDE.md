@@ -1,4 +1,4 @@
-# Paper discovery
+# Snowball
 
 A research question plus seed papers a researcher trusts → new biomedical papers, ranked, each with where it
 was found, how it links to the seeds, and a verified quote. Built for the Nebius *Healthcare / Life Sciences:

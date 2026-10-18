@@ -4,6 +4,9 @@ import type { Discovery, Result } from "../api/types";
 import { applyEvent, newRun, restoredRun, type LiveRun } from "./run";
 import { MAX_SEEDS, seedLines } from "./format";
 
+/** A paper on the shortlist, with the question it was kept for: its grade and reason answer that question. */
+export type Kept = Result & { kept_from?: string; kept_at?: number };
+
 export interface Form {
   question: string;
   seeds: string;
@@ -23,8 +26,8 @@ interface Session {
   interrupted: SearchRequest | null;
   dismissInterrupted: () => void;
   /** The researcher's shortlist, kept across searches, and the papers they set aside. */
-  kept: Record<string, Result>;
-  toggleKeep: (paper: Result) => void;
+  kept: Record<string, Kept>;
+  toggleKeep: (paper: Kept) => void;
   clearKept: () => void;
   dismissed: Set<string>;
   toggleDismiss: (id: string) => void;
@@ -61,7 +64,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [form, setFormState] = useState<Form>(loadForm);
   const [run, setRun] = useState<LiveRun | null>(loadRun);
   const [interrupted, setInterrupted] = useState<SearchRequest | null>(() => load("pd:pending", null));
-  const [kept, setKept] = useState<Record<string, Result>>(() => load("pd:kept", {}));
+  const [kept, setKept] = useState<Record<string, Kept>>(() => load("pd:kept", {}));
   const [dismissed, setDismissed] = useState<Set<string>>(() => new Set(load<string[]>("pd:dismissed", [])));
   const controller = useRef<AbortController | null>(null);
   const formRef = useRef(form);
@@ -126,9 +129,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return "added";
   }, [setForm]);
 
-  const toggleKeep = useCallback((paper: Result) => setKept((k) => {
+  // A paper put back from the shortlist page brings its own kept_from; one kept from results takes the search on screen.
+  const toggleKeep = useCallback((paper: Kept) => setKept((k) => {
     const next = { ...k };
-    if (next[paper.id]) delete next[paper.id]; else next[paper.id] = paper;
+    if (next[paper.id]) delete next[paper.id];
+    else next[paper.id] = { kept_from: shown.current?.question, kept_at: Date.now(), ...paper };
     return next;
   }), []);
   const clearKept = useCallback(() => setKept({}), []);

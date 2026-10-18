@@ -115,7 +115,7 @@ def _text(el: ET.Element | None) -> str:
 
 
 def _params(**params) -> dict:
-    params["tool"] = "tumor-discovery"
+    params["tool"] = "snowball"
     if key := os.getenv("NCBI_API_KEY"):
         params["api_key"] = key
     return params

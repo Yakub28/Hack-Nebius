@@ -1,14 +1,24 @@
+import { useLayoutEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Nav } from "./components/Nav";
 import { ToastProvider } from "./components/Toast";
 import { SessionProvider } from "./lib/session";
 import { Landing } from "./pages/Landing";
 import { Search } from "./pages/Search";
+import { Shortlist } from "./pages/Shortlist";
 
 /** Links to the old static pages (app.html, app.html?sample) keep working. */
 function LegacyApp() {
   const { search } = useLocation();
   return <Navigate to={new URLSearchParams(search).has("sample") ? "/recorded" : "/search"} replace />;
+}
+
+/** A new page opens at its top. BrowserRouter keeps the old scroll position, so "Open the full run" at the
+ *  foot of the overview would land halfway down the results. */
+function ScrollReset() {
+  const { pathname } = useLocation();
+  useLayoutEffect(() => window.scrollTo(0, 0), [pathname]);
+  return null;
 }
 
 function NotFound() {
@@ -26,11 +36,13 @@ export default function App() {
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ToastProvider>
         <SessionProvider>
+          <ScrollReset />
           <Nav />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/search" element={<Search />} />
             <Route path="/recorded" element={<Search recorded />} />
+            <Route path="/shortlist" element={<Shortlist />} />
             <Route path="/app.html" element={<LegacyApp />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
