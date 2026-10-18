@@ -1,5 +1,5 @@
 "use strict";
-// Paper Discovery UI: one POST /discover, rendered as ranked, traceable cards. No build step.
+// Paper Discovery UI: one POST /discover, rendered as ranked, traceable cards and a map. No build step.
 
 const CHANNELS = {
   similar: ["PubMed similar", "PubMed's own nearest neighbours of a seed"],
@@ -11,21 +11,23 @@ const CHANNELS = {
   web: ["Web (Tavily)", "Found by the web search agent, resolved to a PubMed or Europe PMC record"],
 };
 const GRADES = { 4: "Direct", 3: "High", 2: "Partial", 1: "Tangent", 0: "No" };
-// Rough per-stage durations (s) from typical runs; the API reports the real ones at the end.
+// Typical per-stage durations (s) from a recorded run; the API reports the real ones at the end.
 const STAGES = [
-  ["resolve", "Resolving seeds in PubMed", 2],
-  ["plan", "Planning criteria and queries", 6],
-  ["graph", "Mapping the seeds' citations", 5],
-  ["candidates", "Searching 7 channels, web agent included", 12],
-  ["hydrate", "Fetching records and metrics", 5],
-  ["first_stage", "Embedding and fusing signals", 5],
-  ["judge", "LLM grading candidates", 30],
-  ["context", "Web context and the results map", 5],
+  ["resolve", "Finding your seeds", 1],
+  ["plan", "Planning criteria and searches", 13],
+  ["graph", "Mapping the seeds' citations", 3],
+  ["candidates", "Searching seven channels and the web", 18],
+  ["hydrate", "Fetching records and citation metrics", 8],
+  ["first_stage", "Embedding and ranking", 11],
+  ["judge", "Grading the strongest candidates", 49],
+  ["context", "Web context and the map", 7],
 ];
 const EXAMPLE = {
   question: "Which incretin-based drugs reduce body weight in adults with obesity?",
   seeds: "33567185\nTirzepatide Once Weekly for the Treatment of Obesity",
 };
+const MAX_SEEDS = 30;
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 
 const state = {
   data: null, sample: false, channels: new Set(), themes: new Set(), controller: null,
@@ -49,11 +51,32 @@ function safeUrl(url) {
   return /^https?:\/\//i.test(url || "") ? url : "#";
 }
 
-function gradeClass(g) {
-  return g === 4 ? "g4" : g === 3 ? "g3" : g === 2 ? "g2" : "";
+// What the seed box takes for a paper: its most precise identifier.
+function refOf(p) {
+  return p.pmid || p.doi || p.title;
+}
+
+function plural(n, one, many = `${one}s`) {
+  return `${n} ${n === 1 ? one : many}`;
 }
 
 // --- form ---------------------------------------------------------------------
+
+function seedRefs() {
+  return $("seeds").value.split("\n").map((s) => s.trim()).filter(Boolean);
+}
+
+function updateSeedCount() {
+  const n = seedRefs().length;
+  const count = $("seed-count");
+  count.textContent = n ? `${n} of ${MAX_SEEDS}` : "";
+  count.classList.toggle("over", n > MAX_SEEDS);
+}
+
+function setSubmit(busy) {
+  $("submit").disabled = busy;
+  $("submit").textContent = busy ? "Searching…" : "Discover papers";
+}
 
 function restoreForm() {
   const last = store("pd:last");
@@ -63,10 +86,29 @@ function restoreForm() {
   if (last.limit) $("limit").value = String(last.limit);
 }
 
-$("example").addEventListener("click", () => {
+function fillExample() {
   $("question").value = EXAMPLE.question;
   $("seeds").value = EXAMPLE.seeds;
+  updateSeedCount();
+}
+
+$("example").addEventListener("click", () => {
+  fillExample();
   $("question").focus();
+});
+$("empty-example").addEventListener("click", () => {
+  fillExample();
+  $("submit").focus();
+  toast("Example filled in. Press Discover papers to run it.");
+});
+$("seeds").addEventListener("input", updateSeedCount);
+
+// ⌘/Ctrl + Enter submits from either box.
+$("search-form").addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    event.preventDefault();
+    $("search-form").requestSubmit();
+  }
 });
 
 $("sample").addEventListener("click", async () => {
@@ -74,9 +116,16 @@ $("sample").addEventListener("click", async () => {
   try {
     const resp = await fetch("sample.json");
     if (!resp.ok) throw new Error(`sample.json: HTTP ${resp.status}`);
-    show(await resp.json(), true);
+    const data = await resp.json();
+    // An empty form takes the recorded run's question and seeds, so "Add as seed" and a re-run just work.
+    if (!$("question").value.trim() && !seedRefs().length) {
+      $("question").value = data.question;
+      $("seeds").value = data.seeds.map(refOf).join("\n");
+      updateSeedCount();
+    }
+    show(data, true);
   } catch (err) {
-    showError(`Could not load the sample: ${err.message}`);
+    showError(`Could not load the recorded run: ${err.message}`);
   }
 });
 
@@ -119,19 +168,20 @@ async function importCollection(file) {
     });
     const payload = await resp.json().catch(() => null);
     if (!resp.ok) throw new Error(errorDetail(payload) || `HTTP ${resp.status}`);
-    const kept = payload.refs.slice(0, payload.max_seeds);
+    const max = payload.max_seeds || MAX_SEEDS;
+    const kept = payload.refs.slice(0, max);
     $("seeds").value = kept.join("\n");
-    const parts = [`Imported ${kept.length} paper${kept.length === 1 ? "" : "s"} from ${file.name} (${payload.format}).`];
+    updateSeedCount();
+    const parts = [`Imported ${plural(kept.length, "paper")} from ${file.name} (${payload.format}).`];
     if (payload.refs.length > kept.length) {
-      parts.push(`A search takes up to ${payload.max_seeds} seeds, so the first ${payload.max_seeds} of ${
-        payload.refs.length} are in the box; edit it to choose others.`);
+      parts.push(`A search takes up to ${max} seeds, so the first ${max} of ${payload.refs.length} are in the box; edit it to choose others.`);
     }
     if (payload.without_id) {
-      parts.push(`${payload.without_id} entr${payload.without_id === 1 ? "y has" : "ies have"} no PMID, DOI or title and ${
-        payload.without_id === 1 ? "was" : "were"} skipped.`);
+      parts.push(`${plural(payload.without_id, "entry", "entries")} without a PMID, DOI or title ${payload.without_id === 1 ? "was" : "were"} skipped.`);
     }
     note.textContent = parts.join(" ");
     note.hidden = false;
+    toast(`Imported ${plural(kept.length, "seed")} from ${file.name}`);
   } catch (err) {
     if (err instanceof TypeError) showError(`Could not reach the API at ${API_BASE || location.origin}. Is it running?`);
     else showError(`Could not import ${file.name}: ${err.message}`);
@@ -142,12 +192,17 @@ async function importCollection(file) {
 
 $("search-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (state.controller) return;
   const question = $("question").value.trim();
   const seedsText = $("seeds").value;
-  const seeds = seedsText.split("\n").map((s) => s.trim()).filter(Boolean);
+  const seeds = seedRefs();
   const limit = Number($("limit").value);
   if (question.length < 3 || !seeds.length) {
     showError("Enter a question and at least one seed paper.");
+    return;
+  }
+  if (seeds.length > MAX_SEEDS) {
+    showError(`A search takes up to ${MAX_SEEDS} seeds; there are ${seeds.length} in the box.`);
     return;
   }
   store("pd:last", { question, seeds: seedsText, limit });
@@ -160,8 +215,7 @@ async function run(body) {
   hideError();
   const controller = new AbortController();
   state.controller = controller;
-  $("submit").disabled = true;
-  $("submit").textContent = "Searching…";
+  setSubmit(true);
   const stopProgress = startProgress();
   try {
     const resp = await fetch(`${API_BASE}/discover`, {
@@ -172,6 +226,8 @@ async function run(body) {
     });
     const payload = await resp.json().catch(() => null);
     if (!resp.ok) throw new Error(errorDetail(payload) || `HTTP ${resp.status}`);
+    $("tab-sample").removeAttribute("aria-current");
+    $("tab-search").setAttribute("aria-current", "page");
     show(payload, false);
   } catch (err) {
     if (err.name === "AbortError") showError("Search cancelled.");
@@ -180,8 +236,7 @@ async function run(body) {
   } finally {
     stopProgress();
     state.controller = null;
-    $("submit").disabled = false;
-    $("submit").textContent = "Discover";
+    setSubmit(false);
   }
 }
 
@@ -196,6 +251,7 @@ function errorDetail(payload) {
 function showError(message) {
   $("error").textContent = message;
   $("error").hidden = false;
+  if ($("error").getBoundingClientRect().top < 64) $("error").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function hideError() {
@@ -211,9 +267,10 @@ function startProgress() {
   const started = performance.now();
   const ends = [];
   STAGES.reduce((total, stage) => { ends.push(total + stage[2]); return total + stage[2]; }, 0);
+  const typical = Math.round(ends[ends.length - 1] / 10) * 10;
   const tick = () => {
     const s = (performance.now() - started) / 1000;
-    $("elapsed").textContent = `${Math.floor(s)} s`;
+    $("elapsed").textContent = `${Math.floor(s)} s of about ${typical} s`;
     // The last stage stays active until the response arrives, however long it takes.
     const next = ends.findIndex((end) => s < end);
     const current = next === -1 ? STAGES.length - 1 : next;
@@ -241,9 +298,9 @@ function show(data, sample) {
   $("results").hidden = false;
   $("sample-banner").hidden = !sample;
   $("sample-banner").innerHTML = data.recorded
-    ? `<strong>Recorded run</strong> from ${esc(data.recorded)}: real engine output, saved so this page opens instantly
-      and without an API key. Run a search for live results.`
-    : `<strong>Sample data</strong>: placeholder grades and reasons, to preview the layout. Run a search for live results.`;
+    ? `<span class="badge">Recorded run</span><span>Real engine output from ${esc(data.recorded)}, saved so this page
+      opens instantly and without an API key. Add any result as a seed, or change the question, and run it live.</span>`
+    : `<span class="badge">Sample</span><span>Placeholder grades and reasons, to preview the layout.</span>`;
   $("filter-text").value = "";
   $("sort").value = "relevance";
   $("only-relevant").checked = false;
@@ -269,16 +326,16 @@ function renderContext(data) {
     </li>`).join("");
   $("cutoff-note").textContent = data.cutoff == null
     ? "The seeds could not be graded, so there is no relevance line for this search."
-    : `Your seeds graded ${data.cutoff} or higher under the same prompt. Results at or above ${data.cutoff} are marked "likely relevant".`;
+    : `Your seeds were graded under the same prompt; the weakest got ${data.cutoff}. Results at or above that are marked likely relevant.`;
   $("criteria").innerHTML = (data.criteria || []).map((c) => `<li>${esc(c)}</li>`).join("");
   const trail = data.web_trail || [];
   const groups = { pubmed_queries: "PubMed", preprint_queries: "Preprints" };
   if (!trail.length) groups.web_queries = "Web";
   $("queries").innerHTML = Object.entries(groups)
     .filter(([key]) => (data.queries || {})[key] && data.queries[key].length)
-    .map(([key, title]) => `<div class="qgroup"><h3>${title}</h3>${
+    .map(([key, title]) => `<div class="qgroup"><h3 class="eyebrow">${title}</h3>${
       data.queries[key].map((q) => `<code>${esc(q)}</code>`).join("")}</div>`).join("")
-    + trail.map((t) => `<div class="qgroup"><h3>Web agent · round ${t.round}</h3>${
+    + trail.map((t) => `<div class="qgroup"><h3 class="eyebrow">Web agent · round ${t.round}</h3>${
       t.searches.map((q) => `<code>${esc(q)}</code>`).join("")}${
       t.why ? `<p class="qwhy">${esc(t.why)}</p>` : ""}${
       t.searches.length ? `<p class="qwhy">${t.pages} pages read · ${t.papers} tied to a paper record</p>` : ""}</div>`).join("");
@@ -286,8 +343,7 @@ function renderContext(data) {
 
 function gradeChip(grade) {
   if (grade == null) return `<span class="chip">ungraded</span>`;
-  const cls = grade >= 3 ? "ok" : grade === 2 ? "warn" : "";
-  return `<span class="chip ${cls}">${grade} · ${GRADES[grade]}</span>`;
+  return `<span class="chip${grade >= 3 ? " ok" : ""}">${grade} · ${GRADES[grade]}</span>`;
 }
 
 function renderSummary(data) {
@@ -295,32 +351,30 @@ function renderSummary(data) {
   const relevant = results.filter((r) => r.likely_relevant).length;
   const stats = data.stats || {};
   const total = Object.values(data.timings || {}).reduce((a, b) => a + b, 0);
-  const pills = [
-    `<strong>${results.length}</strong> results`,
-    data.cutoff == null ? null : `<strong>${relevant}</strong> likely relevant`,
-    stats.pool == null ? null : `<strong>${stats.pool.toLocaleString()}</strong> candidates screened`,
-    stats.judged == null ? null : `<strong>${stats.judged}</strong> graded by LLM`,
-    total ? `<strong>${Math.round(total)} s</strong>` : null,
-  ].filter(Boolean);
-  $("summary").innerHTML = pills.map((p) => `<span class="pill">${p}</span>`).join("");
+  $("summary").innerHTML = [
+    `<b>${results.length}</b> results`,
+    data.cutoff == null ? null : `<b>${relevant}</b> likely relevant`,
+    stats.pool == null ? null : `<b>${stats.pool.toLocaleString()}</b> candidates screened`,
+    stats.judged == null ? null : `<b>${stats.judged}</b> graded by the LLM`,
+    total ? `<b>${Math.round(total)} s</b> end to end` : null,
+  ].filter(Boolean).map((p) => `<span>${p}</span>`).join("");
 }
 
 function renderWarnings(warnings) {
   const box = $("warnings");
   box.hidden = !warnings.length;
   if (!warnings.length) return;
-  box.querySelector("summary").textContent =
-    `${warnings.length} warning${warnings.length > 1 ? "s" : ""}: some sources were incomplete`;
+  box.querySelector("summary").textContent = `${plural(warnings.length, "warning")}: some sources were incomplete`;
   box.querySelector("ul").innerHTML = warnings.map((w) => `<li>${esc(w)}</li>`).join("");
 }
 
 function renderChannelFilter(results) {
   const counts = {};
   results.forEach((r) => r.channels.forEach((c) => { counts[c] = (counts[c] || 0) + 1; }));
-  $("channel-filter").innerHTML = `<span class="row-label">Found via</span>` + Object.keys(CHANNELS)
+  $("channel-filter").innerHTML = `<span class="row-label eyebrow">Found via</span><div class="pills">${Object.keys(CHANNELS)
     .filter((c) => counts[c])
     .map((c) => `<button type="button" data-channel="${c}" aria-pressed="false" title="${esc(CHANNELS[c][1])}">${
-      esc(CHANNELS[c][0])}<span class="n">${counts[c]}</span></button>`).join("");
+      esc(CHANNELS[c][0])}<span class="n">${counts[c]}</span></button>`).join("")}</div>`;
 }
 
 function themeDot(id) {
@@ -335,9 +389,9 @@ function themeName(id) {
 function renderThemeFilter(data) {
   const themes = (data.map && data.map.themes) || [];
   $("theme-filter").hidden = !themes.length;
-  $("theme-filter").innerHTML = `<span class="row-label">Themes</span>` + themes.map((t) =>
-    `<button type="button" data-theme="${t.id}" aria-pressed="false" title="Named by ${esc(t.named_by)}">${
-      themeDot(t.id)}${esc(t.name)}<span class="n">${t.size}</span></button>`).join("");
+  $("theme-filter").innerHTML = `<span class="row-label eyebrow">Themes</span><div class="pills">${themes.map((t) =>
+    `<button type="button" data-theme="${t.id}" aria-pressed="false" title="Named by ${esc(t.named_by === "llm" ? "the LLM" : t.named_by)}">${
+      themeDot(t.id)}${esc(t.name)}<span class="n">${t.size}</span></button>`).join("")}</div>`;
 }
 
 $("theme-filter").addEventListener("click", (event) => {
@@ -359,17 +413,60 @@ $("channel-filter").addEventListener("click", (event) => {
   button.setAttribute("aria-pressed", String(on));
   render();
 });
-function togglePanel(event) {
+
+function clearFilters() {
+  $("filter-text").value = "";
+  $("only-relevant").checked = false;
+  state.channels.clear();
+  state.themes.clear();
+  document.querySelectorAll(".chip-filter button[aria-pressed]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  render();
+}
+
+// Card interactions, in the list and in the map's detail card.
+function onCardClick(event) {
+  if (event.target.closest("#clear-filters")) {
+    clearFilters();
+    return;
+  }
+  const seed = event.target.closest("button.seed-btn");
+  if (seed) {
+    addSeed(seed);
+    return;
+  }
   const button = event.target.closest("button.toggle");
   if (!button) return;
   const panel = button.closest(".card").querySelector(`.panel-${button.dataset.panel}`);
   panel.hidden = !panel.hidden;
   button.setAttribute("aria-expanded", String(!panel.hidden));
 }
-$("cards").addEventListener("click", togglePanel);
-$("map-detail").addEventListener("click", togglePanel);
+$("cards").addEventListener("click", onCardClick);
+$("map-detail").addEventListener("click", onCardClick);
 ["filter-text", "sort", "only-relevant"].forEach((id) =>
   $(id).addEventListener(id === "filter-text" ? "input" : "change", render));
+
+// The human-review loop: a result you trust becomes a seed for the next run.
+function addSeed(button) {
+  const ref = button.dataset.ref;
+  const refs = seedRefs();
+  if (refs.some((x) => x.toLowerCase() === ref.toLowerCase())) {
+    toast("That paper is already a seed.");
+    return;
+  }
+  if (refs.length >= MAX_SEEDS) {
+    toast(`The seed box is full (${MAX_SEEDS}). Remove one to add another.`);
+    return;
+  }
+  $("seeds").value = [...refs, ref].join("\n");
+  updateSeedCount();
+  document.querySelectorAll(`button.seed-btn[data-ref="${CSS.escape(ref)}"]`).forEach(markSeeded);
+  toast(`Added as seed ${refs.length + 1}. Run the search again to follow its citations too.`);
+}
+
+function markSeeded(button) {
+  button.setAttribute("aria-pressed", "true");
+  button.textContent = "✓ Seed";
+}
 
 function visibleResults() {
   if (!state.data) return [];
@@ -393,9 +490,11 @@ function renderCards() {
   const list = visibleResults();
   const cards = $("cards");
   if (!list.length) {
-    cards.innerHTML = `<li class="none">No results match these filters.</li>`;
+    cards.innerHTML = `<li class="none">No results match these filters.
+      <button type="button" class="link" id="clear-filters">Clear filters</button></li>`;
     return;
   }
+  const seeded = new Set(seedRefs().map((x) => x.toLowerCase()));
   const byRelevance = $("sort").value === "relevance" && data.cutoff != null;
   const parts = [];
   let lineDrawn = false;
@@ -404,51 +503,58 @@ function renderCards() {
       lineDrawn = true;
       parts.push(`<li class="cutline">${i === 0
         ? "No result reached your seeds' grade"
-        : `Below: graded lower than your weakest seed (${data.cutoff})`}</li>`);
+        : `Below this line: graded lower than your weakest seed (${data.cutoff})`}</li>`);
     }
-    parts.push(card(r, data));
+    parts.push(card(r, data, seeded));
   });
   cards.innerHTML = parts.join("");
 }
 
-function card(r, data) {
+function card(r, data, seeded = new Set(seedRefs().map((x) => x.toLowerCase()))) {
   const g = r.grade;
   const sources = r.sources || [];
-  const relevantLabel = r.likely_relevant ? `<span class="chip ok">Likely relevant</span>` : "";
-  const seedLinks = [
-    r.cites_seeds.length ? `<span class="chip accent"><span class="k">cites</span> ${r.cites_seeds.join(", ")}</span>` : "",
-    r.cited_by_seeds.length ? `<span class="chip accent"><span class="k">cited by</span> ${r.cited_by_seeds.join(", ")}</span>` : "",
+  const ref = refOf(r);
+  const isSeed = seeded.has(String(ref).toLowerCase());
+  const tags = [
+    r.likely_relevant ? `<span class="chip ok" title="Graded at least as high as your weakest seed">✓ Likely relevant</span>` : "",
+    r.preprint ? `<span class="chip warn" title="Not peer reviewed">Preprint</span>` : "",
+    r.theme != null && themeName(r.theme) ? `<span class="chip" title="Theme on the map">${themeDot(r.theme)}${esc(themeName(r.theme))}</span>` : "",
+    r.cites_seeds.length ? `<span class="chip accent"><span class="k">cites</span> <b>${r.cites_seeds.join(", ")}</b></span>` : "",
+    r.cited_by_seeds.length ? `<span class="chip accent"><span class="k">cited by</span> <b>${r.cited_by_seeds.join(", ")}</b></span>` : "",
     r.nearest_seed ? `<span class="chip" title="Cosine similarity of the embeddings"><span class="k">closest to</span> ${
       esc(r.nearest_seed.label)} · ${r.nearest_seed.similarity.toFixed(2)}</span>` : "",
   ].join("");
-  const channels = r.channels.map((c) =>
-    `<span class="chip" title="${esc((CHANNELS[c] || [c, ""])[1])}">${esc((CHANNELS[c] || [c])[0])}</span>`).join("");
   const facts = [
-    r.preprint ? `<span class="chip warn">Preprint</span>` : "",
-    ...(r.types || []).filter((t) => t !== "Journal Article").slice(0, 2).map((t) => `<span class="chip">${esc(t)}</span>`),
-    r.citations != null ? `<span class="chip"><span class="k">citations</span> ${r.citations}</span>` : "",
-    r.rcr != null ? `<span class="chip" title="NIH Relative Citation Ratio: 1.0 is the field average"><span class="k">RCR</span> ${r.rcr.toFixed(1)}</span>` : "",
-    ...sources.filter((x) => x.via === "abstract").map((x) =>
-      `<span class="chip" title="Trial registration quoted in the abstract"><span class="k">trial</span> ${esc(x.title)}</span>`),
-  ].join("");
+    ...(r.types || []).filter((t) => t !== "Journal Article").slice(0, 2).map(esc),
+    r.citations != null ? plural(r.citations, "citation") : "",
+    r.rcr != null ? `<abbr title="NIH Relative Citation Ratio: 1.0 is the field average">RCR</abbr> ${r.rcr.toFixed(1)}` : "",
+    ...sources.filter((x) => x.via === "abstract").map((x) => `Trial ${esc(x.title)}`),
+  ].filter(Boolean).map((f) => `<span>${f}</span>`).join("");
   const links = Object.entries(r.links || {}).map(([name, url]) =>
     `<a href="${esc(url)}" target="_blank" rel="noopener">${esc({ pubmed: "PubMed", doi: "DOI", europepmc: "Europe PMC" }[name] || name)}</a>`).join("");
   const s = r.scores || {};
   const meta = [authors(r.authors), r.venue ? `<span class="venue">${esc(r.venue)}</span>` : "", r.year || ""]
     .filter(Boolean).map((x, i) => (i === 1 ? x : esc(x))).join(" · ");
+  const meter = [1, 2, 3, 4].map((n) => `<i${g != null && n <= g ? ` class="on"` : ""}></i>`).join("");
+  const channels = r.channels.map((c) => esc((CHANNELS[c] || [c])[0])).join(", ");
 
   return `<li class="card${data.cutoff != null && !r.likely_relevant ? " below" : ""}">
-    <div class="grade ${gradeClass(g)}" title="${g == null ? "Not graded: ranked by retrieval signals only" : `LLM grade ${g} of 4`}">
-      <b>${g == null ? "–" : g}</b><small>${g == null ? "unjudged" : GRADES[g]}</small>
+    <div class="grade" title="${g == null ? "Not graded: ranked by retrieval signals only" : `LLM grade ${g} of 4`}">
+      <b>${g == null ? "–" : g}</b><span class="meter" aria-hidden="true">${meter}</span><small>${g == null ? "Unjudged" : GRADES[g]}</small>
     </div>
     <div>
-      <h3><a href="${esc(firstLink(r))}" target="_blank" rel="noopener">${esc(r.title)}</a></h3>
-      <div class="meta">${meta}</div>
+      <div class="card-head">
+        <div>
+          <h3><a href="${esc(firstLink(r))}" target="_blank" rel="noopener">${esc(r.title)}</a></h3>
+          <div class="meta">${meta}</div>
+        </div>
+        <button type="button" class="btn utility sm seed-btn" data-ref="${esc(ref)}" aria-pressed="${isSeed}"
+          title="Add this paper to the seed box, then run again to follow its citations">${isSeed ? "✓ Seed" : "+ Add as seed"}</button>
+      </div>
       ${r.reason ? `<p class="reason">${esc(r.reason)}</p>` : ""}
       ${r.quote ? `<blockquote class="quote">“${esc(r.quote)}”<span class="tag">✓ Verbatim from the abstract</span></blockquote>` : ""}
-      <div class="chips">${relevantLabel}${r.theme != null && themeName(r.theme)
-        ? `<span class="chip" title="Theme on the map">${themeDot(r.theme)}${esc(themeName(r.theme))}</span>` : ""}${seedLinks}${facts}</div>
-      <div class="chips">${channels}</div>
+      ${tags ? `<div class="chips">${tags}</div>` : ""}
+      ${facts ? `<div class="facts">${facts}</div>` : ""}
       <div class="card-foot">
         <div class="links">${links}</div>
         <button type="button" class="toggle" data-panel="why" aria-expanded="false">Why it was found</button>
@@ -458,6 +564,7 @@ function card(r, data) {
       <div class="panel-why" hidden>
         <ul class="why">${r.found_via.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
         <div class="scores">
+          <span class="chip"><span class="k">channels</span> ${channels}</span>
           <span class="chip"><span class="k">fused</span> ${(s.fused ?? 0).toFixed(4)}</span>
           <span class="chip"><span class="k">seed sim</span> ${(s.seed_similarity ?? 0).toFixed(2)}</span>
           <span class="chip"><span class="k">question sim</span> ${(s.question_similarity ?? 0).toFixed(2)}</span>
@@ -492,7 +599,7 @@ function setView(view) {
     b.setAttribute("aria-pressed", String(b.dataset.view === view));
     if (b.dataset.view === "map") {
       b.disabled = !hasMap;
-      b.title = hasMap ? "" : "Too few results for a map";
+      b.title = hasMap ? "Themes, similarity and citations at a glance" : "Too few results for a map";
     }
   });
   $("map").hidden = view !== "map";
@@ -528,18 +635,19 @@ function renderMap() {
     return `<line class="edge${focus ? " focus" : ""}" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
   }).join("");
 
+  // Each theme is named just above its topmost paper: the centre of a cluster is where its dots are densest.
   const labels = (map.themes || []).map((t) => {
     const members = visible.filter((r) => r.theme === t.id).map((r) => at(r.id));
     if (!members.length) return "";
     const x = members.reduce((sum, p) => sum + p[0], 0) / members.length;
-    const y = members.reduce((sum, p) => sum + p[1], 0) / members.length;
-    return `<text class="theme-label" x="${x.toFixed(1)}" y="${(y - 14).toFixed(1)}" text-anchor="middle" style="fill: var(--t${t.id})">${esc(t.name)}</text>`;
+    const y = Math.min(...members.map((p) => p[1])) - 18;
+    return `<text class="theme-label" x="${Math.min(Math.max(x, 90), MAP_W - 90).toFixed(1)}" y="${Math.max(y, 16).toFixed(1)}" text-anchor="middle">${esc(t.name)}</text>`;
   }).join("");
 
   const nodes = visible.map((r) => {
     const [x, y] = at(r.id);
     const radius = 4.5 + 1.8 * (r.grade ?? 0);
-    const fill = r.theme == null ? "var(--g1)" : `var(--t${r.theme})`;
+    const fill = r.theme == null ? "var(--faint)" : `var(--t${r.theme})`;
     const below = data.cutoff != null && !r.likely_relevant;
     const grade = r.grade == null ? "not graded" : `grade ${r.grade} · ${GRADES[r.grade]}`;
     return `<circle class="node${below ? " below" : ""}${r.id === state.selected ? " selected" : ""}" data-id="${esc(r.id)}"
@@ -556,9 +664,9 @@ function renderMap() {
   $("map-svg").innerHTML = `<g>${edges}</g><g>${nodes}</g><g>${seeds}</g><g>${labels}</g>`;
   const namedBy = ((map.themes || [])[0] || {}).named_by;
   $("map-caption").textContent = [
-    "Nearby papers have similar content (2D projection of the Qwen3 embeddings).",
+    "Nearby papers have similar content (a 2D projection of the Qwen3 embeddings).",
     namedBy ? `Colour is the theme, named by ${namedBy === "llm" ? "the LLM from the titles" : "the most distinctive title words"}.` : "",
-    "Size is the LLM grade, faded dots are below your seeds' grade, ◆ are your seeds, lines are citations of them.",
+    "Size is the LLM grade, faded dots are below your seeds' grade, ◆ are your seeds, and lines are citations of them.",
     visible.length ? "Click a paper to see its card and all its citations." : "No results match these filters.",
   ].filter(Boolean).join(" ");
   renderMapDetail();
@@ -597,7 +705,8 @@ function download(name, text, type) {
 }
 
 $("export-ris").addEventListener("click", () => {
-  const records = visibleResults().map((r) => [
+  const list = visibleResults();
+  const records = list.map((r) => [
     `TY  - ${r.preprint ? "UNPB" : "JOUR"}`,
     `TI  - ${r.title}`,
     ...r.authors.map((a) => `AU  - ${a}`),
@@ -611,24 +720,30 @@ $("export-ris").addEventListener("click", () => {
     "ER  - ",
   ].filter(Boolean).join("\r\n"));
   download("papers.ris", records.join("\r\n\r\n") + "\r\n", "application/x-research-info-systems");
+  toast(`Exported ${plural(list.length, "paper")} as RIS, ready for Zotero, EndNote or Mendeley.`);
 });
 
 $("export-csv").addEventListener("click", () => {
+  const list = visibleResults();
   const cols = ["rank", "grade", "likely_relevant", "title", "year", "venue", "authors", "doi", "pmid",
-    "citations", "channels", "reason", "quote", "url"];
+    "citations", "channels", "theme", "reason", "quote", "url"];
   const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const rows = visibleResults().map((r, i) => [i + 1, r.grade, r.likely_relevant, r.title, r.year, r.venue,
-    r.authors.join("; "), r.doi, r.pmid, r.citations, r.channels.join("; "), r.reason, r.quote, firstLink(r)]
-    .map(cell).join(","));
+  const rows = list.map((r, i) => [i + 1, r.grade, r.likely_relevant, r.title, r.year, r.venue,
+    r.authors.join("; "), r.doi, r.pmid, r.citations, r.channels.join("; "), r.theme != null ? themeName(r.theme) : "",
+    r.reason, r.quote, firstLink(r)].map(cell).join(","));
   download("papers.csv", [cols.join(","), ...rows].join("\r\n"), "text/csv");
+  toast(`Exported ${plural(list.length, "paper")} as CSV.`);
 });
 
 // --- start --------------------------------------------------------------------
 
 $("legend").innerHTML = Object.values(CHANNELS)
   .map(([name, desc]) => `<span class="chip" title="${esc(desc)}">${esc(name)}</span>`).join("");
+setSubmit(false);
+$("run-hint").innerHTML = `<kbd>${IS_MAC ? "⌘" : "Ctrl"}</kbd> <kbd>Enter</kbd> to run · 1–2 minutes`;
 restoreForm();
-// ?sample opens straight into the sample results: a fallback link for demos.
+updateSeedCount();
+// ?sample opens straight into the recorded run: a fallback link for demos.
 if (new URLSearchParams(location.search).has("sample")) {
   $("tab-search").removeAttribute("aria-current");
   $("tab-sample").setAttribute("aria-current", "page");

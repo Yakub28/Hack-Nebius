@@ -5,97 +5,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Paper Discovery</title>
   <meta name="description" content="Give a research question and the papers you trust; get new papers, ranked, each with provenance and a verified quote.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='13' cy='13' r='8' fill='none' stroke='%235b8cff' stroke-width='3.5'/><path d='M19 19l8 8' stroke='%235b8cff' stroke-width='3.5' stroke-linecap='round'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23191919'/><path d='M10 21L16 10L23 19' stroke='white' stroke-opacity='.55' stroke-width='2'/><circle cx='10' cy='21' r='3.2' fill='white'/><circle cx='16' cy='10' r='3.2' fill='white'/><circle cx='23' cy='19' r='3.2' fill='%2362aef0'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400..800;1,400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="app.css">
   <script src="config.js"></script>
 </head>
 <body>
-  <div class="page">
-    <header class="hero">
-      <div class="hero-text">
-        <h1>Paper Discovery</h1>
-        <p>Start from the papers you trust. Get new ones, ranked, each with where it was found and a quote that shows why.</p>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="./" aria-label="Paper Discovery, overview">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M10 21L16 10L23 19" stroke="var(--surface)" stroke-opacity=".55" stroke-width="2" fill="none"/><circle cx="10" cy="21" r="3.2" fill="var(--surface)"/><circle cx="16" cy="10" r="3.2" fill="var(--surface)"/><circle cx="23" cy="19" r="3.2" fill="#62aef0"/></svg>
+        <span>Paper Discovery</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="./" aria-current="page">Overview</a>
+        <a href="app.html">Search</a>
+        <a href="app.html?sample">Recorded run</a>
+      </nav>
+      <div class="nav-right">
+        <span class="badge status" id="api-status"><span class="dot"></span><span class="label-text">Checking API…</span></span>
+        <button type="button" class="icon-btn" id="theme-toggle" aria-label="Switch colour theme"></button>
       </div>
-      <div class="hero-side">
-        <button type="button" class="btn ghost theme" id="theme-toggle" aria-label="Toggle colour theme">Theme</button>
-      </div>
-    </header>
-    <div class="meta-row">
-      <span class="pill">PubMed · Europe PMC · preprints · web</span>
-      <span class="pill" title="Embeddings: Qwen3-Embedding-8B · Judge: Qwen3-235B-A22B-Instruct">Nebius Token Factory</span>
-      <span class="pill" id="api-status"><span class="dot"></span><span>Checking API…</span></span>
     </div>
-    <nav class="tabs" aria-label="Sections">
-      <a href="./" aria-current="page">Overview</a>
-      <a href="app.html">Search</a>
-      <a href="app.html?sample">Sample results</a>
-    </nav>
+  </header>
 
-    <main class="overview">
-      <p class="intro">Every result is a real <strong>PubMed</strong> or <strong>Europe PMC</strong> record, found by
-        following your seed papers' citations and by searching for what they describe. Nothing comes from the
-        model's memory. Two things turn that into a list you can use:</p>
-
-      <section class="tools" aria-label="What it does">
-        <article class="tool">
-          <h3>Find what your seeds point to</h3>
-          <p class="ask">Which papers belong next to the ones I already trust?</p>
-          <ul>
-            <li>Follows the seeds' <strong>citations both ways</strong>, plus papers co-cited with them.</li>
-            <li>PubMed's own <strong>similar articles</strong> for every seed.</li>
-            <li><strong>LLM-written PubMed searches</strong>: one per seed, plus the facets of your question.</li>
-            <li>Preprint servers, and a <strong>web search agent</strong> (Tavily) that reads what it finds and
-              chooses its next searches, for <strong>work too new to be cited yet</strong>.</li>
-          </ul>
-          <p class="go">→ Open <a href="app.html">Search</a></p>
-        </article>
-        <article class="tool">
-          <h3>See why each paper is there</h3>
-          <p class="ask">Can I trust a result without reading the whole paper?</p>
-          <ul>
-            <li>An LLM <strong>grades every strong candidate 0–4</strong> against criteria drawn from your question.</li>
-            <li>Your seeds are graded too, which draws a <strong>relevance line</strong>: above it, as relevant as your seeds.</li>
-            <li>Each result quotes its abstract, and the quote is <strong>checked word for word</strong>. Quotes that fail are dropped.</li>
-            <li>Every link to a seed is <strong>a citation or a similarity score</strong> you can check.</li>
-            <li>A <strong>map</strong> groups the results into themes and draws their citations, and the strongest
-              results come with <strong>web context</strong>: trial registrations, commentary, news.</li>
-          </ul>
-          <p class="go">→ Open <a href="app.html?sample">Sample results</a></p>
-        </article>
-      </section>
-
-      <h2>How it works</h2>
-      <ol class="steps">
-        <li><b><span class="n">1</span>Resolve</b>Seeds typed in or imported from a reference manager are found in PubMed, or in Europe PMC for preprints.</li>
-        <li><b><span class="n">2</span>Plan</b>The LLM turns the question and seeds into inclusion criteria and search queries.</li>
-        <li><b><span class="n">3</span>Collect</b>Seven channels gather candidates. Each one records where it came from.</li>
-        <li><b><span class="n">4</span>Rank</b>Embedding similarity to each seed and to the question, fused with citation signals.</li>
-        <li><b><span class="n">5</span>Judge</b>Up to ~180 of the strongest candidates are graded against the criteria, with evidence.</li>
-      </ol>
-
-      <h2>One live run</h2>
-      <p class="run-q">“Which incretin-based drugs reduce body weight in adults with obesity?”, with STEP 1 and
-        SURMOUNT-1 as seeds.</p>
-      <div class="metrics">
-        <div class="metric"><span>Candidates screened</span><b>619</b></div>
-        <div class="metric"><span>Graded by the LLM</span><b>128</b></div>
-        <div class="metric"><span>Top 10 graded 4 of 4</span><b>10 / 10</b></div>
-        <div class="metric"><span>End to end</span><b>66 s</b></div>
+  <section class="hero-band">
+    <div class="hero-inner">
+      <div>
+        <span class="badge">Biomedical literature · Nebius Token Factory</span>
+        <h1>Start from the papers you trust.</h1>
+        <p>Give a research question and a few seed papers. Paper Discovery follows their citations, searches PubMed,
+          preprints and the web, and returns new papers, ranked, each with where it was found and a quote that shows why.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="app.html">Start a search</a>
+          <a class="btn secondary" href="app.html?sample">See a recorded run</a>
+        </div>
       </div>
-      <p class="note">The top results included STEP 3–5, SURMOUNT-3 and -4, the retatrutide phase 2 trial, and a
-        meta-analysis that only the web search found.</p>
+      <svg class="constellation" viewBox="0 0 460 340" role="img" aria-label="Two seed papers connected to the new papers they lead to">
+        <g fill="#fff" opacity=".35">
+          <circle cx="24" cy="30" r="1.4"/><circle cx="440" cy="22" r="1.2"/><circle cx="300" cy="18" r="1"/>
+          <circle cx="446" cy="300" r="1.4"/><circle cx="20" cy="310" r="1.1"/><circle cx="160" cy="320" r="1"/>
+          <circle cx="130" cy="20" r="1.2"/><circle cx="452" cy="120" r="1"/>
+        </g>
+        <g stroke="#fff" stroke-opacity=".28" stroke-width="1.4" fill="none">
+          <path d="M150 170L80 90M150 170L110 250M150 170L230 230M150 170L60 180M150 170L190 130"/>
+          <path d="M300 120L210 60M300 120L230 230M300 120L360 220M300 120L390 70M300 120L420 160"/>
+          <path d="M230 230L250 300M360 220L330 300M80 90L210 60"/>
+          <path d="M150 170L300 120" stroke-dasharray="4 5" stroke-opacity=".5"/>
+        </g>
+        <g>
+          <circle cx="80" cy="90" r="10" fill="#2a9d99"/><circle cx="110" cy="250" r="12" fill="#dd5b00"/>
+          <circle cx="210" cy="60" r="8" fill="#62aef0"/><circle cx="230" cy="230" r="12" fill="#ff64c8"/>
+          <circle cx="360" cy="220" r="10" fill="#1aae39"/><circle cx="390" cy="70" r="8" fill="#d6b6f6"/>
+          <circle cx="250" cy="300" r="6" fill="#2a9d99"/><circle cx="60" cy="180" r="6" fill="#62aef0"/>
+          <circle cx="330" cy="300" r="7" fill="#dd5b00"/><circle cx="420" cy="160" r="7" fill="#ff64c8"/>
+          <circle cx="190" cy="130" r="5" fill="#1aae39"/>
+        </g>
+        <g fill="#fff">
+          <path d="M150 156L164 170L150 184L136 170Z"/><path d="M300 106L314 120L300 134L286 120Z"/>
+        </g>
+        <g fill="#fff" font-family="Inter, sans-serif" font-size="13" font-weight="700">
+          <text x="168" y="190">S1</text><text x="318" y="112">S2</text>
+        </g>
+      </svg>
+    </div>
+  </section>
 
-      <footer class="foot">
-        Runs on Nebius Token Factory (Qwen3-Embedding-8B for retrieval, Qwen3-235B as the judge) and Tavily web
-        search. The server needs <code>NEBIUS_API_KEY</code>; <code>TAVILY_API_KEY</code> switches on web search
-        and <code>NCBI_API_KEY</code> makes PubMed faster. API reference at
-        <a href="docs">/docs</a>.
-      </footer>
-    </main>
-  </div>
+  <main class="page">
+    <section class="section">
+      <h2>Every result is a real record, and shows its work.</h2>
+      <p class="lead">Each paper comes from PubMed or Europe PMC, found by following your seeds' citations and by
+        searching for what they describe. Nothing comes from the model's memory.</p>
+      <div class="features">
+        <article class="feature">
+          <div class="band sky" aria-hidden="true">
+            <svg viewBox="0 0 150 84"><g stroke="var(--ink)" stroke-opacity=".25" stroke-width="1.5" fill="none"><path d="M45 44L20 20M45 44L28 70M45 44L80 58M105 34L80 58M105 34L130 18M105 34L128 64M45 44L105 34"/></g>
+              <circle cx="20" cy="20" r="6" fill="#2a9d99"/><circle cx="28" cy="70" r="7" fill="#62aef0"/><circle cx="80" cy="58" r="8" fill="#dd5b00"/>
+              <circle cx="130" cy="18" r="5" fill="#1aae39"/><circle cx="128" cy="64" r="6" fill="#ff64c8"/>
+              <path d="M45 35L54 44L45 53L36 44Z M105 25L114 34L105 43L96 34Z" fill="var(--ink)"/></svg>
+          </div>
+          <div class="feature-body">
+            <h3>Find what your seeds point to</h3>
+            <p class="ask">Which papers belong next to the ones I already trust?</p>
+            <ul>
+              <li>Follows the seeds' <strong>citations both ways</strong>, plus papers co-cited with them.</li>
+              <li>PubMed's own <strong>similar articles</strong> for every seed.</li>
+              <li><strong>LLM-written PubMed searches</strong>: one per seed, plus the facets of your question.</li>
+              <li>Preprints, and a <strong>web search agent</strong> that reads what it finds and picks its next searches.</li>
+            </ul>
+            <a class="go" href="app.html">Start a search →</a>
+          </div>
+        </article>
+        <article class="feature">
+          <div class="band purple" aria-hidden="true">
+            <svg viewBox="0 0 150 84"><rect x="12" y="16" width="34" height="40" rx="6" fill="var(--surface)"/>
+              <text x="29" y="40" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" font-weight="700" fill="var(--ink)">4</text>
+              <g fill="var(--ink)"><rect x="18" y="46" width="5" height="2" rx="1"/><rect x="24.5" y="46" width="5" height="2" rx="1"/><rect x="31" y="46" width="5" height="2" rx="1"/><rect x="37.5" y="46" width="5" height="2" rx="1"/></g>
+              <rect x="56" y="18" width="3" height="34" rx="1.5" fill="var(--ink)"/>
+              <g fill="var(--ink)" opacity=".35"><rect x="66" y="20" width="72" height="5" rx="2.5"/><rect x="66" y="31" width="64" height="5" rx="2.5"/><rect x="66" y="42" width="48" height="5" rx="2.5"/></g>
+              <circle cx="72" cy="66" r="6" fill="#1aae39"/><path d="M69.3 66.2l1.8 1.8 3.6-3.8" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+              <rect x="82" y="63.5" width="50" height="5" rx="2.5" fill="#1aae39" opacity=".5"/></svg>
+          </div>
+          <div class="feature-body">
+            <h3>See why each paper is there</h3>
+            <p class="ask">Can I trust a result without reading the whole paper?</p>
+            <ul>
+              <li>An LLM <strong>grades every strong candidate 0–4</strong> against criteria drawn from your question.</li>
+              <li>Your seeds are graded too, which draws a <strong>relevance line</strong>: above it, as relevant as your seeds.</li>
+              <li>Each result quotes its abstract, and the quote is <strong>checked word for word</strong>.</li>
+              <li>Every link to a seed is <strong>a citation or a similarity score</strong> you can check.</li>
+            </ul>
+            <a class="go" href="app.html?sample">See a recorded run →</a>
+          </div>
+        </article>
+        <article class="feature">
+          <div class="band orange" aria-hidden="true">
+            <svg viewBox="0 0 150 84"><g fill="#2a9d99"><circle cx="26" cy="26" r="6"/><circle cx="38" cy="34" r="5"/><circle cx="22" cy="40" r="4"/></g>
+              <g fill="#dd5b00"><circle cx="100" cy="22" r="6"/><circle cx="114" cy="30" r="5"/><circle cx="104" cy="36" r="4"/></g>
+              <g fill="#62aef0"><circle cx="64" cy="62" r="6"/><circle cx="78" cy="68" r="5"/><circle cx="58" cy="72" r="4"/></g>
+              <g stroke="var(--ink)" stroke-opacity=".3" stroke-width="1.3"><path d="M38 34L64 62M100 22L78 68M38 34L100 22"/></g>
+              <path d="M128 52L136 60L128 68L120 60Z" fill="var(--ink)"/></svg>
+          </div>
+          <div class="feature-body">
+            <h3>Explore what it found</h3>
+            <p class="ask">Where should I start reading?</p>
+            <ul>
+              <li>A <strong>map</strong> groups the results into themes and draws their citations.</li>
+              <li>The strongest results come with <strong>web context</strong>: trial registrations, commentary, news.</li>
+              <li><strong>Add any result as a seed</strong> and run again to follow it further.</li>
+              <li>Import your <strong>Zotero, EndNote or PubMed</strong> export; export the results as RIS or CSV.</li>
+            </ul>
+            <a class="go" href="app.html?sample">Open the map →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>How it works</h2>
+      <p class="lead">Six steps, about two minutes, and every one of them is traceable in the results.</p>
+      <ol class="steps">
+        <li><b><span class="n">1</span>Resolve</b>Seeds, typed in or imported from a reference manager, are found in PubMed, or in Europe PMC for preprints.</li>
+        <li><b><span class="n">2</span>Plan</b>The LLM turns the question and seeds into inclusion criteria and search queries.</li>
+        <li><b><span class="n">3</span>Collect</b>Seven channels gather candidates, the web agent among them. Each records where it came from.</li>
+        <li><b><span class="n">4</span>Rank</b>Embedding similarity to each seed and to the question, fused with citation signals.</li>
+        <li><b><span class="n">5</span>Judge</b>The strongest ~130 candidates are graded against the criteria, each with a verified quote.</li>
+        <li><b><span class="n">6</span>Explore</b>Trials and web context for the top results, and a map of themes and citations.</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>One recorded run</h2>
+      <p class="lead">Real engine output, saved so it opens instantly. Open it to see every card, the map and the web agent's searches.</p>
+      <div class="run">
+        <p class="run-q">“Which incretin-based drugs reduce body weight in adults with obesity?”
+          <span class="muted">with STEP 1 and SURMOUNT-1 as seeds</span></p>
+        <div class="metrics">
+          <div class="metric"><span>Candidates screened</span><b id="m-pool">667</b></div>
+          <div class="metric"><span>Graded by the LLM</span><b id="m-judged">128</b></div>
+          <div class="metric"><span>Top 10 graded 4 of 4</span><b id="m-top">10 / 10</b></div>
+          <div class="metric"><span>End to end</span><b id="m-time">110 s</b></div>
+        </div>
+        <ol class="top-list" id="top-list" aria-label="Top results"></ol>
+        <div class="run-foot">
+          <span id="run-date">Recorded with the current engine.</span>
+          <a class="btn utility" href="app.html?sample">Open the full run</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div class="foot-cols">
+        <div>
+          <h3>Sources</h3>
+          <ul><li>PubMed E-utilities</li><li>NIH iCite</li><li>Europe PMC</li><li>Tavily web search</li></ul>
+        </div>
+        <div>
+          <h3>Models</h3>
+          <ul><li>Qwen3-Embedding-8B for retrieval</li><li>Qwen3-235B as judge, planner and agent</li><li>Both on Nebius Token Factory</li></ul>
+        </div>
+        <div>
+          <h3>API</h3>
+          <ul><li><a href="docs">Reference (/docs)</a></li><li><code>POST /discover</code></li><li><code>POST /collection</code></li><li><code>GET /health</code></li></ul>
+        </div>
+        <div>
+          <h3>Run it</h3>
+          <ul><li><code>NEBIUS_API_KEY</code> is required</li><li><code>TAVILY_API_KEY</code> for the web agent</li><li><code>NCBI_API_KEY</code> for faster PubMed</li></ul>
+        </div>
+      </div>
+    </footer>
+  </main>
   <script src="common.js"></script>
+  <script src="landing.js"></script>
 </body>
 </html>

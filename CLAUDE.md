@@ -55,6 +55,8 @@ the code that implements it. Don't quietly relitigate one in a refactor.
 - Hackathon pace: basic tests only, at most one or two per feature for its core logic, not exhaustive
   coverage. Verify the rest by running it (`make run`, or an in-process call). The suite runs offline and
   must never call a live API.
+- The UI follows `design.md`: one structural blue (actions, links, focus), the sticker palette for decoration
+  only (map themes, illustrations), hairlines over shadows, Inter. Tokens live at the top of `web/app.css`.
 - Comments say *why*, not what. Match the surrounding density.
 - One branch and PR per step. Commit subjects are `type: what changed` (`feat`, `fix`, `refactor`, `docs`,
   `chore`, `eval`), and the body says why when it isn't obvious.
