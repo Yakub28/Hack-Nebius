@@ -3,17 +3,19 @@ import type { Discovery, Result } from "../api/types";
 import { ResultCard } from "./ResultCard";
 
 /** Cards slide to their new place when the order changes, as grades stream in: the eye can follow a paper
- *  rising instead of the list jumping. (FLIP: measure, re-render, play the difference.) */
+ *  rising instead of the list jumping. (FLIP: measure, re-render, play the difference.) Cards that arrive
+ *  together cascade in, a beat apart, rather than landing as one block. */
 function useSlide() {
   const nodes = useRef(new Map<string, HTMLElement>());
   const before = useRef(new Map<string, number>());
   useLayoutEffect(() => {
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let arriving = 0;
     nodes.current.forEach((el, id) => {
       const top = el.offsetTop;
       const was = before.current.get(id);
       if (was == null) el.animate?.([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }],
-        { duration: still ? 0 : 260, easing: "ease-out" });
+        { duration: still ? 0 : 280, delay: still ? 0 : Math.min(arriving++, 8) * 35, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "backwards" });
       else if (!still && Math.abs(was - top) > 1) {
         el.animate?.([{ transform: `translateY(${was - top}px)` }, { transform: "none" }],
           { duration: 480, easing: "cubic-bezier(.2,.7,.2,1)" });
