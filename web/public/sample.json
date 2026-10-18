@@ -3742,9 +3742,7 @@
    }
   }
  ],
- "warnings": [
-  "2 candidates had no retrievable record and were dropped"
- ],
+ "warnings": [],
  "stats": {
   "refs": 58,
   "cocited": 198,

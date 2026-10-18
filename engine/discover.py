@@ -426,9 +426,6 @@ async def hydrate(pool: dict[str, Candidate], seeds: list[Paper], warnings: list
             # Europe PMC may know the DOI's PMID: then the paper lives under that id.
             _add(pool, paper.id, pool.pop(f"doi:{doi}").hits, paper)
 
-    unresolved = sum(c.paper is None for c in pool.values())
-    if unresolved:
-        warnings.append(f"{unresolved} candidates had no retrievable record and were dropped")
     seed_ids = {s.id for s in seeds}
     seed_dois = {s.doi for s in seeds if s.doi}
     kept = [c for c in pool.values()
