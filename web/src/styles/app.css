@@ -121,7 +121,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .brand-mark { width: 26px; height: 26px; flex: none; }
 .nav-links { display: flex; gap: 4px; }
 .nav-links a {
-  padding: 6px 10px; border-radius: var(--r-md); font-size: 15px; font-weight: 500; color: var(--ink-2);
+  padding: 6px 10px; border-radius: var(--r-md); font-size: 15px; font-weight: 500; color: var(--ink-2); white-space: nowrap;
 }
 .nav-links a:hover { text-decoration: none; background: var(--surface-soft); }
 .nav-links a[aria-current="page"] { color: var(--link); font-weight: 600; }
@@ -313,7 +313,7 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 
 /* --- results: the sticky toolbar ------------------------------------------------------- */
 .toolbar {
-  position: sticky; top: 57px; z-index: 12; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  position: sticky; top: var(--nav-h, 57px); z-index: 12; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
   margin: 0 -8px 8px; padding: 8px;
   background: color-mix(in srgb, var(--canvas) 86%, transparent);
   backdrop-filter: saturate(1.6) blur(12px); -webkit-backdrop-filter: saturate(1.6) blur(12px);
@@ -615,13 +615,16 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .foot-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 600px) {
-  .page { padding: 16px 16px 48px; }
+/* The full nav needs about 700px; below that it goes compact rather than wrapping. */
+@media (max-width: 720px) {
   .nav-inner { padding: 8px 16px; gap: 10px; }
   .brand span { display: none; }
-  .nav-links a { padding: 6px 8px; font-size: 14px; white-space: nowrap; }
+  .nav-links a { padding: 6px 8px; font-size: 14px; }
   .nav-links a:first-child { display: none; }     /* the brand mark already goes to the overview */
   .status .label-text { display: none; }
+}
+@media (max-width: 600px) {
+  .page { padding: 16px 16px 48px; }
   .hero-inner { padding: 40px 16px 44px; }
   .hero-band h1 { font-size: 40px; letter-spacing: -1px; }
   .hero-band p { font-size: 16px; }
@@ -733,7 +736,7 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 /* --- paper drawer ---------------------------------------------------------------------- */
 @keyframes slide-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .drawer {
-  position: fixed; top: 57px; left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
+  position: fixed; top: var(--nav-h, 57px); left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
   background: var(--surface); border-right: 1px solid var(--hairline); box-shadow: var(--shadow-2);
   padding: 0 24px 32px; animation: slide-in 0.2s ease-out both; overscroll-behavior: contain;
 }
@@ -765,7 +768,7 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .drawer-scrim { display: none; }
 @keyframes fade { from { opacity: 0; } }
 @media (max-width: 1199px) {
-  .drawer-scrim { display: block; position: fixed; inset: 57px 0 0; z-index: 29; background: rgba(0, 0, 0, 0.3); animation: fade 0.2s ease-out both; }
+  .drawer-scrim { display: block; position: fixed; inset: var(--nav-h, 57px) 0 0; z-index: 29; background: rgba(0, 0, 0, 0.3); animation: fade 0.2s ease-out both; }
 }
 @media (min-width: 1200px) {
   /* The list makes room instead of hiding under the drawer, which takes the search panel's place on the left. */
@@ -837,8 +840,7 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .workspace .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 }
 @media (max-width: 600px) {
-  .drawer { top: 49px; padding: 0 16px 24px; }
-  .drawer-scrim { inset: 49px 0 0; }
+  .drawer { padding: 0 16px 24px; }
   .drawer-bar { margin: 0 -16px 12px; padding: 10px 16px; }
   .drawer-head { grid-template-columns: minmax(0, 1fr); }
   .drawer-nav .kbd-hint, .summary .kbd-hint { display: none; }
@@ -865,7 +867,7 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
 
 /* --- search page: the centred search on the night band ----------------------------------- */
 .search-band {
-  background: var(--night); color: #fff; min-height: calc(100vh - 57px);
+  background: var(--night); color: #fff; min-height: calc(100vh - var(--nav-h, 57px));
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px 64px;
   background-image: radial-gradient(circle at 18% 22%, rgba(98, 174, 240, 0.16) 0, transparent 34%),
     radial-gradient(circle at 84% 78%, rgba(255, 100, 200, 0.12) 0, transparent 32%);
@@ -921,7 +923,7 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
 }
 .hero-note { color: rgba(255, 255, 255, 0.82); text-align: left; }
 @media (max-width: 600px) {
-  .search-band { justify-content: flex-start; padding: 32px 16px 48px; min-height: calc(100vh - 49px); }
+  .search-band { justify-content: flex-start; padding: 32px 16px 48px; min-height: calc(100vh - var(--nav-h, 57px)); }
   .hero-search h1 { font-size: 34px; letter-spacing: -1px; }
   .hero-sub { font-size: 16px; margin-bottom: 22px; }
   .search-card { padding: 16px; }

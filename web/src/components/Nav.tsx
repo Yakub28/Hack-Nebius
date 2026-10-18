@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useSession } from "../lib/session";
@@ -66,8 +66,19 @@ function RunPill() {
 }
 
 export function Nav() {
+  // The paper drawer hangs just below the nav. Publish the nav's real height, which changes with width and
+  // wrapping, so the drawer never starts underneath it.
+  const bar = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => document.documentElement.style.setProperty("--nav-h", `${el.offsetHeight}px`));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className="nav">
+    <header className="nav" ref={bar}>
       <div className="nav-inner">
         <Link className="brand" to="/" aria-label="TUMor, overview">
           <BrandMark /><span>TUMor</span>
