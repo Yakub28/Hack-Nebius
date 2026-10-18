@@ -144,7 +144,7 @@ export function Landing() {
         <footer className="foot">
           <div className="foot-cols">
             <div><h3>Sources</h3><ul><li>PubMed E-utilities</li><li>NIH iCite</li><li>Europe PMC</li><li>Tavily web search</li></ul></div>
-            <div><h3>Models</h3><ul><li>Qwen3-Embedding-8B for retrieval</li><li>Qwen3-235B as judge, planner and agent</li><li>Both on Nebius Token Factory</li></ul></div>
+            <div><h3>Models</h3><ul><li>Qwen3-Embedding-8B for retrieval</li><li>NVIDIA Nemotron 3.5 Lightning as judge, planner and agent</li><li>Both on Nebius Token Factory</li></ul></div>
             <div><h3>API</h3><ul><li><a href="/docs">Reference (/docs)</a></li><li><code>POST /discover/stream</code></li><li><code>POST /collection</code></li><li><code>GET /health</code></li></ul></div>
             <div><h3>Run it</h3><ul><li><code>NEBIUS_API_KEY</code> is required</li><li><code>TAVILY_API_KEY</code> for the web agent</li><li><code>NCBI_API_KEY</code> for faster PubMed</li></ul></div>
           </div>

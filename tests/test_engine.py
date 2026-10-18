@@ -1,9 +1,10 @@
 import asyncio
+import json
 
 import numpy as np
 
 from engine import europepmc, landscape, nebius, pubmed, web
-from engine.discover import Candidate, judge, resolve_seeds, rrf, verified_quote
+from engine.discover import Candidate, judge, make_plan, resolve_seeds, rrf, verified_quote
 from engine.paper import Paper
 from engine.pubmed import parse_efetch
 
@@ -90,6 +91,33 @@ def test_themes_split_two_clear_groups_the_same_way_every_time():
     labels = landscape.kmeans(vectors, 2)
     assert labels.tolist() == [0] * 8 + [1] * 6     # the larger theme is numbered first
     assert (landscape.kmeans(vectors, 2) == labels).all()
+
+
+def test_theme_names_also_read_from_group_keys(monkeypatch):
+    async def chat_json(system, user, **_):
+        return {"Group 1": "Semaglutide trials", "Group 2": "Tirzepatide trials"}
+
+    monkeypatch.setattr(nebius, "chat_json", chat_json)
+    names = asyncio.run(landscape.name_themes([["A semaglutide trial"], ["A tirzepatide trial"]]))
+    assert names == ["Semaglutide trials", "Tirzepatide trials"]
+
+
+def test_a_malformed_plan_is_retried_once(monkeypatch):
+    replies = [{"criteria": ["Adults"]},
+               {"criteria": ["Adults"], "pubmed_queries": ["q"], "preprint_queries": [], "web_queries": []}]
+
+    async def chat_json(system, user, **_):
+        return replies.pop(0)
+
+    monkeypatch.setattr(nebius, "chat_json", chat_json)
+    plan = asyncio.run(make_plan("Which drugs?", [Paper(id="pmid:1", title="Seed")]))
+    assert plan["pubmed_queries"] == ["q"] and not replies
+
+
+def test_repeated_json_keys_join_their_lists():
+    reply = '{"grades": [{"paper": 1}], "grades": [{"paper": 2}, {"paper": 3}], "note": "a", "note": "b"}'
+    parsed = json.loads(reply, object_pairs_hook=nebius.merge_repeated_keys)
+    assert [g["paper"] for g in parsed["grades"]] == [1, 2, 3] and parsed["note"] == "b"
 
 
 def test_judge_reports_every_batch_even_one_that_fails(monkeypatch):
