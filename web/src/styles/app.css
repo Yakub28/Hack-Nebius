@@ -269,7 +269,7 @@ details.more summary {
   cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px;
 }
 details.more summary::-webkit-details-marker { display: none; }
-details.more summary::before, .toggle::before {
+details.more summary::before, .fold > summary::before, .toggle::before {
   content: ""; width: 6px; height: 6px; flex: none; margin: 0 8px 1px 2px;
   border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg);
   transition: transform 0.12s ease;
@@ -760,6 +760,18 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .drawer-actions .act.on.out { background: var(--orange-tint); border-color: transparent; }
 .drawer-section { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--hairline); }
 .drawer-section h3 { margin-bottom: 8px; }
+/* Folding sections stack as one accordion: a hairline between each, and the heading row is the toggle. */
+.drawer-section.fold { padding-top: 0; }
+.drawer-section.fold + .drawer-section.fold { margin-top: 0; }
+.fold > summary { display: flex; align-items: center; padding: 14px 0; cursor: pointer; list-style: none; color: var(--muted); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { color: var(--ink); }
+.fold > summary h3 { margin: 0; color: inherit; }
+.fold-count {
+  margin-left: 8px; padding: 0 7px; border-radius: var(--r-full); background: var(--surface-soft);
+  font-size: 12px; font-weight: 500; line-height: 18px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.fold[open] { padding-bottom: 12px; }
 .drawer .reason { margin: 0; font-size: 15px; }
 .drawer .quote { margin-top: 10px; font-size: 15px; }
 .abstract-full { margin: 0; font-size: 15px; line-height: 1.65; color: var(--ink-2); }
@@ -782,7 +794,6 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .workspace.drawer-open .action-bar { left: calc((100vw + 560px) / 2); }
 }
 .neighbors { margin-top: 8px; font-size: 14px; }
-.neighbors .k { display: block; color: var(--muted); font-size: 13px; margin-bottom: 4px; }
 .neighbors ul { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .neighbor {
   display: block; width: 100%; text-align: left; padding: 6px 8px; border-radius: var(--r-sm);
