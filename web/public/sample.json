@@ -3742,9 +3742,7 @@
    }
   }
  ],
- "warnings": [
-  "2 candidates had no retrievable record and were dropped"
- ],
+ "warnings": [],
  "stats": {
   "refs": 58,
   "cocited": 198,
@@ -3785,7 +3783,7 @@
     "efficacy of liraglutide 3 mg on body weight reduction in adults with obesity without diabetes in placebo-controlled trials",
     "placebo-controlled RCTs evaluating weekly subcutaneous semaglutide 2.4 mg for weight loss in adults with obesity and no diabetes with at least 20 weeks duration"
    ],
-   "why": "The pages mention liraglutide, semaglutide, and tirzepatide as effective incretin-based drugs, but earlier searches focused heavily on comparisons between semaglutide and tirzepatide; new searches target specific agents, doses, and trial designs like placebo-controlled RCTs for liraglutide and semag",
+   "why": "The pages mention liraglutide, semaglutide, and tirzepatide as effective incretin-based drugs, but earlier searches focused heavily on comparisons between semaglutide and tirzepatide; new searches target specific agents, doses, and trial designs like placebo-controlled RCTs for liraglutide and…",
    "pages": 30,
    "papers": 26
   }

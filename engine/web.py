@@ -186,7 +186,14 @@ def next_searches(reply: dict, tried: list[str]) -> tuple[list[str], str]:
             seen.add(q.strip().lower())
             searches.append(q.strip())
     why = reply.get("why")
-    return searches[:SEARCHES_PER_ROUND], why.strip()[:300] if isinstance(why, str) else ""
+    return searches[:SEARCHES_PER_ROUND], _clip(why.strip(), 300) if isinstance(why, str) else ""
+
+
+def _clip(text: str, limit: int) -> str:
+    # The rationale is shown to the reader, so a long one ends on a whole word, not "…for liraglutide and semag".
+    if len(text) <= limit:
+        return text
+    return text[:limit - 1].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
 
 
 async def _by_page_title(page_title: str) -> Paper | None:
