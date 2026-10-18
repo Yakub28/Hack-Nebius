@@ -731,10 +731,10 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .live-note { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 13px; color: var(--muted); }
 
 /* --- paper drawer ---------------------------------------------------------------------- */
-@keyframes slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes slide-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
 .drawer {
-  position: fixed; top: 57px; right: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
-  background: var(--surface); border-left: 1px solid var(--hairline); box-shadow: var(--shadow-2);
+  position: fixed; top: 57px; left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
+  background: var(--surface); border-right: 1px solid var(--hairline); box-shadow: var(--shadow-2);
   padding: 0 24px 32px; animation: slide-in 0.2s ease-out both; overscroll-behavior: contain;
 }
 .drawer-bar {
@@ -768,11 +768,11 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .drawer-scrim { display: block; position: fixed; inset: 57px 0 0; z-index: 29; background: rgba(0, 0, 0, 0.3); animation: fade 0.2s ease-out both; }
 }
 @media (min-width: 1200px) {
-  /* The list makes room instead of hiding under the drawer: the search panel steps aside while a paper is open. */
-  .workspace.drawer-open { max-width: none; margin: 0; padding-right: 592px; padding-left: max(32px, calc((100vw - 560px - 960px) / 2)); }
+  /* The list makes room instead of hiding under the drawer, which takes the search panel's place on the left. */
+  .workspace.drawer-open { max-width: none; margin: 0; padding-left: 592px; padding-right: max(32px, calc((100vw - 560px - 960px) / 2)); }
   .workspace.drawer-open .layout { grid-template-columns: minmax(0, 1fr); }
   .workspace.drawer-open .side { display: none; }
-  .workspace.drawer-open .action-bar { left: calc((100vw - 560px) / 2); }
+  .workspace.drawer-open .action-bar { left: calc((100vw + 560px) / 2); }
 }
 .neighbors { margin-top: 8px; font-size: 14px; }
 .neighbors .k { display: block; color: var(--muted); font-size: 13px; margin-bottom: 4px; }
