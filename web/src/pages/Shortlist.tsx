@@ -20,7 +20,7 @@ export function Shortlist() {
   // A paper removed here stays on the page, faded, until you leave it, so a misclick is one click to undo.
   const [seen, setSeen] = useState<Record<string, Kept>>(kept);
   useEffect(() => setSeen((s) => ({ ...s, ...kept })), [kept]);
-  useEffect(() => { document.title = "Shortlist · TUMor"; }, []);
+  useEffect(() => { document.title = "Shortlist · Snowball"; }, []);
 
   const keptList = Object.values(kept);
   const removed = Object.values(seen).filter((p) => !kept[p.id]);
