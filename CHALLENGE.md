@@ -1,5 +1,10 @@
 Healthcare / Life Sciences: Research Paper Discoveryby Nebius
 −
+
+![Challenge slide: Healthcare / Life Sciences: Research Paper Discovery](assets/challenge.jpeg)
+
+From the kickoff slide: *Build a research paper discovery tool for healthcare and life sciences. Help users find papers relevant to a research question.* Challenge owner: Arseniy Solokov (Nebius). Prize: $1,000 Cloud Credits + $2,000 Token Factory Credits. 1 finalist.
+
 The problem
 
 Researchers often have a collection of papers relevant to their topic but struggle to find more through keyword searches alone. Build an app that takes this existing collection as a starting point and discovers additional relevant publications.
