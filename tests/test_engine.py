@@ -2,8 +2,8 @@ import asyncio
 
 import numpy as np
 
-from engine import europepmc, landscape, pubmed, web
-from engine.discover import resolve_seeds, rrf, verified_quote
+from engine import europepmc, landscape, nebius, pubmed, web
+from engine.discover import Candidate, judge, resolve_seeds, rrf, verified_quote
 from engine.paper import Paper
 from engine.pubmed import parse_efetch
 
@@ -90,3 +90,23 @@ def test_themes_split_two_clear_groups_the_same_way_every_time():
     labels = landscape.kmeans(vectors, 2)
     assert labels.tolist() == [0] * 8 + [1] * 6     # the larger theme is numbered first
     assert (landscape.kmeans(vectors, 2) == labels).all()
+
+
+def test_judge_reports_every_batch_even_one_that_fails(monkeypatch):
+    calls = 0
+
+    async def chat_json(system, user, **_):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise ValueError("invalid JSON")
+        return {"grades": [{"paper": 1, "grade": 4, "reason": "Meets the criteria", "quote": ""}]}
+
+    monkeypatch.setattr(nebius, "chat_json", chat_json)
+    candidates = [Candidate(f"pmid:{i}", paper=Paper(id=f"pmid:{i}", title=f"Paper {i}"), seed_sims=[0.5], fused=1 / i)
+                  for i in range(1, 12)]       # 11 candidates + 1 seed: two batches of up to 8
+    events, warnings = [], []
+    asyncio.run(judge("Which drugs?", ["Adults"], [Paper(id="pmid:100", title="Seed")], candidates, warnings,
+                      lambda event, **data: events.append(data)))
+    assert [(e["done"], e["total"]) for e in events] == [(1, 2), (2, 2)]
+    assert warnings[0].startswith("1 of 2 judge batches failed")

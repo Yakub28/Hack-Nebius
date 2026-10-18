@@ -125,9 +125,9 @@ def _event_json(event: str, data: dict) -> dict:
     if event == "ranked":
         return {"results": [_result_json(c, None) for c in data["candidates"]]}
     if event == "graded":
+        # Whole records, not just grades: a paper outside the provisional list can grade its way into it.
         return {**{k: data[k] for k in ("done", "total", "papers")},
-                "grades": [{"id": c.id, "grade": c.grade, "reason": c.reason, "quote": c.quote}
-                           for c in data["candidates"]]}
+                "results": [_result_json(c, None) for c in data["candidates"]]}
     return data
 
 

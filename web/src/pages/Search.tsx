@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { Discovery } from "../api/types";
+import { ActionBar } from "../components/ActionBar";
 import { LiveRun } from "../components/LiveRun";
-import { Results, SeedsPanel } from "../components/Results";
+import { QueryPanel } from "../components/QueryPanel";
+import { Results } from "../components/Results";
 import { EXAMPLE, SearchForm } from "../components/SearchForm";
 import { useToast } from "../components/Toast";
-import { CHANNELS, plural, refOf, seedLines } from "../lib/format";
+import { CHANNELS, refOf, seedLines } from "../lib/format";
 import { asDiscovery } from "../lib/run";
 import { useSession } from "../lib/session";
 
-/** The workspace: the form on the left; on the right the live run, then its results. `recorded` shows the
- *  saved run instead, so the page works without a key and opens instantly. */
 function useNarrow(): boolean {
   const query = "(max-width: 960px)";
   const [narrow, setNarrow] = useState(() => matchMedia(query).matches);
@@ -24,8 +24,12 @@ function useNarrow(): boolean {
   return narrow;
 }
 
+/** The workspace: on the left the search (the form, or once a search exists, what the engine made of it); on
+ *  the right the live run, then its results. `recorded` shows the saved run instead, so the page works
+ *  without a key and opens instantly. */
 export function Search({ recorded = false }: { recorded?: boolean }) {
-  const { run, form, setForm } = useSession();
+  const { run, form, setForm, setShown, start, cancel, interrupted, dismissInterrupted } = useSession();
+  const [params] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<Discovery | null>(null);
   const [editing, setEditing] = useState(false);
@@ -54,37 +58,55 @@ export function Search({ recorded = false }: { recorded?: boolean }) {
   const data = recorded ? saved : run ? asDiscovery(run) : null;
   const live = !recorded && run?.status === "running";
   const hasResults = !!data && data.results.length > 0;
+  useEffect(() => setShown(hasResults ? data : null));
+
+  // What the results on screen were searched with: the baseline for "run again".
+  const baseline = recorded
+    ? saved && { question: saved.question, seeds: saved.seeds.map(refOf) }
+    : run && { question: run.request.question, seeds: run.request.seeds };
+  const settled = !!data && (recorded || run?.status === "running" || run?.status === "done");
+  const showQuery = settled && !editing;
+  const paper = params.get("paper");
+  const drawerOpen = hasResults && !!paper && data!.results.some((r) => r.id === paper);
+  const query = (compact: boolean) => (
+    <QueryPanel data={data} question={baseline?.question ?? form.question} seedRefs={baseline?.seeds ?? []} running={live}
+      compact={compact} onEdit={() => setEditing(true)} onCancel={cancel} />
+  );
 
   return (
-    <div className="page">
+    <div className={`page workspace${drawerOpen ? " drawer-open" : ""}`}>
       <div className="layout">
         <aside className="side">
-          {/* On a phone the results come first; the form folds into one line until you want it. */}
-          {narrow && hasResults && !editing ? (
-            <div className="panel form-summary">
-              <div><span className="eyebrow">Your search</span><p>{form.question || data!.question}</p>
-                <span className="muted">{plural(seedLines(form.seeds).length, "seed")}</span></div>
-              <button type="button" className="btn utility sm" onClick={() => setEditing(true)}>Edit search</button>
-            </div>
-          ) : <SearchForm onError={setError} />}
-          {data && data.seeds.length > 0 && !narrow && <SeedsPanel data={data} />}
+          {showQuery ? query(narrow) : <SearchForm onError={setError} onClose={settled ? () => setEditing(false) : undefined} />}
         </aside>
         <main className="main" id="main">
           {error && <div className="alert" role="alert">{error}</div>}
+          {interrupted && !live && !recorded && (
+            <div className="callout">
+              <span className="badge">Interrupted</span>
+              <span className="callout-text">The page reloaded while “{interrupted.question}” was running, so the search stopped.</span>
+              <button type="button" className="btn primary sm" onClick={() => {
+                setError(start({ question: interrupted.question, seeds: interrupted.seeds.join("\n"), limit: interrupted.limit }));
+              }}>Run it again</button>
+              <button type="button" className="link" onClick={dismissInterrupted}>Dismiss</button>
+            </div>
+          )}
           {recorded && saved && (
             <div className="callout">
               <span className="badge">Recorded run</span>
-              <span>Real engine output from {saved.recorded}, saved so this page opens instantly and without an API key.
-                Add any result as a seed, or change the question, and run it live.</span>
+              <span className="callout-text">Real engine output from {saved.recorded}, saved so it opens instantly and without an API key.
+                Keep papers, add any as a seed, and run it live.</span>
             </div>
           )}
           {!recorded && run && <LiveRun run={run} />}
-          {hasResults ? <><Results data={data!} live={live} />{narrow && <div className="after-results"><SeedsPanel data={data!} /></div>}</>
+          {hasResults ? <Results data={data!} live={live} previous={recorded ? undefined : run?.previous} />
             : recorded ? (saved ? null : <ResultsSkeleton />)
-              : run ? (run.status === "running" ? <ResultsSkeleton note="The first ranking appears in about a minute, then grades stream in." /> : null)
+              : run ? (run.status === "running" ? <ResultsSkeleton note="The first ranking appears in about a minute; then grades stream in and the list re-ranks." /> : null)
                 : <Empty />}
+          {narrow && hasResults && showQuery && <div className="after-results">{query(false)}</div>}
         </main>
       </div>
+      {hasResults && baseline && <ActionBar baseline={baseline} running={live} />}
     </div>
   );
 }

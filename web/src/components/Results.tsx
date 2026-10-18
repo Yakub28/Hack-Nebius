@@ -1,13 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { Discovery } from "../api/types";
-import { CHANNELS, GRADES, plural } from "../lib/format";
+import type { Discovery, Result } from "../api/types";
+import { CHANNELS, isProblem, plural } from "../lib/format";
 import { exportCsv, exportRis } from "../lib/export";
+import { useSession } from "../lib/session";
 import { CitationGraph } from "./CitationGraph";
+import { AlertIcon, DownloadIcon, FilterIcon, InfoIcon, SearchIcon, XIcon } from "./Icons";
+import { Menu } from "./Menu";
 import { PaperDrawer } from "./PaperDrawer";
 import { ResultList } from "./ResultList";
 import { ResultsMap } from "./ResultsMap";
-import { ThemeDot, themeName } from "./ResultCard";
+import { ThemeDot, themeName, useSeedAction } from "./ResultCard";
 import { useToast } from "./Toast";
 
 const VIEWS = [
@@ -17,32 +20,41 @@ const VIEWS = [
 ] as const;
 type View = (typeof VIEWS)[number]["id"];
 
-/** Ranked results with filters and three views. The view and the open paper live in the URL, so a view is
- *  reloadable and shareable; the filters are this page's own. */
-export function Results({ data, live }: { data: Discovery; live: boolean }) {
+/** Ranked results with filters, three views and keyboard triage. The view and the open paper live in the
+ *  URL, so a view is reloadable and shareable; the filters are this page's own. */
+export function Results({ data, live, previous }: { data: Discovery; live: boolean; previous?: string[] }) {
   const [params, setParams] = useSearchParams();
   const view: View = VIEWS.some((v) => v.id === params.get("view")) ? (params.get("view") as View) : "list";
   const open = params.get("paper");
   const toast = useToast();
+  const { kept, toggleKeep, dismissed, toggleDismiss } = useSession();
+  const seedAction = useSeedAction();
 
   const [text, setText] = useState("");
   const [sort, setSort] = useState<"relevance" | "newest" | "cited">("relevance");
   const [onlyRelevant, setOnlyRelevant] = useState(false);
+  const [hideKnown, setHideKnown] = useState(false);
+  const [showSetAside, setShowSetAside] = useState(false);
   const [channels, setChannels] = useState<Set<string>>(new Set());
   const [themes, setThemes] = useState<Set<number>>(new Set());
+  const [cursor, setCursor] = useState<string | null>(null);
 
   const setParam = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
     if (value == null) next.delete(key); else next.set(key, value);
     setParams(next, { replace: key === "paper" && params.has("paper") });
   };
-  const openPaper = (id: string) => setParam("paper", id);
+  const openPaper = (id: string) => { setCursor(id); setParam("paper", id); };
   const hasMap = !!data.map && !live;
 
+  const setAside = data.results.filter((r) => dismissed.has(r.id)).length;
+  const known = data.results.filter((r) => r.cited_by_seeds.length > 0).length;
   const list = useMemo(() => {
     const q = text.trim().toLowerCase();
     const out = data.results.filter((r) => {
+      if (!showSetAside && dismissed.has(r.id)) return false;
       if (onlyRelevant && !r.likely_relevant) return false;
+      if (hideKnown && r.cited_by_seeds.length > 0) return false;
       if (channels.size && !r.channels.some((c) => channels.has(c))) return false;
       if (themes.size && (r.theme == null || !themes.has(r.theme))) return false;
       return !q || [r.title, r.venue, r.authors.join(" "), r.abstract].join(" ").toLowerCase().includes(q);
@@ -50,7 +62,7 @@ export function Results({ data, live }: { data: Discovery; live: boolean }) {
     if (sort === "newest") out.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
     if (sort === "cited") out.sort((a, b) => (b.citations ?? 0) - (a.citations ?? 0));
     return out;
-  }, [data.results, text, sort, onlyRelevant, channels, themes]);
+  }, [data.results, text, sort, onlyRelevant, hideKnown, showSetAside, dismissed, channels, themes]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -58,34 +70,91 @@ export function Results({ data, live }: { data: Discovery; live: boolean }) {
     return c;
   }, [data.results]);
 
-  const clear = () => { setText(""); setOnlyRelevant(false); setChannels(new Set()); setThemes(new Set()); };
+  // "New" only means something against a related earlier search: one that shares at least one result.
+  const prev = useMemo(() => new Set(previous ?? []), [previous]);
+  const overlap = data.results.some((r) => prev.has(r.id));
+  const isNew = (id: string) => overlap && !prev.has(id);
+  const fresh = overlap ? data.results.filter((r) => !prev.has(r.id)).length : 0;
+
+  const relevant = data.results.filter((r) => r.likely_relevant).length;
+  const allRelevant = data.cutoff != null && relevant === data.results.length;
+  const total = Math.round(Object.values(data.timings).reduce((a, b) => a + b, 0));
+  const active = channels.size + themes.size + (onlyRelevant ? 1 : 0) + (hideKnown ? 1 : 0) + (showSetAside ? 1 : 0);
+  const clear = () => { setText(""); setOnlyRelevant(false); setHideKnown(false); setShowSetAside(false); setChannels(new Set()); setThemes(new Set()); };
   const toggle = <T,>(set: Set<T>, value: T) => { const next = new Set(set); if (next.has(value)) next.delete(value); else next.add(value); return next; };
   const openResult = open ? data.results.find((r) => r.id === open) ?? null : null;
-  const relevant = data.results.filter((r) => r.likely_relevant).length;
-  const total = Object.values(data.timings).reduce((a, b) => a + b, 0);
+  const keptList = Object.values(kept);
+  const themeOf = (r: Result) => (data.results.some((x) => x.id === r.id) ? themeName(data, r.theme) : "");
+
+  useEffect(() => { if (open) setCursor(open); }, [open]);
+
+  // Triage from the keyboard: J/K move, Enter opens, S keeps, X sets aside, A adds as a seed, Esc closes.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement;
+      if (target.closest("input, textarea, select, [contenteditable], details[open]")) return;
+      const index = cursor ? list.findIndex((r) => r.id === cursor) : -1;
+      const at = index >= 0 ? list[index] : null;
+      const move = (step: number) => {
+        const next = list[Math.max(0, Math.min(list.length - 1, index + step))];
+        if (!next) return;
+        if (openResult) openPaper(next.id); else setCursor(next.id);
+      };
+      switch (e.key) {
+        case "j": move(index < 0 ? 0 : 1); break;
+        case "k": move(index < 0 ? 0 : -1); break;
+        case "Enter": case "o":
+          if (!at || (e.key === "Enter" && target.closest("a, button"))) return;
+          openPaper(at.id); break;
+        case "s": if (!at) return; toggleKeep(at); break;
+        case "x":
+          if (!at) return;
+          toggleDismiss(at.id);
+          // A paper set aside leaves the list: the cursor moves on to the next one.
+          if (!dismissed.has(at.id) && !showSetAside) setCursor(list[index + 1]?.id ?? list[index - 1]?.id ?? null);
+          break;
+        case "a": if (!at) return; seedAction(at); break;
+        case "Escape": if (!openResult) return; setParam("paper", null); break;
+        default: return;
+      }
+      e.preventDefault();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  const problems = data.warnings.filter(isProblem);
+  const notes = data.warnings.filter((w) => !isProblem(w));
 
   return (
-    <div className={openResult ? "with-drawer" : ""}>
-      <div className="stats">
-        <span><b>{data.results.length}</b> {live ? "ranked so far" : "results"}</span>
-        {data.cutoff != null && <span><b>{relevant}</b> likely relevant</span>}
-        {data.stats.pool != null && <span><b>{data.stats.pool.toLocaleString()}</b> candidates screened</span>}
-        {data.stats.judged != null && <span><b>{data.stats.judged}</b> graded by the LLM</span>}
-        {!live && total > 0 && <span><b>{Math.round(total)} s</b> end to end</span>}
-        <span className="spacer" />
-        <span className="export" role="group" aria-label="Export the visible results">
-          <button type="button" className="btn utility sm" title="Export the visible results as RIS, for Zotero, EndNote or Mendeley"
-            onClick={() => { exportRis(list); toast(`Exported ${plural(list.length, "paper")} as RIS, ready for Zotero, EndNote or Mendeley.`); }}>
-            <DownloadIcon />RIS</button>
-          <button type="button" className="btn utility sm" title="Export the visible results as CSV, for spreadsheets"
-            onClick={() => { exportCsv(list, (id) => themeName(data, id)); toast(`Exported ${plural(list.length, "paper")} as CSV.`); }}>
-            <DownloadIcon />CSV</button>
+    <div className="results">
+      <div className="summary">
+        <p>
+          <b>{data.results.length}</b> {live ? "ranked so far" : "results"}
+          {data.cutoff != null && (allRelevant
+            ? <span className="ok-text"> · all as relevant as your seeds</span>
+            : <> · <b>{relevant}</b> as relevant as your seeds</>)}
+          {data.stats.pool != null && <> · <b>{data.stats.pool.toLocaleString()}</b> screened</>}
+          {data.stats.judged != null && <> · <b>{data.stats.judged}</b> graded</>}
+          {!live && total > 0 && <> · <b>{total} s</b></>}
+          {fresh > 0 && <> · <span className="badge new">{fresh} new</span> since your last search</>}
+        </p>
+        <span className="kbd-hint" title="J/K move · Enter opens · S keeps · X sets aside · A adds as a seed">
+          <kbd>J</kbd><kbd>K</kbd> move · <kbd>S</kbd> keep · <kbd>X</kbd> set aside · <kbd>A</kbd> seed
         </span>
       </div>
-      {data.warnings.length > 0 && (
-        <details className="warnings">
-          <summary>{plural(data.warnings.length, "warning")}: some sources were incomplete</summary>
-          <ul>{data.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
+
+      {problems.length > 0 && (
+        <details className="notice problem">
+          <summary><AlertIcon />{plural(problems.length, "source problem")}: some results may be missing</summary>
+          <ul>{problems.map((w) => <li key={w}>{w}</li>)}</ul>
+        </details>
+      )}
+      {notes.length > 0 && (
+        <details className="notice">
+          <summary><InfoIcon />{plural(notes.length, "note")} about this search</summary>
+          <ul>{notes.map((w) => <li key={w}>{w}</li>)}</ul>
         </details>
       )}
 
@@ -100,37 +169,78 @@ export function Results({ data, live }: { data: Discovery; live: boolean }) {
             );
           })}
         </div>
-        <input type="search" placeholder="Filter results…" aria-label="Filter results" value={text}
-          title="Matches title, authors, venue and abstract" onChange={(e) => setText(e.target.value)} />
+        <label className="search-box">
+          <SearchIcon />
+          <input type="search" placeholder="Filter by title, author, journal…" aria-label="Filter results" value={text}
+            onChange={(e) => setText(e.target.value)} />
+        </label>
         <select aria-label="Sort results" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
           <option value="relevance">Relevance</option>
           <option value="newest">Newest</option>
           <option value="cited">Most cited</option>
         </select>
-        <label className="check">
-          <input type="checkbox" checked={onlyRelevant} onChange={(e) => setOnlyRelevant(e.target.checked)} /> Likely relevant only
-        </label>
-      </div>
-
-      <div className="chip-filter">
-        <span className="row-label eyebrow">Found via</span>
-        <div className="pills">
-          {Object.keys(CHANNELS).filter((c) => counts[c]).map((c) => (
-            <button key={c} type="button" aria-pressed={channels.has(c)} title={CHANNELS[c][1]}
-              onClick={() => setChannels(toggle(channels, c))}>{CHANNELS[c][0]}<span className="n">{counts[c]}</span></button>
-          ))}
-        </div>
-      </div>
-      {data.map && data.map.themes.length > 0 && !live && (
-        <div className="chip-filter">
-          <span className="row-label eyebrow">Themes</span>
+        <Menu label="Filters" icon={<FilterIcon />} badge={active} align="right">
+          <h4 className="eyebrow">Found via</h4>
           <div className="pills">
-            {data.map.themes.map((t) => (
-              <button key={t.id} type="button" aria-pressed={themes.has(t.id)} title={`Named by ${t.named_by === "llm" ? "the LLM" : t.named_by}`}
-                onClick={() => setThemes(toggle(themes, t.id))}><ThemeDot id={t.id} />{t.name}<span className="n">{t.size}</span></button>
+            {Object.keys(CHANNELS).filter((c) => counts[c]).map((c) => (
+              <button key={c} type="button" className="pill" aria-pressed={channels.has(c)} title={CHANNELS[c][1]}
+                onClick={() => setChannels(toggle(channels, c))}>{CHANNELS[c][0]}<span className="n">{counts[c]}</span></button>
             ))}
           </div>
+          {data.map && data.map.themes.length > 0 && !live && (
+            <>
+              <h4 className="eyebrow">Themes</h4>
+              <div className="pills">
+                {data.map.themes.map((t) => (
+                  <button key={t.id} type="button" className="pill" aria-pressed={themes.has(t.id)} title={`Named by ${t.named_by === "llm" ? "the LLM" : t.named_by}`}
+                    onClick={() => setThemes(toggle(themes, t.id))}><ThemeDot id={t.id} />{t.name}<span className="n">{t.size}</span></button>
+                ))}
+              </div>
+            </>
+          )}
+          <h4 className="eyebrow">Show</h4>
+          {data.cutoff != null && !allRelevant && (
+            <label className="check"><input type="checkbox" checked={onlyRelevant} onChange={(e) => setOnlyRelevant(e.target.checked)} /> Only papers as relevant as your seeds</label>
+          )}
+          {known > 0 && (
+            <label className="check"><input type="checkbox" checked={hideKnown} onChange={(e) => setHideKnown(e.target.checked)} /> Hide papers your seeds already cite ({known})</label>
+          )}
+          <label className="check"><input type="checkbox" checked={showSetAside} disabled={!setAside && !showSetAside} onChange={(e) => setShowSetAside(e.target.checked)} /> Show papers you set aside ({setAside})</label>
+          {active > 0 && <button type="button" className="link menu-clear" onClick={clear}>Clear all filters</button>}
+        </Menu>
+        <Menu label="Export" icon={<DownloadIcon />} align="right">
+          {keptList.length > 0 && (
+            <>
+              <h4 className="eyebrow">Your shortlist · {plural(keptList.length, "paper")}</h4>
+              <div className="menu-row">
+                <button type="button" className="btn utility sm" onClick={() => { exportRis(keptList, "shortlist.ris"); toast(`Exported your shortlist of ${plural(keptList.length, "paper")} as RIS.`); }}>RIS</button>
+                <button type="button" className="btn utility sm" onClick={() => { exportCsv(keptList, themeOf, "shortlist.csv"); toast(`Exported your shortlist of ${plural(keptList.length, "paper")} as CSV.`); }}>CSV</button>
+              </div>
+            </>
+          )}
+          <h4 className="eyebrow">Results shown · {plural(list.length, "paper")}</h4>
+          <div className="menu-row">
+            <button type="button" className="btn utility sm" onClick={() => { exportRis(list); toast(`Exported ${plural(list.length, "paper")} as RIS, ready for Zotero, EndNote or Mendeley.`); }}>RIS</button>
+            <button type="button" className="btn utility sm" onClick={() => { exportCsv(list, themeOf); toast(`Exported ${plural(list.length, "paper")} as CSV.`); }}>CSV</button>
+          </div>
+          <p className="help">RIS opens in Zotero, EndNote and Mendeley.</p>
+        </Menu>
+      </div>
+
+      {(active > 0 || text) && (
+        <div className="active-filters">
+          {text && <FilterChip label={`“${text}”`} onRemove={() => setText("")} />}
+          {[...channels].map((c) => <FilterChip key={c} label={CHANNELS[c]?.[0] ?? c} onRemove={() => setChannels(toggle(channels, c))} />)}
+          {[...themes].map((t) => <FilterChip key={t} label={themeName(data, t)} onRemove={() => setThemes(toggle(themes, t))} />)}
+          {onlyRelevant && <FilterChip label="As relevant as your seeds" onRemove={() => setOnlyRelevant(false)} />}
+          {hideKnown && <FilterChip label="Hiding what your seeds cite" onRemove={() => setHideKnown(false)} />}
+          {showSetAside && <FilterChip label="Showing set-aside papers" onRemove={() => setShowSetAside(false)} />}
+          <span className="muted">{plural(list.length, "paper")}</span>
+          <button type="button" className="link" onClick={clear}>Clear all</button>
         </div>
+      )}
+      {!active && !text && setAside > 0 && (
+        <p className="set-aside-note">{plural(setAside, "paper")} set aside. <button type="button" className="link" onClick={() => setShowSetAside(true)}>Show them</button></p>
       )}
 
       {live && <p className="live-note"><span className="pulse" /> Live: grades arrive in batches and the list re-ranks as they do.</p>}
@@ -138,7 +248,7 @@ export function Results({ data, live }: { data: Discovery; live: boolean }) {
       {view === "map" && hasMap ? <ResultsMap data={data} list={list} selected={open} onOpen={openPaper} />
         : view === "graph" && hasMap ? <CitationGraph data={data} list={list} selected={open} onOpen={openPaper} />
           : <ResultList list={list} data={data} live={live} byRelevance={sort === "relevance" && !live}
-              selected={open} onOpen={openPaper} onClear={clear} />}
+              selected={open} cursor={cursor} isNew={isNew} showRelevance={!allRelevant} onOpen={openPaper} onClear={clear} />}
 
       {openResult && (
         <PaperDrawer paper={openResult} data={data} list={list} live={live} onOpen={openPaper} onClose={() => setParam("paper", null)} />
@@ -147,53 +257,10 @@ export function Results({ data, live }: { data: Discovery; live: boolean }) {
   );
 }
 
-function DownloadIcon() {
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v8M4.8 7.4L8 10.6l3.2-3.2M2.5 10.5v2.2c0 .5.4.8.8.8h9.4c.4 0 .8-.3.8-.8v-2.2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-  );
-}
-
-export function SeedsPanel({ data }: { data: Discovery }) {
-  const groups: [keyof Discovery["queries"], string][] = [["pubmed_queries", "PubMed"], ["preprint_queries", "Preprints"]];
-  if (!data.web_trail.length) groups.push(["web_queries", "Web"]);
-  return (
-    <section className="panel">
-      <div className="panel-head"><h2>Your seeds</h2></div>
-      <ul className="seeds">
-        {data.seeds.map((s) => (
-          <li key={s.id}>
-            <span className="lbl">{s.label}</span>
-            <a className="t" href={s.links.pubmed || s.links.doi || s.links.europepmc} target="_blank" rel="noopener" title={s.title}>{s.title}</a>
-            {s.grade == null ? <span className="chip">{data.results.length ? "grading…" : ""}</span>
-              : <span className={`chip${s.grade >= 3 ? " ok" : ""}`}>{s.grade} · {GRADES[s.grade]}</span>}
-          </li>
-        ))}
-      </ul>
-      {data.cutoff != null && (
-        <p className="note">Your seeds were graded under the same prompt; the weakest got {data.cutoff}. Results at or above that are marked likely relevant.</p>
-      )}
-      {data.criteria.length > 0 && (
-        <details className="more">
-          <summary>Inclusion criteria</summary>
-          <ul className="criteria">{data.criteria.map((c) => <li key={c}>{c}</li>)}</ul>
-        </details>
-      )}
-      {(data.queries.pubmed_queries.length > 0 || data.web_trail.length > 0) && (
-        <details className="more">
-          <summary>Search queries</summary>
-          {groups.filter(([k]) => data.queries[k].length).map(([k, title]) => (
-            <div key={k} className="qgroup"><h3 className="eyebrow">{title}</h3>{data.queries[k].map((q) => <code key={q}>{q}</code>)}</div>
-          ))}
-          {data.web_trail.map((t) => (
-            <div key={t.round} className="qgroup">
-              <h3 className="eyebrow">Web agent · round {t.round}</h3>
-              {t.searches.map((q) => <code key={q}>{q}</code>)}
-              {t.why && <p className="qwhy">{t.why}</p>}
-              {t.searches.length > 0 && <p className="qwhy">{t.pages} pages read · {t.papers} tied to a paper record</p>}
-            </div>
-          ))}
-        </details>
-      )}
-    </section>
+    <span className="filter-chip">{label}
+      <button type="button" onClick={onRemove} aria-label={`Remove filter: ${label}`}><XIcon /></button>
+    </span>
   );
 }
