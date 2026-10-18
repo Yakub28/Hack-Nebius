@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { plural, seedLines } from "../lib/format";
 import { exportCsv, exportRis } from "../lib/export";
 import { useSession } from "../lib/session";
@@ -26,7 +26,7 @@ export function ActionBar({ baseline, running }: { baseline: { question: string;
     <div className="action-bar" role="region" aria-label="Shortlist and re-run">
       {keptList.length > 0 && (
         <div className="ab-group">
-          <span className="ab-count"><StarIcon filled />{plural(keptList.length, "paper")} kept</span>
+          <Link className="ab-count" to="/shortlist" title="Open your shortlist"><StarIcon filled />{plural(keptList.length, "paper")} kept</Link>
           <button type="button" className="btn utility sm" onClick={() => { exportRis(keptList, "shortlist.ris"); toast("Exported your shortlist as RIS."); }}>RIS</button>
           <button type="button" className="btn utility sm" onClick={() => { exportCsv(keptList, () => "", "shortlist.csv"); toast("Exported your shortlist as CSV."); }}>CSV</button>
           <button type="button" className="link" onClick={() => { clearKept(); toast("Shortlist cleared."); }}>Clear</button>
