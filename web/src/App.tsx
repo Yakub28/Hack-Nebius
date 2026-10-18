@@ -17,7 +17,8 @@ function LegacyApp() {
  *  foot of the overview would land halfway down the results. */
 function ScrollReset() {
   const { pathname } = useLocation();
-  useLayoutEffect(() => window.scrollTo(0, 0), [pathname]);
+  // Braces, not an expression: Chrome's scrollTo now returns a Promise, and React would call it as the cleanup.
+  useLayoutEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
 }
 
