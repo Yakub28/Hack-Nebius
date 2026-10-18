@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { CHANNELS, IS_MAC, MAX_SEEDS, seedLines } from "../lib/format";
+import { IS_MAC, MAX_SEEDS, seedLines } from "../lib/format";
 import { useSession } from "../lib/session";
-import { EXAMPLE, useCollectionImport } from "./SearchForm";
+import { useCollectionImport } from "./SearchForm";
 
 /** What a seed chip shows: the kind of reference, then the reference itself. */
 function chipLabel(ref: string): [string, string] {
@@ -91,8 +91,8 @@ export function SearchHero({ onError }: { onError: (message: string | null) => v
   return (
     <div className="hero-search" onKeyDown={onKey}>
       <span className="eyebrow">TUMor</span>
-      <h1>Find the papers your seeds point to</h1>
-      <p className="hero-sub">Ask a question, add the papers you already trust, and watch new ones arrive, ranked, each with a verified quote.</p>
+      <h1>What should you read next?</h1>
+      <p className="hero-sub">Add a few papers you trust. We'll find what belongs next to them, and show you why.</p>
 
       <form className={`search-card${dropping ? " drop" : ""}`} autoComplete="off"
         onSubmit={(e) => { e.preventDefault(); submit(); }}
@@ -143,17 +143,6 @@ export function SearchHero({ onError }: { onError: (message: string | null) => v
         {dropping && <div className="drop-hint">Drop a RIS, BibTeX, .nbib or CSV file to import its papers as seeds</div>}
       </form>
       {note && <p className="note hero-note">{note}</p>}
-
-      <div className="hero-alt">
-        <button type="button" className="link" onClick={() => setForm({ question: EXAMPLE.question, seeds: EXAMPLE.seeds })}>Try an example</button>
-        <span aria-hidden="true">·</span>
-        <button type="button" className="link" onClick={() => navigate("/recorded")}>Open a recorded run</button>
-        <span aria-hidden="true">·</span>
-        <span>About 2 minutes, streamed live</span>
-      </div>
-      <div className="channels-legend hero-channels">
-        {Object.values(CHANNELS).map(([name, desc]) => <span key={name} className="chip" title={desc}>{name}</span>)}
-      </div>
     </div>
   );
 }
