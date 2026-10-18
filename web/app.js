@@ -1,391 +1,127 @@
 "use strict";
-// Snowball UI: resolve the seeds, start a run, follow its events, render evidence cards. No build step.
+// Paper Discovery UI: one POST /discover, rendered as ranked, traceable cards. No build step.
 
-const STAGE_LABELS = {
-  resolve: "Reading your papers",
-  rubric: "Nemotron 3 Super: what we're looking for",
-  citations: "Citations",
-  cocited: "Co-cited",
-  similar: "PubMed similar",
-  search: "Search",
-  web: "Web",
-  keyword_check: "Keyword check",
-  merge: "Combining",
-  enrich: "Records, metrics and retraction checks",
-  embed: "Measuring meaning",
-  screen: "Nemotron 3.5 Lightning screening",
-  explain: "Nemotron 3 Super explaining",
+const CHANNELS = {
+  similar: ["PubMed similar", "PubMed's own nearest neighbours of a seed"],
+  cites: ["Cites a seed", "Newer work that cites your seeds"],
+  refs: ["Cited by a seed", "Earlier work your seeds build on"],
+  cocited: ["Co-cited", "Cited together with your seeds by the same papers"],
+  query: ["PubMed search", "LLM-written PubMed queries"],
+  preprint: ["Preprint", "bioRxiv / medRxiv via Europe PMC"],
+  web: ["Web (Tavily)", "Found on the web, resolved to a PubMed or DOI record"],
 };
-const LEFT_OUT = {
-  seed: "Already one of your papers",
-  duplicate: "Duplicate version",
-  retracted: "Retracted",
-  not_article: "Not a research article",
-  outside_dates: "Outside your dates",
-  excluded_preprint: "Preprint (you excluded preprints)",
-  below_cutoff: "Ranked below the top 150",
-  graded_0: "Graded not relevant",
-  no_record: "No retrievable record",
-};
-const GRADE_NAMES = { 3: "Direct", 2: "Relevant", 1: "Related", 0: "Not relevant" };
+const GRADES = { 4: "Direct", 3: "High", 2: "Partial", 1: "Tangent", 0: "No" };
+// Rough per-stage durations (s) from typical runs; the API reports the real ones at the end.
+const STAGES = [
+  ["resolve", "Resolving seeds in PubMed", 2],
+  ["plan", "Planning criteria and queries", 6],
+  ["graph", "Mapping the seeds' citations", 5],
+  ["candidates", "Searching 7 channels", 8],
+  ["hydrate", "Fetching records and metrics", 5],
+  ["first_stage", "Embedding and fusing signals", 5],
+  ["judge", "LLM grading candidates", 30],
+];
 const EXAMPLE = {
-  seeds: "33567185\n10.1056/NEJMoa2206038\nOnce-Weekly Semaglutide in Adolescents with Obesity",
-  question: "Do incretin-based drugs reduce body weight in people with obesity?",
+  question: "Which incretin-based drugs reduce body weight in adults with obesity?",
+  seeds: "33567185\nTirzepatide Once Weekly for the Treatment of Obesity",
 };
 
-const state = { run: null, source: null, timer: null, types: new Set() };
+const state = { data: null, sample: false, channels: new Set(), controller: null };
 
-// --- start a run ---------------------------------------------------------------
+// --- small helpers ------------------------------------------------------------
+
+function authors(list) {
+  if (!list || !list.length) return "";
+  return list.length > 3 ? `${list.slice(0, 3).join(", ")} et al.` : list.join(", ");
+}
+
+function firstLink(p) {
+  const links = p.links || {};
+  return links.pubmed || links.doi || links.europepmc || "#";
+}
+
+function gradeClass(g) {
+  return g === 4 ? "g4" : g === 3 ? "g3" : g === 2 ? "g2" : "";
+}
+
+// --- form ---------------------------------------------------------------------
+
+function restoreForm() {
+  const last = store("pd:last");
+  if (!last) return;
+  $("question").value = last.question || "";
+  $("seeds").value = last.seeds || "";
+  if (last.limit) $("limit").value = String(last.limit);
+}
 
 $("example").addEventListener("click", () => {
-  $("seeds").value = EXAMPLE.seeds;
   $("question").value = EXAMPLE.question;
-  $("seeds").focus();
+  $("seeds").value = EXAMPLE.seeds;
+  $("question").focus();
+});
+
+$("sample").addEventListener("click", async () => {
+  hideError();
+  try {
+    const resp = await fetch("sample.json");
+    if (!resp.ok) throw new Error(`sample.json: HTTP ${resp.status}`);
+    show(await resp.json(), true);
+  } catch (err) {
+    showError(`Could not load the sample: ${err.message}`);
+  }
 });
 
 $("search-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  hideError();
-  const lines = $("seeds").value.split("\n").map((s) => s.trim()).filter(Boolean);
-  if (!lines.length) return showError("Paste at least one paper: a PMID, DOI, link or title.");
-  store("snowball:last", { seeds: $("seeds").value, question: $("question").value });
-  $("submit").disabled = true;
-  try {
-    const checked = await api("/api/seeds/resolve", { lines });
-    renderSeedCheck(checked);
-    if (checked.some((r) => r.status === "choose")) return;
-    const seeds = checked.filter((r) => r.status === "found" && !r.note).map((r) => r.seed.id);
-    if (!seeds.length) return showError("None of your papers could be found. Check the DOIs or PMIDs, or paste the titles.");
-    const { runId } = await api("/api/runs", { seeds, question: $("question").value.trim() || null, options: options() });
-    follow(runId);
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    $("submit").disabled = false;
+  const question = $("question").value.trim();
+  const seedsText = $("seeds").value;
+  const seeds = seedsText.split("\n").map((s) => s.trim()).filter(Boolean);
+  const limit = Number($("limit").value);
+  if (question.length < 3 || !seeds.length) {
+    showError("Enter a question and at least one seed paper.");
+    return;
   }
+  store("pd:last", { question, seeds: seedsText, limit });
+  await run({ question, seeds, limit });
 });
 
-function options() {
-  const year = (id) => ($(id).value ? Number($(id).value) : null);
-  return { yearFrom: year("year-from"), yearTo: year("year-to"),
-           includePreprints: $("preprints").checked, before: $("before").value || null };
-}
+$("cancel").addEventListener("click", () => state.controller && state.controller.abort());
 
-async function api(path, body) {
-  let resp;
+async function run(body) {
+  hideError();
+  const controller = new AbortController();
+  state.controller = controller;
+  $("submit").disabled = true;
+  $("submit").textContent = "Searching…";
+  const stopProgress = startProgress();
   try {
-    resp = await fetch(`${API_BASE}${path}`, {
-      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+    const resp = await fetch(`${API_BASE}/discover`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
     });
-  } catch {
-    throw new Error(`Could not reach the API at ${API_BASE || location.origin}. Is it running?`);
+    const payload = await resp.json().catch(() => null);
+    if (!resp.ok) throw new Error(errorDetail(payload) || `HTTP ${resp.status}`);
+    show(payload, false);
+  } catch (err) {
+    if (err.name === "AbortError") showError("Search cancelled.");
+    else if (err instanceof TypeError) showError(`Could not reach the API at ${API_BASE || location.origin}. Is it running?`);
+    else showError(err.message);
+  } finally {
+    stopProgress();
+    state.controller = null;
+    $("submit").disabled = false;
+    $("submit").textContent = "Discover";
   }
-  const payload = await resp.json().catch(() => null);
-  if (!resp.ok) throw new Error(errorDetail(payload) || `HTTP ${resp.status}`);
-  return payload;
 }
 
 function errorDetail(payload) {
   const detail = payload && payload.detail;
   if (!detail) return "";
   if (typeof detail === "string") return detail;
-  return detail.map((d) => `${(d.loc || []).slice(1).join(".")}: ${d.msg}`).join("; ");
-}
-
-function renderSeedCheck(checked) {
-  const list = $("seed-check");
-  list.hidden = false;
-  let n = 0;
-  list.innerHTML = checked.map((r, i) => {
-    if (r.status === "found") {
-      const label = r.note ? "" : `<span class="lbl">S${++n}</span>`;
-      return `<li class="found">${label}<span>${esc(seedLine(r.seed))}</span>${r.note ? `<small>${esc(r.note)}</small>` : ""}</li>`;
-    }
-    if (r.status === "choose") {
-      return `<li class="choose"><small>! ${esc(r.note)}</small>${r.options.map((p) =>
-        `<button type="button" class="link" data-line="${i}" data-pick="${esc(p.pmid || p.doi)}">${esc(seedLine(p))}: ${esc(p.title)}</button>`).join("")}</li>`;
-    }
-    return `<li class="missing"><small>${esc(r.line)}: ${esc(r.note)}</small>
-      <button type="button" class="link" data-line="${i}" data-remove>Remove</button></li>`;
-  }).join("");
-}
-
-$("seed-check").addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-line]");
-  if (!button) return;
-  const lines = $("seeds").value.split("\n").map((s) => s.trim()).filter(Boolean);
-  const i = Number(button.dataset.line);
-  if (button.hasAttribute("data-remove")) lines.splice(i, 1);
-  else lines[i] = button.dataset.pick;
-  $("seeds").value = lines.join("\n");
-  $("seed-check").hidden = true;
-});
-
-function seedLine(p) {
-  const author = (p.authors && p.authors[0] || "").split(" ")[0];
-  return [author, p.year, p.journal].filter(Boolean).join(" · ");
-}
-
-// --- follow a run --------------------------------------------------------------
-
-function follow(runId) {
-  if (state.source) state.source.close();
-  state.run = { id: runId, seeds: [], stages: {}, rubric: null, results: [], funnel: null, leftOut: [] };
-  state.types = new Set();
-  history.replaceState(null, "", `?run=${runId}`);
-  $("empty").hidden = true;
-  $("results").hidden = true;
-  $("context").hidden = true;
-  $("progress").hidden = false;
-  $("stages").innerHTML = "";
-  startClock();
-
-  const source = new EventSource(`${API_BASE}/api/runs/${runId}/events`);
-  state.source = source;
-  const on = (name, handler) => source.addEventListener(name, (e) => handler(JSON.parse(e.data)));
-  on("seeds", (d) => { state.run.seeds = d.seeds; renderContext(); });
-  on("stage", (d) => { state.run.stages[d.name] = d; renderStages(); });
-  on("rubric", (d) => { state.run.rubric = d; renderContext(); });
-  on("results", (d) => { Object.assign(state.run, d); renderResults(); });
-  on("explained", (d) => {
-    const r = state.run.results.find((x) => x.id === d.id);
-    if (r) Object.assign(r, { grade: d.grade, relation: d.relation, reason: d.reason, abstain: d.abstain, gradedBy: "super" });
-    renderResults();
-  });
-  on("done", () => { finish(); $("progress").hidden = true; renderResults(); });
-  on("error", (d) => { finish(); showError(d.message); });
-  source.onerror = async () => {
-    // The stream dropped (proxy timeout, reload): fall back to the run's snapshot.
-    if (source.readyState !== EventSource.CLOSED) return;
-    finish();
-    await loadSnapshot(runId);
-  };
-}
-
-async function loadSnapshot(runId) {
-  try {
-    const resp = await fetch(`${API_BASE}/api/runs/${runId}`);
-    if (!resp.ok) throw new Error((await resp.json()).detail);
-    const snap = await resp.json();
-    if (snap.status === "running") return follow(runId);
-    state.run = { ...snap, stages: Object.fromEntries(snap.stages.map((s) => [s.name, s])) };
-    $("empty").hidden = true;
-    renderContext();
-    renderResults();
-  } catch (err) {
-    showError(err.message);
-  }
-}
-
-function finish() {
-  if (state.source) state.source.close();
-  state.source = null;
-  clearInterval(state.timer);
-}
-
-function startClock() {
-  clearInterval(state.timer);
-  const started = performance.now();
-  state.timer = setInterval(() => {
-    $("elapsed").textContent = `${Math.floor((performance.now() - started) / 1000)} s`;
-  }, 250);
-}
-
-function renderStages() {
-  $("progress").hidden = false;
-  $("stages").innerHTML = Object.keys(STAGE_LABELS).filter((name) => state.run.stages[name]).map((name) => {
-    const s = state.run.stages[name];
-    const count = s.count == null ? "" : s.note && s.note.startsWith("of ") ? `${s.count} ${s.note.replace("of", "/")}` : s.count;
-    const time = s.ms == null ? "" : `${(s.ms / 1000).toFixed(1)} s`;
-    const note = s.status === "unavailable" ? `<small>${esc(s.note || "Unavailable: results use the other channels")}</small>` : "";
-    const cls = { done: "done", running: "active", unavailable: "off" }[s.status] || "";
-    return `<li class="${cls}"><span>${esc(STAGE_LABELS[name])}</span><span class="mono">${esc(String(count))}</span>
-      <span class="mono muted">${time}</span>${note}</li>`;
-  }).join("");
-}
-
-function renderContext() {
-  const run = state.run;
-  if (!run.seeds.length) return;
-  $("context").hidden = false;
-  $("seed-list").innerHTML = run.seeds.map((s) => `
-    <li><span class="lbl">${esc(s.label)}</span>
-      <a class="t" href="${esc(firstLink(s))}" target="_blank" rel="noopener" title="${esc(s.title)}">${esc(s.title)}</a></li>`).join("");
-  const r = run.rubric;
-  $("rubric").hidden = !r;
-  if (!r) return;
-  $("rubric-line").textContent = [r.population, r.intervention_or_exposure, r.comparison, (r.outcomes || []).join(", ")]
-    .filter(Boolean).join(" · ");
-  $("key-terms").innerHTML = (r.key_terms || []).map((t) =>
-    `<li><b>${esc(t.term)}</b>${t.synonyms.length ? `: ${esc(t.synonyms.join(", "))}` : ""}</li>`).join("");
-  $("queries").innerHTML = `<div class="qgroup"><h3>Searches</h3>${(r.queries || []).map((q) => `<code>${esc(q)}</code>`).join("")}</div>`;
-}
-
-// --- results -------------------------------------------------------------------
-
-function renderResults() {
-  const run = state.run;
-  if (!run.funnel) return;
-  $("results").hidden = false;
-  const f = run.funnel;
-  const leftTotal = run.leftOut.reduce((n, l) => n + l.count, 0);
-  $("funnel").innerHTML = [`<strong>${f.found}</strong> found`, `<strong>${f.new}</strong> new`,
-    `<strong>${f.screened}</strong> screened`, `<strong>${f.relevant}</strong> relevant + <strong>${f.related}</strong> related`]
-    .map((p) => `<span class="pill">${p}</span>`).join("<span class='arrow'>→</span>");
-
-  const retracted = run.leftOut.find((l) => l.reason === "retracted");
-  $("retracted-line").hidden = !retracted;
-  if (retracted) {
-    $("retracted-line").textContent = `${retracted.count} retracted paper${retracted.count > 1 ? "s" : ""} found and left out` +
-      (retracted.titles && retracted.titles.length ? `: ${retracted.titles.join("; ")}` : "");
-  }
-  $("grades-off").hidden = !run.gradesUnavailable;
-  // Once the run is over, the funnel replaces the progress list; only gaps stay visible.
-  const gaps = Object.values(run.stages).filter((st) => st.status === "unavailable" && st.name !== "screen");
-  $("gaps").hidden = !gaps.length;
-  $("gaps").textContent = gaps.map((st) => `${STAGE_LABELS[st.name]}: ${st.note}`).join(" · ");
-
-  renderTypeFilter();
-  const visible = visibleResults();
-  const main = run.gradesUnavailable ? visible : visible.filter((r) => (r.grade || 0) >= 2);
-  const related = run.gradesUnavailable ? [] : visible.filter((r) => r.grade === 1);
-  $("cards").innerHTML = main.length ? main.map((r, i) => card(r, i + 1)).join("")
-    : `<li class="none">Nothing relevant passed screening. Try more papers, a sharper question, or open Related.</li>`;
-  $("related-section").hidden = !related.length;
-  $("related-summary").textContent = `Related (${related.length})`;
-  $("related").innerHTML = related.map((r, i) => card(r, i + 1)).join("");
-
-  $("left-out").hidden = !leftTotal;
-  $("left-out-summary").textContent = `Left out (${leftTotal})`;
-  $("left-out-list").innerHTML = run.leftOut.map((l) =>
-    `<li><b>${l.count}</b> ${esc(LEFT_OUT[l.reason] || l.reason)}</li>`).join("");
-}
-
-function renderTypeFilter() {
-  const counts = {};
-  state.run.results.forEach((r) => { counts[r.studyType] = (counts[r.studyType] || 0) + 1; });
-  $("type-filter").innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) =>
-    `<button type="button" data-type="${esc(t)}" aria-pressed="${state.types.has(t)}">${esc(t)}<span class="n">${n}</span></button>`).join("");
-}
-
-$("type-filter").addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-type]");
-  if (!button) return;
-  const t = button.dataset.type;
-  if (state.types.has(t)) state.types.delete(t); else state.types.add(t);
-  renderResults();
-});
-["filter-text", "sort"].forEach((id) => $(id).addEventListener(id === "sort" ? "change" : "input", renderResults));
-
-function visibleResults() {
-  const text = $("filter-text").value.trim().toLowerCase();
-  const list = state.run.results.filter((r) =>
-    (!state.types.size || state.types.has(r.studyType)) &&
-    (!text || [r.title, r.journal, r.authors.join(" ")].join(" ").toLowerCase().includes(text)));
-  const sort = $("sort").value;
-  if (sort === "newest") list.sort((a, b) => (b.date || String(b.year || "")).localeCompare(a.date || String(a.year || "")));
-  if (sort === "links") list.sort((a, b) => seedLinks(b) - seedLinks(a) || b.score - a.score);
-  return list;
-}
-
-function seedLinks(r) {
-  return new Set(r.foundBy.filter((p) => ["citations", "cocited", "similar"].includes(p.channel)).map((p) => p.via)).size;
-}
-
-function card(r, rank) {
-  const author = r.authors.length ? `${r.authors[0]}${r.authors.length > 1 ? " et al." : ""}` : "";
-  const meta = [
-    esc(author), r.journal ? `<span class="venue">${esc(r.journal)}</span>` : "",
-    `<span class="chip">${esc(r.studyType)}</span>`,
-    r.isPreprint ? `<span class="chip warn">Preprint</span>` : "",
-    r.oaUrl ? `<a href="${esc(r.oaUrl)}" target="_blank" rel="noopener">PDF</a>` : "",
-    gradeChip(r.grade),
-  ].filter(Boolean).join(" · ");
-  const why = r.abstain ? `<span class="muted">Too little to judge from the abstract</span>`
-    : r.reason ? `<b>${esc(r.relation)}:</b> ${seedMarks(r.reason)}`
-    : r.reasonShort ? esc(r.reasonShort) : "";
-  const links = Object.entries(r.links || {}).map(([name, url]) =>
-    `<a href="${esc(url)}" target="_blank" rel="noopener">${esc({ pubmed: "PubMed", doi: "DOI", pmc: "PMC" }[name] || name)}</a>`).join("");
-  return `<li class="card">
-    <div class="grade ${gradeClass(r.grade)}" title="${r.grade == null ? "Not screened" : `Graded ${r.grade} of 3`}">
-      <b>${rank}</b><small>${r.year || ""}</small>
-    </div>
-    <div>
-      <h3><a href="${esc(firstLink(r))}" target="_blank" rel="noopener">${esc(r.title)}</a></h3>
-      <div class="meta">${meta}</div>
-      ${why ? `<p class="reason"><span class="k">Why it's here</span> ${why}</p>` : ""}
-      ${r.quote ? `<blockquote class="quote">“${esc(r.quote.text)}”<span class="tag">✓ Verbatim from the abstract</span></blockquote>` : ""}
-      <div class="chips">${r.chips.map((c) => `<span class="chip accent">${seedMarks(c)}</span>`).join("")}</div>
-      <div class="card-foot">
-        <div class="links">${links}</div>
-        <button type="button" class="toggle" data-panel="detail" aria-expanded="false">Details</button>
-      </div>
-      <div class="panel-detail" hidden>${detail(r)}</div>
-    </div>
-  </li>`;
-}
-
-function detail(r) {
-  const match = r.match ? `<ul class="why">${Object.entries(r.match).map(([k, v]) =>
-    `<li>${esc(k[0].toUpperCase() + k.slice(1))}: <b>${esc(v)}</b></li>`).join("")}</ul>` : "";
-  const parts = r.scoreParts.map((p) => `<li><span class="mono">${p.value.toFixed(2)}</span> <b>${esc(p.name)}</b>
-    <span class="bar" style="--w:${Math.round((p.value / 0.35) * 100)}%"></span> ${seedMarks(p.sentence)}</li>`).join("");
-  const facts = [
-    r.citedBy != null ? `${r.citedBy} citations` : "",
-    r.rcr != null ? `RCR ${r.rcr.toFixed(1)}` : "",
-    r.hac ? `human ${Math.round(r.hac.human * 100)}% · animal ${Math.round(r.hac.animal * 100)}% · cell ${Math.round(r.hac.cell * 100)}%` : "",
-    r.clinicalCitations ? `${r.clinicalCitations} clinical citations` : "",
-    r.preprintOf ? `Also a preprint: ${r.preprintOf}` : "",
-    r.mesh.length ? `MeSH: ${r.mesh.slice(0, 5).join(", ")}` : "",
-  ].filter(Boolean).map((f) => `<span class="chip">${esc(f)}</span>`).join("");
-  const web = r.foundBy.filter((p) => p.url).map((p) =>
-    `<li><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.urlTitle || p.url)}</a></li>`).join("");
-  const searches = [...new Set(r.foundBy.filter((p) => p.channel === "search").map((p) => p.via))]
-    .map((q) => `<li>Search: ${esc(q)}</li>`).join("");
-  return `<p class="score"><b>Score ${r.score.toFixed(2)}</b></p><ul class="score-parts">${parts}</ul>
-    ${match ? `<h4>Fit with what you're looking for</h4>${match}` : ""}
-    <div class="chips">${facts}</div>
-    ${web || searches ? `<h4>Found on</h4><ul class="why">${web}${searches}</ul>` : ""}
-    ${r.abstract ? `<h4>Abstract</h4><p class="abstract">${highlight(r.abstract, r.quote && r.quote.text)}</p>` : "<p class='muted'>No abstract available: judged on the title.</p>"}`;
-}
-
-$("cards").addEventListener("click", toggleDetail);
-$("related").addEventListener("click", toggleDetail);
-
-function toggleDetail(event) {
-  const button = event.target.closest("button.toggle");
-  if (!button) return;
-  const panel = button.closest(".card").querySelector(".panel-detail");
-  panel.hidden = !panel.hidden;
-  button.setAttribute("aria-expanded", String(!panel.hidden));
-}
-
-function highlight(abstract, quote) {
-  const text = esc(abstract);
-  if (!quote) return text;
-  const q = esc(quote);
-  return text.includes(q) ? text.replace(q, `<mark>${q}</mark>`) : text;
-}
-
-function seedMarks(text) {
-  return esc(text).replace(/\bS(\d+)\b/g, (m, n) => {
-    const seed = state.run.seeds.find((s) => s.label === m);
-    return `<span class="lbl" title="${esc(seed ? seed.title : "")}">${m}</span>`;
-  });
-}
-
-function gradeChip(grade) {
-  if (grade == null) return "";
-  return `<span class="chip ${grade === 3 ? "ok" : grade === 2 ? "accent" : ""}">${GRADE_NAMES[grade]}</span>`;
-}
-
-function gradeClass(g) {
-  return g === 3 ? "g4" : g === 2 ? "g3" : g === 1 ? "g2" : "";
-}
-
-function firstLink(p) {
-  const links = p.links || {};
-  return links.pubmed || links.doi || links.pmc || "#";
+  if (Array.isArray(detail)) return detail.map((d) => `${(d.loc || []).slice(1).join(".")}: ${d.msg}`).join("; ");
+  return JSON.stringify(detail);
 }
 
 function showError(message) {
@@ -397,35 +133,272 @@ function hideError() {
   $("error").hidden = true;
 }
 
-// --- export --------------------------------------------------------------------
+// --- progress -----------------------------------------------------------------
 
-async function exportAs(format) {
-  try {
-    const resp = await fetch(`${API_BASE}/api/export`, {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ runId: state.run.id, ids: visibleResults().map((r) => r.id), format }),
+function startProgress() {
+  const list = $("stages");
+  list.innerHTML = STAGES.map(([key, label]) => `<li data-stage="${key}">${esc(label)}</li>`).join("");
+  $("progress").hidden = false;
+  const started = performance.now();
+  const ends = [];
+  STAGES.reduce((total, stage) => { ends.push(total + stage[2]); return total + stage[2]; }, 0);
+  const tick = () => {
+    const s = (performance.now() - started) / 1000;
+    $("elapsed").textContent = `${Math.floor(s)} s`;
+    // The last stage stays active until the response arrives, however long it takes.
+    const next = ends.findIndex((end) => s < end);
+    const current = next === -1 ? STAGES.length - 1 : next;
+    [...list.children].forEach((li, i) => {
+      li.className = i < current ? "done" : i === current ? "active" : "";
     });
-    if (!resp.ok) throw new Error(errorDetail(await resp.json().catch(() => null)) || `HTTP ${resp.status}`);
-    const url = URL.createObjectURL(await resp.blob());
-    const a = Object.assign(document.createElement("a"), { href: url, download: `snowball-${state.run.id}.${format}` });
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (err) {
-    showError(`Export failed: ${err.message}`);
+  };
+  tick();
+  const timer = setInterval(tick, 250);
+  return () => {
+    clearInterval(timer);
+    $("progress").hidden = true;
+  };
+}
+
+// --- results ------------------------------------------------------------------
+
+function show(data, sample) {
+  state.data = data;
+  state.sample = sample;
+  state.channels = new Set();
+  $("empty").hidden = true;
+  $("results").hidden = false;
+  $("sample-banner").hidden = !sample;
+  $("filter-text").value = "";
+  $("sort").value = "relevance";
+  $("only-relevant").checked = false;
+  renderContext(data);
+  renderSummary(data);
+  renderWarnings(data.warnings || []);
+  renderChannelFilter(data.results);
+  renderCards();
+  // On narrow screens the results sit below the form: bring them into view.
+  if ($("main").getBoundingClientRect().top > innerHeight * 0.6) {
+    $("main").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
-$("export-ris").addEventListener("click", () => exportAs("ris"));
-$("export-csv").addEventListener("click", () => exportAs("csv"));
-
-// --- start ---------------------------------------------------------------------
-
-const last = store("snowball:last");
-if (last) {
-  $("seeds").value = last.seeds || "";
-  $("question").value = last.question || "";
+function renderContext(data) {
+  $("context").hidden = false;
+  $("seed-list").innerHTML = data.seeds.map((s) => `
+    <li>
+      <span class="lbl">${esc(s.label)}</span>
+      <a class="t" href="${esc(firstLink(s))}" target="_blank" rel="noopener" title="${esc(s.title)}">${esc(s.title)}</a>
+      ${gradeChip(s.grade)}
+    </li>`).join("");
+  $("cutoff-note").textContent = data.cutoff == null
+    ? "The seeds could not be graded, so there is no relevance line for this search."
+    : `Your seeds graded ${data.cutoff} or higher under the same prompt. Results at or above ${data.cutoff} are marked "likely relevant".`;
+  $("criteria").innerHTML = (data.criteria || []).map((c) => `<li>${esc(c)}</li>`).join("");
+  const groups = { pubmed_queries: "PubMed", preprint_queries: "Preprints", web_queries: "Web" };
+  $("queries").innerHTML = Object.entries(groups)
+    .filter(([key]) => (data.queries || {})[key] && data.queries[key].length)
+    .map(([key, title]) => `<div class="qgroup"><h3>${title}</h3>${
+      data.queries[key].map((q) => `<code>${esc(q)}</code>`).join("")}</div>`).join("");
 }
-const reopen = new URLSearchParams(location.search).get("run");
-if (reopen) loadSnapshot(reopen);
+
+function gradeChip(grade) {
+  if (grade == null) return `<span class="chip">ungraded</span>`;
+  const cls = grade >= 3 ? "ok" : grade === 2 ? "warn" : "";
+  return `<span class="chip ${cls}">${grade} · ${GRADES[grade]}</span>`;
+}
+
+function renderSummary(data) {
+  const results = data.results;
+  const relevant = results.filter((r) => r.likely_relevant).length;
+  const stats = data.stats || {};
+  const total = Object.values(data.timings || {}).reduce((a, b) => a + b, 0);
+  const pills = [
+    `<strong>${results.length}</strong> results`,
+    data.cutoff == null ? null : `<strong>${relevant}</strong> likely relevant`,
+    stats.pool == null ? null : `<strong>${stats.pool.toLocaleString()}</strong> candidates screened`,
+    stats.judged == null ? null : `<strong>${stats.judged}</strong> graded by LLM`,
+    total ? `<strong>${Math.round(total)} s</strong>` : null,
+  ].filter(Boolean);
+  $("summary").innerHTML = pills.map((p) => `<span class="pill">${p}</span>`).join("");
+}
+
+function renderWarnings(warnings) {
+  const box = $("warnings");
+  box.hidden = !warnings.length;
+  if (!warnings.length) return;
+  box.querySelector("summary").textContent =
+    `${warnings.length} warning${warnings.length > 1 ? "s" : ""}: some sources were incomplete`;
+  box.querySelector("ul").innerHTML = warnings.map((w) => `<li>${esc(w)}</li>`).join("");
+}
+
+function renderChannelFilter(results) {
+  const counts = {};
+  results.forEach((r) => r.channels.forEach((c) => { counts[c] = (counts[c] || 0) + 1; }));
+  $("channel-filter").innerHTML = Object.keys(CHANNELS)
+    .filter((c) => counts[c])
+    .map((c) => `<button type="button" data-channel="${c}" aria-pressed="false" title="${esc(CHANNELS[c][1])}">${
+      esc(CHANNELS[c][0])}<span class="n">${counts[c]}</span></button>`).join("");
+}
+
+$("channel-filter").addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-channel]");
+  if (!button) return;
+  const channel = button.dataset.channel;
+  const on = !state.channels.has(channel);
+  if (on) state.channels.add(channel); else state.channels.delete(channel);
+  button.setAttribute("aria-pressed", String(on));
+  renderCards();
+});
+$("cards").addEventListener("click", (event) => {
+  const button = event.target.closest("button.toggle");
+  if (!button) return;
+  const panel = button.closest(".card").querySelector(`.panel-${button.dataset.panel}`);
+  panel.hidden = !panel.hidden;
+  button.setAttribute("aria-expanded", String(!panel.hidden));
+});
+["filter-text", "sort", "only-relevant"].forEach((id) =>
+  $(id).addEventListener(id === "filter-text" ? "input" : "change", renderCards));
+
+function visibleResults() {
+  if (!state.data) return [];
+  const text = $("filter-text").value.trim().toLowerCase();
+  const onlyRelevant = $("only-relevant").checked;
+  const list = state.data.results.filter((r) => {
+    if (onlyRelevant && !r.likely_relevant) return false;
+    if (state.channels.size && !r.channels.some((c) => state.channels.has(c))) return false;
+    if (!text) return true;
+    return [r.title, r.venue, r.authors.join(" "), r.abstract].join(" ").toLowerCase().includes(text);
+  });
+  const sort = $("sort").value;
+  if (sort === "newest") list.sort((a, b) => (b.year || 0) - (a.year || 0));
+  if (sort === "cited") list.sort((a, b) => (b.citations || 0) - (a.citations || 0));
+  return list;
+}
+
+function renderCards() {
+  const data = state.data;
+  const list = visibleResults();
+  const cards = $("cards");
+  if (!list.length) {
+    cards.innerHTML = `<li class="none">No results match these filters.</li>`;
+    return;
+  }
+  const byRelevance = $("sort").value === "relevance" && data.cutoff != null;
+  const parts = [];
+  let lineDrawn = false;
+  list.forEach((r, i) => {
+    if (byRelevance && !lineDrawn && !r.likely_relevant) {
+      lineDrawn = true;
+      parts.push(`<li class="cutline">${i === 0
+        ? "No result reached your seeds' grade"
+        : `Below: graded lower than your weakest seed (${data.cutoff})`}</li>`);
+    }
+    parts.push(card(r, data));
+  });
+  cards.innerHTML = parts.join("");
+}
+
+function card(r, data) {
+  const g = r.grade;
+  const relevantLabel = r.likely_relevant ? `<span class="chip ok">Likely relevant</span>` : "";
+  const seedLinks = [
+    r.cites_seeds.length ? `<span class="chip accent"><span class="k">cites</span> ${r.cites_seeds.join(", ")}</span>` : "",
+    r.cited_by_seeds.length ? `<span class="chip accent"><span class="k">cited by</span> ${r.cited_by_seeds.join(", ")}</span>` : "",
+    r.nearest_seed ? `<span class="chip" title="Cosine similarity of the embeddings"><span class="k">closest to</span> ${
+      esc(r.nearest_seed.label)} · ${r.nearest_seed.similarity.toFixed(2)}</span>` : "",
+  ].join("");
+  const channels = r.channels.map((c) =>
+    `<span class="chip" title="${esc((CHANNELS[c] || [c, ""])[1])}">${esc((CHANNELS[c] || [c])[0])}</span>`).join("");
+  const facts = [
+    r.preprint ? `<span class="chip warn">Preprint</span>` : "",
+    ...(r.types || []).filter((t) => t !== "Journal Article").slice(0, 2).map((t) => `<span class="chip">${esc(t)}</span>`),
+    r.citations != null ? `<span class="chip"><span class="k">citations</span> ${r.citations}</span>` : "",
+    r.rcr != null ? `<span class="chip" title="NIH Relative Citation Ratio: 1.0 is the field average"><span class="k">RCR</span> ${r.rcr.toFixed(1)}</span>` : "",
+  ].join("");
+  const links = Object.entries(r.links || {}).map(([name, url]) =>
+    `<a href="${esc(url)}" target="_blank" rel="noopener">${esc({ pubmed: "PubMed", doi: "DOI", europepmc: "Europe PMC" }[name] || name)}</a>`).join("");
+  const s = r.scores || {};
+  const meta = [authors(r.authors), r.venue ? `<span class="venue">${esc(r.venue)}</span>` : "", r.year || ""]
+    .filter(Boolean).map((x, i) => (i === 1 ? x : esc(x))).join(" · ");
+
+  return `<li class="card${data.cutoff != null && !r.likely_relevant ? " below" : ""}">
+    <div class="grade ${gradeClass(g)}" title="${g == null ? "Not graded: ranked by retrieval signals only" : `LLM grade ${g} of 4`}">
+      <b>${g == null ? "–" : g}</b><small>${g == null ? "unjudged" : GRADES[g]}</small>
+    </div>
+    <div>
+      <h3><a href="${esc(firstLink(r))}" target="_blank" rel="noopener">${esc(r.title)}</a></h3>
+      <div class="meta">${meta}</div>
+      ${r.reason ? `<p class="reason">${esc(r.reason)}</p>` : ""}
+      ${r.quote ? `<blockquote class="quote">“${esc(r.quote)}”<span class="tag">✓ Verbatim from the abstract</span></blockquote>` : ""}
+      <div class="chips">${relevantLabel}${seedLinks}${facts}</div>
+      <div class="chips">${channels}</div>
+      <div class="card-foot">
+        <div class="links">${links}</div>
+        <button type="button" class="toggle" data-panel="why" aria-expanded="false">Why it was found</button>
+        ${r.abstract ? `<button type="button" class="toggle" data-panel="abstract" aria-expanded="false">Abstract</button>` : ""}
+      </div>
+      <div class="panel-why" hidden>
+        <ul class="why">${r.found_via.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+        <div class="scores">
+          <span class="chip"><span class="k">fused</span> ${(s.fused ?? 0).toFixed(4)}</span>
+          <span class="chip"><span class="k">seed sim</span> ${(s.seed_similarity ?? 0).toFixed(2)}</span>
+          <span class="chip"><span class="k">question sim</span> ${(s.question_similarity ?? 0).toFixed(2)}</span>
+          ${s.cocited ? `<span class="chip"><span class="k">co-cited</span> ${s.cocited}</span>` : ""}
+          ${s.shared_references ? `<span class="chip"><span class="k">shared refs</span> ${s.shared_references}</span>` : ""}
+        </div>
+      </div>
+      ${r.abstract ? `<p class="abstract panel-abstract" hidden>${esc(r.abstract)}</p>` : ""}
+    </div>
+  </li>`;
+}
+
+// --- export -------------------------------------------------------------------
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: name });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+$("export-ris").addEventListener("click", () => {
+  const records = visibleResults().map((r) => [
+    `TY  - ${r.preprint ? "UNPB" : "JOUR"}`,
+    `TI  - ${r.title}`,
+    ...r.authors.map((a) => `AU  - ${a}`),
+    r.year ? `PY  - ${r.year}` : "",
+    r.venue ? `JO  - ${r.venue}` : "",
+    r.doi ? `DO  - ${r.doi}` : "",
+    r.pmid ? `AN  - PMID:${r.pmid}` : "",
+    r.abstract ? `AB  - ${r.abstract.replace(/\s+/g, " ")}` : "",
+    `UR  - ${firstLink(r)}`,
+    r.grade != null ? `N1  - Grade ${r.grade}/4. ${r.reason || ""}` : "",
+    "ER  - ",
+  ].filter(Boolean).join("\r\n"));
+  download("papers.ris", records.join("\r\n\r\n") + "\r\n", "application/x-research-info-systems");
+});
+
+$("export-csv").addEventListener("click", () => {
+  const cols = ["rank", "grade", "likely_relevant", "title", "year", "venue", "authors", "doi", "pmid",
+    "citations", "channels", "reason", "quote", "url"];
+  const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const rows = visibleResults().map((r, i) => [i + 1, r.grade, r.likely_relevant, r.title, r.year, r.venue,
+    r.authors.join("; "), r.doi, r.pmid, r.citations, r.channels.join("; "), r.reason, r.quote, firstLink(r)]
+    .map(cell).join(","));
+  download("papers.csv", [cols.join(","), ...rows].join("\r\n"), "text/csv");
+});
+
+// --- start --------------------------------------------------------------------
+
+$("legend").innerHTML = Object.values(CHANNELS)
+  .map(([name, desc]) => `<span class="chip" title="${esc(desc)}">${esc(name)}</span>`).join("");
+restoreForm();
+// ?sample opens straight into the sample results: a fallback link for demos.
+if (new URLSearchParams(location.search).has("sample")) {
+  $("tab-search").removeAttribute("aria-current");
+  $("tab-sample").setAttribute("aria-current", "page");
+  $("sample").click();
+}

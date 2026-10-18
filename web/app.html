@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Snowball · Find papers</title>
-  <meta name="description" content="Start from the papers you trust. Find the ones you're missing, each with the evidence for why.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='11' fill='none' stroke='%232B4ACB' stroke-width='3.5'/><circle cx='16' cy='16' r='4' fill='%232B4ACB'/></svg>">
+  <title>Paper Discovery · Search</title>
+  <meta name="description" content="Give a research question and the papers you trust; get new papers, ranked, each with provenance and a verified quote.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='13' cy='13' r='8' fill='none' stroke='%235b8cff' stroke-width='3.5'/><path d='M19 19l8 8' stroke='%235b8cff' stroke-width='3.5' stroke-linecap='round'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400..800;1,400&family=Source+Serif+4:opsz,wght@8..60,400..700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400..800;1,400&display=swap">
   <link rel="stylesheet" href="app.css">
   <script src="config.js"></script>
 </head>
@@ -16,111 +16,115 @@
   <div class="page">
     <header class="hero">
       <div class="hero-text">
-        <h1>Snowball</h1>
-        <p>Start from the papers you trust. Find the ones you're missing.</p>
+        <h1>Paper Discovery</h1>
+        <p>Start from the papers you trust. Get new ones, ranked, each with where it was found and a quote that shows why.</p>
       </div>
       <div class="hero-side">
         <button type="button" class="btn ghost theme" id="theme-toggle" aria-label="Toggle colour theme">Theme</button>
       </div>
     </header>
     <div class="meta-row">
-      <span class="pill">PubMed · iCite · Europe PMC · Tavily</span>
-      <span class="pill" title="Rubric and explanations: Nemotron 3 Super · Screening: Nemotron 3.5 Lightning · Embeddings: Qwen3-Embedding-8B">Nebius Token Factory</span>
+      <span class="pill">PubMed · Europe PMC · preprints · web</span>
+      <span class="pill" title="Embeddings: Qwen3-Embedding-8B · Judge: Qwen3-235B-A22B-Instruct">Nebius Token Factory</span>
       <span class="pill" id="api-status"><span class="dot"></span><span>Checking API…</span></span>
     </div>
     <nav class="tabs" aria-label="Sections">
-      <a href="./">How it works</a>
-      <a href="app.html" aria-current="page">Find papers</a>
+      <a href="./">Overview</a>
+      <a href="app.html" id="tab-search" aria-current="page">Search</a>
+      <a href="app.html?sample" id="tab-sample">Sample results</a>
     </nav>
 
     <div class="layout">
       <aside class="side">
         <form class="panel" id="search-form" autocomplete="off">
           <label class="field">
-            <span class="label">Your papers <span class="hint">one per line</span></span>
-            <textarea id="seeds" rows="5" required
-              placeholder="PMID, DOI, link or title, one per line&#10;33567185&#10;10.1056/NEJMoa2206038"></textarea>
+            <span class="label">Research question</span>
+            <textarea id="question" rows="3" required minlength="3"
+              placeholder="Which incretin-based drugs reduce body weight in adults with obesity?"></textarea>
           </label>
-          <ul class="seed-check" id="seed-check" hidden></ul>
           <label class="field">
-            <span class="label">Your question <span class="hint">optional</span></span>
-            <textarea id="question" rows="3"
-              placeholder="Do incretin-based drugs reduce body weight in adults with obesity?"></textarea>
+            <span class="label">Seed papers <span class="hint">one per line</span></span>
+            <textarea id="seeds" rows="4" required
+              placeholder="PMID, DOI, PubMed URL or exact title&#10;33567185&#10;Tirzepatide Once Weekly for the Treatment of Obesity"></textarea>
           </label>
-          <details class="more">
-            <summary>Options: years · preprints · only papers before a date</summary>
-            <div class="row options">
-              <label class="field inline"><span class="label">From</span><input type="number" id="year-from" min="1900" max="2100" placeholder="year"></label>
-              <label class="field inline"><span class="label">To</span><input type="number" id="year-to" min="1900" max="2100" placeholder="year"></label>
-              <label class="field inline"><span class="label">Before</span><input type="date" id="before"></label>
-            </div>
-            <label class="check"><input type="checkbox" id="preprints" checked> Include preprints</label>
-          </details>
           <div class="row">
-            <button type="submit" class="btn primary" id="submit">Find papers</button>
-            <button type="button" class="link" id="example">Try an example</button>
+            <label class="field inline">
+              <span class="label">Results</span>
+              <select id="limit">
+                <option value="20">20</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+              </select>
+            </label>
+            <button type="submit" class="btn primary" id="submit">Discover</button>
+          </div>
+          <div class="row small">
+            <button type="button" class="link" id="example">Fill in an example</button>
+            <span class="sep">·</span>
+            <button type="button" class="link" id="sample">View sample results</button>
           </div>
         </form>
 
         <section class="panel" id="progress" hidden>
           <div class="panel-head">
-            <h2>Progress</h2>
+            <h2>Searching</h2>
             <span class="muted mono" id="elapsed">0 s</span>
           </div>
           <ol class="stages" id="stages"></ol>
+          <p class="note">Most of the time goes to judging: the LLM reads every strong candidate's abstract.</p>
+          <button type="button" class="btn ghost full" id="cancel">Cancel</button>
         </section>
 
         <section class="panel" id="context" hidden>
-          <div class="panel-head"><h2>Your papers</h2></div>
+          <div class="panel-head"><h2>Your seeds</h2></div>
           <ul class="seeds" id="seed-list"></ul>
-          <div id="rubric" hidden>
-            <h3 class="sub">What we're looking for</h3>
-            <p class="note" id="rubric-line"></p>
-            <details class="more">
-              <summary>Key terms and searches</summary>
-              <ul class="criteria" id="key-terms"></ul>
-              <div id="queries"></div>
-            </details>
-          </div>
+          <p class="note" id="cutoff-note"></p>
+          <details class="more">
+            <summary>Inclusion criteria</summary>
+            <ul class="criteria" id="criteria"></ul>
+          </details>
+          <details class="more">
+            <summary>Search queries</summary>
+            <div id="queries"></div>
+          </details>
         </section>
       </aside>
 
       <main class="main" id="main">
         <div class="empty" id="empty">
           <div class="empty-title">No search yet</div>
-          <p class="empty-sub">Paste a few papers you already trust. Snowball follows their citations, asks PubMed
-            for similar work, searches PubMed, preprints and the web, then has Nemotron screen the strongest
-            candidates against what you're looking for. Every result shows why it's here.</p>
+          <p class="empty-sub">Enter a question and a few seed papers you already know are relevant. The engine
+            follows their citations, searches PubMed, preprints and the web, then has an LLM grade every strong
+            candidate against criteria drawn from your question.</p>
+          <div class="channels-legend" id="legend"></div>
         </div>
 
         <div id="error" class="alert" hidden></div>
 
         <section id="results" hidden>
-          <div class="summary" id="funnel"></div>
-          <div class="alert bad" id="retracted-line" hidden></div>
-          <div class="alert" id="grades-off" hidden>Grades unavailable right now; ranked without Nemotron.</div>
-          <div class="note" id="gaps" hidden></div>
+          <div class="note" id="sample-banner" hidden>
+            <strong>Sample data</strong>: real PubMed records with placeholder grades and reasons, to preview the
+            layout. Run a search for live results.
+          </div>
+          <div class="summary" id="summary"></div>
+          <details class="warnings" id="warnings" hidden>
+            <summary></summary>
+            <ul></ul>
+          </details>
           <div class="toolbar">
-            <input type="search" id="filter-text" placeholder="Filter by title, author, journal…" aria-label="Filter results">
+            <input type="search" id="filter-text" placeholder="Filter by title, author, venue…" aria-label="Filter results">
             <select id="sort" aria-label="Sort results">
-              <option value="best">Sort: best match</option>
+              <option value="relevance">Sort: relevance</option>
               <option value="newest">Sort: newest</option>
-              <option value="links">Sort: most seed links</option>
+              <option value="cited">Sort: most cited</option>
             </select>
+            <label class="check"><input type="checkbox" id="only-relevant"> Likely relevant only</label>
             <div class="spacer"></div>
             <button type="button" class="btn ghost sm" id="export-ris">Export RIS</button>
             <button type="button" class="btn ghost sm" id="export-csv">Export CSV</button>
           </div>
-          <div class="chip-filter" id="type-filter"></div>
+          <div class="chip-filter" id="channel-filter"></div>
           <ol class="cards" id="cards"></ol>
-          <details class="more section" id="related-section" hidden>
-            <summary id="related-summary">Related</summary>
-            <ol class="cards" id="related"></ol>
-          </details>
-          <details class="more section" id="left-out" hidden>
-            <summary id="left-out-summary">Left out</summary>
-            <ul class="criteria" id="left-out-list"></ul>
-          </details>
         </section>
       </main>
     </div>

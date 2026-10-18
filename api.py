@@ -1,27 +1,18 @@
-"""HTTP API and the built web app, in one process. Run: uvicorn api:app"""
+"""HTTP API over the discovery engine. Run: uvicorn api:app"""
 from __future__ import annotations
 
-import asyncio
-import json
-import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from engine import export, http, run, seeds
-
-WEB_DIR = Path(__file__).parent / "web"
-HEARTBEAT_SECONDS = 15
-MAX_CONCURRENT_RUNS = int(os.getenv("MAX_CONCURRENT_RUNS", "5"))
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+from engine import http
+from engine.discover import Candidate, Discovery, discover
+from engine.paper import Paper
 
 
 @asynccontextmanager
@@ -30,115 +21,75 @@ async def lifespan(_: FastAPI):
     await http.close()
 
 
-app = FastAPI(title="Snowball", lifespan=lifespan)
+app = FastAPI(title="Paper discovery", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
                    allow_methods=["*"], allow_headers=["*"])
 
 
-class ResolveRequest(BaseModel):
-    lines: list[str] = Field(max_length=60)
+class DiscoverRequest(BaseModel):
+    question: str = Field(min_length=3)
+    seeds: list[str] = Field(min_length=1, max_length=30, description="PMIDs, DOIs, PubMed URLs or titles")
+    limit: int = Field(50, ge=1, le=200)
 
 
-class RunOptions(BaseModel):
-    yearFrom: int | None = None
-    yearTo: int | None = None
-    includePreprints: bool = True
-    before: str | None = Field(None, pattern=r"^\d{4}(-\d{2}(-\d{2})?)?$")
+@app.get("/health")
+async def health() -> dict:
+    """Which keys are configured, so the UI can say why a search would fail before one is run."""
+    return {"ok": True, "nebius": bool(os.getenv("NEBIUS_API_KEY")), "web": bool(os.getenv("TAVILY_API_KEY"))}
 
 
-class RunRequest(BaseModel):
-    seeds: list[str] = Field(min_length=1, max_length=30)
-    question: str | None = None
-    options: RunOptions = RunOptions()
-
-
-class ExportRequest(BaseModel):
-    runId: str
-    ids: list[str] | None = None        # default: every relevant result
-    format: Literal["ris", "csv"]
-
-
-@app.get("/healthz", response_class=PlainTextResponse)
-async def healthz() -> str:
-    return "ok"
-
-
-@app.get("/api/status")
-async def status() -> dict:
-    """Which services are configured, so the UI can say why a run would fail before one starts."""
-    return {"nebius": bool(os.getenv("NEBIUS_API_KEY")), "tavily": bool(os.getenv("TAVILY_API_KEY")),
-            "openalex": bool(os.getenv("OPENALEX_API_KEY")), "ncbi": bool(os.getenv("NCBI_API_KEY"))}
-
-
-@app.post("/api/seeds/resolve")
-async def resolve_seeds(req: ResolveRequest) -> list[dict]:
-    return [{"line": r.line, "status": r.status, "note": r.note,
-             "seed": r.seed.to_json() if r.seed else None,
-             "options": [p.to_json() for p in r.options]}
-            for r in await seeds.resolve(req.lines)]
-
-
-@app.post("/api/runs")
-async def create_run(req: RunRequest) -> dict:
+@app.post("/discover")
+async def discover_route(req: DiscoverRequest) -> dict:
     if not os.getenv("NEBIUS_API_KEY"):
-        raise HTTPException(503, "NEBIUS_API_KEY is not set on the server; it runs the embeddings and Nemotron.")
-    if sum(r.status == "running" for r in run.RUNS.values()) >= MAX_CONCURRENT_RUNS:
-        raise HTTPException(429, "Snowball is busy right now. Try again in a minute.")
-    o = req.options
-    started = run.start(req.seeds, (req.question or "").strip() or None,
-                        run.Options(year_from=o.yearFrom, year_to=o.yearTo,
-                                    include_preprints=o.includePreprints, before=o.before))
-    return {"runId": started.id}
+        raise HTTPException(503, "NEBIUS_API_KEY is not set on the server; it runs the embeddings and the LLM.")
+    try:
+        found = await discover(req.question, req.seeds, limit=req.limit)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    return _discovery_json(found)
 
 
-@app.get("/api/runs/{run_id}")
-async def get_run(run_id: str) -> dict:
-    return _run(run_id).snapshot()
+def _discovery_json(d: Discovery) -> dict:
+    return {
+        "question": d.question,
+        "seeds": [{"label": f"S{i}", **_paper_json(s), "grade": g}
+                  for i, (s, g) in enumerate(zip(d.seeds, d.seed_grades, strict=True), 1)],
+        "criteria": d.criteria,
+        "queries": d.queries,
+        "cutoff": d.cutoff,
+        "results": [_result_json(c, d) for c in d.results],
+        "warnings": d.warnings,
+        "stats": d.stats,
+        "timings": d.timings,
+    }
 
 
-@app.get("/api/runs/{run_id}/events")
-async def run_events(run_id: str) -> StreamingResponse:
-    current = _run(run_id)
-
-    async def stream():
-        queue = current.listen()
-        try:
-            while True:
-                try:
-                    event, data = await asyncio.wait_for(queue.get(), HEARTBEAT_SECONDS)
-                except TimeoutError:
-                    yield ": heartbeat\n\n"
-                    continue
-                yield f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
-                if event in ("done", "error"):
-                    return
-        finally:
-            current.unlisten(queue)
-
-    return StreamingResponse(stream(), media_type="text/event-stream",
-                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+def _result_json(c: Candidate, d: Discovery) -> dict:
+    nearest = max(range(len(c.seed_sims)), key=c.seed_sims.__getitem__)
+    return {
+        **_paper_json(c.paper),
+        "grade": c.grade,
+        "likely_relevant": c.grade is not None and d.cutoff is not None and c.grade >= d.cutoff,
+        "reason": c.reason,
+        "quote": c.quote,
+        "found_via": list(dict.fromkeys(h.note for h in c.hits)),
+        "channels": sorted({h.channel for h in c.hits}),
+        "cites_seeds": [f"S{i + 1}" for i in c.cites_seeds],
+        "cited_by_seeds": [f"S{i + 1}" for i in c.cited_by_seeds],
+        "nearest_seed": {"label": f"S{nearest + 1}", "similarity": c.seed_sims[nearest]},
+        "scores": {"fused": c.fused, "seed_similarity": c.seed_sim, "question_similarity": c.question_sim,
+                   "cocited": c.cocited, "shared_references": c.coupled},
+    }
 
 
-@app.post("/api/export")
-async def export_results(req: ExportRequest) -> PlainTextResponse:
-    current = _run(req.runId)
-    chosen = [c for c in current.results if (req.ids is None and (c.grade or 0) >= 2) or
-              (req.ids is not None and c.id in req.ids)]
-    if req.format == "ris":
-        body, media, ext = export.ris(chosen), "application/x-research-info-systems", "ris"
-    else:
-        body, media, ext = export.csv_text(chosen), "text/csv", "csv"
-    return PlainTextResponse(body, media_type=media,
-                             headers={"Content-Disposition": f'attachment; filename="snowball-{current.id}.{ext}"'})
-
-
-def _run(run_id: str) -> run.Run:
-    if run_id not in run.RUNS:
-        raise HTTPException(404, "This run is no longer on the server. Start a new one.")
-    return run.RUNS[run_id]
+def _paper_json(p: Paper) -> dict:
+    return {"id": p.id, "title": p.title, "abstract": p.abstract, "year": p.year, "venue": p.venue,
+            "authors": p.authors, "doi": p.doi, "pmid": p.pmid, "citations": p.citations,
+            "rcr": p.rcr, "preprint": p.preprint, "types": p.types, "links": p.links}
 
 
 # The UI is static files: served here for one-container deploys, or hosted on its own (web/config.js).
 # Mounted last so the API routes above take precedence.
+WEB_DIR = Path(__file__).parent / "web"
 if WEB_DIR.is_dir():
     app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")

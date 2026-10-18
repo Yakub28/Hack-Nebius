@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Snowball</title>
+  <title>Paper Discovery</title>
   <meta name="description" content="Give a research question and the papers you trust; get new papers, ranked, each with provenance and a verified quote.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='13' cy='13' r='8' fill='none' stroke='%235b8cff' stroke-width='3.5'/><path d='M19 19l8 8' stroke='%235b8cff' stroke-width='3.5' stroke-linecap='round'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,70 +16,79 @@
   <div class="page">
     <header class="hero">
       <div class="hero-text">
-        <h1>Snowball</h1>
-        <p>Start from the papers you trust. Find the ones you're missing, each with the evidence for why.</p>
+        <h1>Paper Discovery</h1>
+        <p>Start from the papers you trust. Get new ones, ranked, each with where it was found and a quote that shows why.</p>
       </div>
       <div class="hero-side">
         <button type="button" class="btn ghost theme" id="theme-toggle" aria-label="Toggle colour theme">Theme</button>
       </div>
     </header>
     <div class="meta-row">
-      <span class="pill">PubMed · iCite · Europe PMC · Tavily</span>
-      <span class="pill" title="Rubric and explanations: Nemotron 3 Super · Screening: Nemotron 3.5 Lightning · Embeddings: Qwen3-Embedding-8B">Nebius Token Factory</span>
+      <span class="pill">PubMed · Europe PMC · preprints · web</span>
+      <span class="pill" title="Embeddings: Qwen3-Embedding-8B · Judge: Qwen3-235B-A22B-Instruct">Nebius Token Factory</span>
       <span class="pill" id="api-status"><span class="dot"></span><span>Checking API…</span></span>
     </div>
     <nav class="tabs" aria-label="Sections">
-      <a href="./" aria-current="page">How it works</a>
-      <a href="app.html">Find papers</a>
+      <a href="./" aria-current="page">Overview</a>
+      <a href="app.html">Search</a>
+      <a href="app.html?sample">Sample results</a>
     </nav>
 
     <main class="overview">
-      <p class="intro">Keyword search only finds papers that use your words. Snowball starts from papers you already
-        trust, follows how science actually connects, and returns new papers, ranked, each with a reason you can
-        check. Every result is a real <strong>PubMed</strong>, <strong>DOI</strong> or <strong>Europe PMC</strong>
-        record; the model ranks and explains, it never writes a citation.</p>
+      <p class="intro">Every result is a real <strong>PubMed</strong> or <strong>Europe PMC</strong> record, found by
+        following your seed papers' citations and by searching for what they describe. Nothing comes from the
+        model's memory. Two things turn that into a list you can use:</p>
 
       <section class="tools" aria-label="What it does">
         <article class="tool">
-          <h3>Finds what your papers point to</h3>
+          <h3>Find what your seeds point to</h3>
           <p class="ask">Which papers belong next to the ones I already trust?</p>
           <ul>
-            <li><strong>Citations</strong>: what your papers cite, and newer work that cites them.</li>
-            <li><strong>Co-cited</strong>: papers cited alongside yours, weighted so famous papers don't win by fame.</li>
-            <li><strong>PubMed similar</strong>: PubMed's own nearest neighbours of each paper.</li>
-            <li><strong>Search</strong> and <strong>Web</strong>: Nemotron-written searches on PubMed, preprints and
-              the web, for work too new to be cited yet.</li>
+            <li>Follows the seeds' <strong>citations both ways</strong>, plus papers co-cited with them.</li>
+            <li>PubMed's own <strong>similar articles</strong> for every seed.</li>
+            <li><strong>LLM-written PubMed searches</strong>: one per seed, plus the facets of your question.</li>
+            <li>Preprint servers and the web (Tavily) for <strong>work too new to be cited yet</strong>.</li>
           </ul>
-          <p class="go">→ <a href="app.html">Find papers</a></p>
+          <p class="go">→ Open <a href="app.html">Search</a></p>
         </article>
         <article class="tool">
-          <h3>Shows why each paper is there</h3>
-          <p class="ask">Can I trust a result without opening it?</p>
+          <h3>See why each paper is there</h3>
+          <p class="ask">Can I trust a result without reading the whole paper?</p>
           <ul>
-            <li>Nemotron 3.5 Lightning <strong>screens the strongest 150</strong> against what you're looking for,
-              and grades each 0–3.</li>
-            <li>Nemotron 3 Super <strong>explains the top 25</strong>: does it support, contradict, extend or review your papers?</li>
-            <li>Each quote is <strong>checked against the abstract</strong>. If it isn't there, it isn't shown.</li>
-            <li><strong>Retracted papers never make the list</strong>; they are named in "Left out".</li>
+            <li>An LLM <strong>grades every strong candidate 0–4</strong> against criteria drawn from your question.</li>
+            <li>Your seeds are graded too, which draws a <strong>relevance line</strong>: above it, as relevant as your seeds.</li>
+            <li>Each result quotes its abstract, and the quote is <strong>checked word for word</strong>. Quotes that fail are dropped.</li>
+            <li>Every link to a seed is <strong>a citation or a similarity score</strong> you can check.</li>
           </ul>
-          <p class="go">→ <a href="app.html">Find papers</a></p>
+          <p class="go">→ Open <a href="app.html?sample">Sample results</a></p>
         </article>
       </section>
 
       <h2>How it works</h2>
       <ol class="steps">
-        <li><b><span class="n">1</span>Your papers</b>PMIDs, DOIs, links, PMC or OpenAlex IDs, or titles, resolved to real records.</li>
-        <li><b><span class="n">2</span>Five channels</b>Citations, Co-cited, PubMed similar, Search and Web, all at once. Each hit remembers where it came from.</li>
-        <li><b><span class="n">3</span>Combine</b>Duplicates, retracted papers and non-articles are left out, each with its reason.</li>
-        <li><b><span class="n">4</span>Screen</b>Citations, similarity and meaning pick the strongest 150; Lightning grades them against your rubric.</li>
-        <li><b><span class="n">5</span>Explain</b>Super writes why the top 25 matter, naming your papers as S1, S2…</li>
-        <li><b><span class="n">6</span>You decide</b>Every score is four labelled parts you can check. Export to Zotero as RIS.</li>
+        <li><b><span class="n">1</span>Resolve</b>Seeds given as PMIDs, DOIs, PubMed links or titles are found in PubMed.</li>
+        <li><b><span class="n">2</span>Plan</b>The LLM turns the question and seeds into inclusion criteria and search queries.</li>
+        <li><b><span class="n">3</span>Collect</b>Seven channels gather candidates. Each one records where it came from.</li>
+        <li><b><span class="n">4</span>Rank</b>Embedding similarity to each seed and to the question, fused with citation signals.</li>
+        <li><b><span class="n">5</span>Judge</b>Up to ~180 of the strongest candidates are graded against the criteria, with evidence.</li>
       </ol>
 
+      <h2>One live run</h2>
+      <p class="run-q">“Which incretin-based drugs reduce body weight in adults with obesity?”, with STEP 1 and
+        SURMOUNT-1 as seeds.</p>
+      <div class="metrics">
+        <div class="metric"><span>Candidates screened</span><b>619</b></div>
+        <div class="metric"><span>Graded by the LLM</span><b>128</b></div>
+        <div class="metric"><span>Top 10 graded 4 of 4</span><b>10 / 10</b></div>
+        <div class="metric"><span>End to end</span><b>66 s</b></div>
+      </div>
+      <p class="note">The top results included STEP 3–5, SURMOUNT-3 and -4, the retatrutide phase 2 trial, and a
+        meta-analysis that only the web search found.</p>
+
       <footer class="foot">
-        Runs on Nebius Token Factory (Nemotron 3 Super, Nemotron 3.5 Lightning, Qwen3-Embedding-8B) with NIH iCite,
-        PubMed, Europe PMC and Tavily. The server needs <code>NEBIUS_API_KEY</code>; <code>OPENALEX_API_KEY</code>
-        adds semantic search and <code>NCBI_API_KEY</code> makes PubMed faster. API reference at
+        Runs on Nebius Token Factory (Qwen3-Embedding-8B for retrieval, Qwen3-235B as the judge) and Tavily web
+        search. The server needs <code>NEBIUS_API_KEY</code>; <code>TAVILY_API_KEY</code> switches on web search
+        and <code>NCBI_API_KEY</code> makes PubMed faster. API reference at
         <a href="docs">/docs</a>.
       </footer>
     </main>

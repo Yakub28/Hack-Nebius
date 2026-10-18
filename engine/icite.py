@@ -8,8 +8,7 @@ from engine import http
 
 API = "https://icite.od.nih.gov/api/pubs"
 CHUNK = 200          # 1,000 PMIDs in one URL returns 413
-FIELDS = ("pmid,year,citation_count,relative_citation_ratio,references,human,animal,"
-          "molecular_cellular,is_clinical,cited_by_clin")
+CONCURRENCY = 4
 
 
 @dataclass
@@ -20,17 +19,18 @@ class Record:
     rcr: float | None
     references: set[str]      # only from PMC-deposited reference lists, so incomplete
     cited_by: set[str]
-    hac: dict[str, float]
-    is_clinical: bool | None
-    clinical_citations: int
 
 
 async def fetch(pmids: list[str], *, with_cited_by: bool = False) -> dict[str, Record]:
-    fields = FIELDS + (",cited_by" if with_cited_by else "")
+    fields = "pmid,year,citation_count,relative_citation_ratio,references"
+    if with_cited_by:
+        fields += ",cited_by"
     chunks = [pmids[i:i + CHUNK] for i in range(0, len(pmids), CHUNK)]
+    gate = asyncio.Semaphore(CONCURRENCY)
 
     async def one(chunk: list[str]) -> list[dict]:
-        data = await http.get_json(API, ttl=7 * http.DAY, params={"pmids": ",".join(chunk), "fl": fields})
+        async with gate:
+            data = await http.get_json(API, params={"pmids": ",".join(chunk), "fl": fields})
         return data["data"]
 
     records = {}
@@ -44,9 +44,5 @@ async def fetch(pmids: list[str], *, with_cited_by: bool = False) -> dict[str, R
                 rcr=row.get("relative_citation_ratio"),
                 references={str(p) for p in row.get("references") or []},
                 cited_by={str(p) for p in row.get("cited_by") or []},
-                hac={"human": row.get("human") or 0.0, "animal": row.get("animal") or 0.0,
-                     "cell": row.get("molecular_cellular") or 0.0},
-                is_clinical=row.get("is_clinical"),
-                clinical_citations=len(row.get("cited_by_clin") or []),
             )
     return records

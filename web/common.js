@@ -1,5 +1,5 @@
 "use strict";
-// Shared by the landing page and the search page: API location, theme toggle, API status.
+// Shared by the landing page and the search tool: API location, theme toggle, API status.
 
 const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.apiBase) ||
   (location.protocol === "file:" ? "http://localhost:8000" : "");
@@ -41,17 +41,18 @@ applyTheme(store("pd:theme"));
 async function checkHealth() {
   const pill = $("api-status");
   try {
-    const resp = await fetch(`${API_BASE}/api/status`, { signal: AbortSignal.timeout(5000) });
+    const resp = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(5000) });
     if (!resp.ok) throw new Error(resp.status);
-    const status = await resp.json();
-    if (!status.nebius) {
+    const health = await resp.json();
+    if (health.nebius === false) {
       pill.className = "pill off";
       pill.lastElementChild.textContent = "API up · no Nebius key";
-      pill.title = "Set NEBIUS_API_KEY on the server: it runs the embeddings and Nemotron.";
+      pill.title = "Set NEBIUS_API_KEY on the server. Sample results still work.";
       return;
     }
     pill.className = "pill ok";
     pill.lastElementChild.textContent = "API connected";
+    if (!health.web) pill.title = "Web search is off (no TAVILY_API_KEY)";
   } catch {
     pill.className = "pill off";
     pill.lastElementChild.textContent = "API offline";

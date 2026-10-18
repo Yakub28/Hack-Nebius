@@ -1,8 +1,8 @@
-"""PubMed E-utilities: records, similar articles, search."""
+"""PubMed E-utilities: resolve references, fetch records, similar articles, search."""
 from __future__ import annotations
 
-import asyncio
 import os
+import re
 import xml.etree.ElementTree as ET
 
 from engine import http
@@ -10,15 +10,42 @@ from engine.paper import Paper, paper_id
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 FETCH_CHUNK = 200
-_MONTHS = {m: f"{i:02d}" for i, m in enumerate(
-    ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
+_DOI_RE = re.compile(r"10\.\d{4,9}/\S+")
+# Also the boolean operators, which would otherwise be parsed as AND/OR/NOT.
+_STOPWORDS = {"a", "an", "the", "of", "for", "in", "on", "and", "or", "not", "with", "to", "by",
+              "at", "from", "vs", "versus", "is", "are"}
 
 
-async def search(term: str, *, limit: int, before: str | None = None) -> list[str]:
-    """PMIDs for a PubMed query in Best Match order, optionally only those published before a date."""
-    if before:
-        term = f'({term}) AND ("1000/01/01"[dp] : "{before.replace("-", "/")}"[dp])'
-    data = await http.get_json(f"{EUTILS}/esearch.fcgi", ttl=http.DAY, params=_params(
+async def resolve(ref: str) -> str | None:
+    """PMID for a user-supplied PMID, DOI, PubMed URL or title; None if PubMed has no match."""
+    ref = ref.strip()
+    if m := re.search(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d+)", ref):
+        return m.group(1)
+    if ref.isdigit():
+        return ref
+    if m := _DOI_RE.search(ref):
+        hits = await search(f'"{m.group(0).rstrip(".")}"[doi]', limit=1)
+        return hits[0] if hits else None
+    return await _by_title(ref)
+
+
+async def _by_title(title: str) -> str | None:
+    """Only an exact title match counts: a wrong seed would steer the whole search."""
+    words = [w for w in re.findall(r"[A-Za-z0-9]+", title) if w.lower() not in _STOPWORDS]
+    if not words:
+        return None
+    pmids = await search(" AND ".join(f"{w}[ti]" for w in words), limit=20)
+    wanted = _title_key(title)
+    return next((p.pmid for p in await fetch(pmids) if _title_key(p.title) == wanted), None)
+
+
+def _title_key(title: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", title.lower())
+
+
+async def search(term: str, *, limit: int) -> list[str]:
+    """PMIDs for a PubMed query, best match first."""
+    data = await http.get_json(f"{EUTILS}/esearch.fcgi", params=_params(
         db="pubmed", term=term, retmax=limit, sort="relevance", retmode="json"))
     result = data["esearchresult"]
     if "ERROR" in result:
@@ -32,7 +59,7 @@ async def similar(pmids: list[str], *, limit: int) -> dict[str, list[str]]:
                      cmd="neighbor_score", retmode="json")
     # Repeated `id` params return one linkset per seed; a comma list would merge them.
     params["id"] = pmids
-    data = await http.get_json(f"{EUTILS}/elink.fcgi", ttl=7 * http.DAY, params=params)
+    data = await http.get_json(f"{EUTILS}/elink.fcgi", params=params)
     out: dict[str, list[str]] = {}
     for linkset in data.get("linksets", []):
         seed = str(linkset["ids"][0])
@@ -44,14 +71,13 @@ async def similar(pmids: list[str], *, limit: int) -> dict[str, list[str]]:
 
 
 async def fetch(pmids: list[str]) -> list[Paper]:
-    chunks = [pmids[i:i + FETCH_CHUNK] for i in range(0, len(pmids), FETCH_CHUNK)]
-
-    async def one(chunk: list[str]) -> list[Paper]:
-        text = await http.fetch("POST", f"{EUTILS}/efetch.fcgi", ttl=7 * http.DAY,
-                                data=_params(db="pubmed", id=",".join(chunk), retmode="xml"))
-        return parse_efetch(text)
-
-    return [p for papers in await asyncio.gather(*(one(c) for c in chunks)) for p in papers]
+    papers: list[Paper] = []
+    for start in range(0, len(pmids), FETCH_CHUNK):
+        chunk = pmids[start:start + FETCH_CHUNK]
+        resp = await http.request("POST", f"{EUTILS}/efetch.fcgi", data=_params(
+            db="pubmed", id=",".join(chunk), retmode="xml"))
+        papers.extend(parse_efetch(resp.text))
+    return papers
 
 
 def parse_efetch(xml_text: str) -> list[Paper]:
@@ -60,50 +86,27 @@ def parse_efetch(xml_text: str) -> list[Paper]:
         citation = article.find("MedlineCitation")
         pmid = citation.findtext("PMID")
         body = citation.find("Article")
-        ids = {el.get("IdType"): el.text for el in article.iterfind("PubmedData/ArticleIdList/ArticleId")}
-        date = _date(body)
-        pub_types = [t.text for t in body.iterfind("PublicationTypeList/PublicationType") if t.text]
+        doi = next((el.text for el in article.iterfind(".//ArticleIdList/ArticleId")
+                    if el.get("IdType") == "doi" and el.text), None)
+        year = body.findtext("Journal/JournalIssue/PubDate/Year") or \
+            (body.findtext("Journal/JournalIssue/PubDate/MedlineDate") or "")[:4]
+        authors = [" ".join(filter(None, [a.findtext("ForeName"), a.findtext("LastName")]))
+                   or a.findtext("CollectiveName") or ""
+                   for a in body.iterfind("AuthorList/Author")]
         papers.append(Paper(
             id=paper_id(pmid=pmid),
             pmid=pmid,
             # itertext, not .text: titles and abstracts carry inline <i>, <sup>, <sub>,
             # and .text stops at the first one (it truncated a third of abstracts in axiom).
-            title=_text(body.find("ArticleTitle")).rstrip("."),
+            title=_text(body.find("ArticleTitle")),
             abstract=" ".join(_text(part) for part in body.iterfind("Abstract/AbstractText")),
-            year=int(date[:4]) if date else None,
-            date=date,
-            journal=body.findtext("Journal/ISOAbbreviation") or body.findtext("Journal/Title") or "",
-            authors=[name for a in body.iterfind("AuthorList/Author") if (name := _author(a))],
-            doi=ids["doi"].lower() if ids.get("doi") else None,
-            pmcid=ids.get("pmc"),
-            pub_types=pub_types,
-            mesh=[m.text for m in citation.iterfind("MeshHeadingList/MeshHeading/DescriptorName") if m.text],
-            nct_ids=[n.text for bank in body.iterfind("DataBankList/DataBank")
-                     if bank.findtext("DataBankName") == "ClinicalTrials.gov"
-                     for n in bank.iterfind("AccessionNumberList/AccessionNumber") if n.text],
-            is_retracted="Retracted Publication" in pub_types,
+            year=int(year) if year.isdigit() else None,
+            venue=body.findtext("Journal/Title") or "",
+            authors=[a for a in authors if a],
+            doi=doi.lower() if doi else None,
+            types=[t.text for t in body.iterfind("PublicationTypeList/PublicationType") if t.text],
         ))
     return papers
-
-
-def _date(body: ET.Element) -> str | None:
-    """ISO date: the electronic publication date when given, else the journal issue date."""
-    electronic = body.find("ArticleDate")
-    if electronic is not None:
-        return f"{electronic.findtext('Year')}-{electronic.findtext('Month')}-{electronic.findtext('Day')}"
-    issue = body.find("Journal/JournalIssue/PubDate")
-    year = issue.findtext("Year") or (issue.findtext("MedlineDate") or "")[:4]
-    if not year.isdigit():
-        return None
-    raw_month = issue.findtext("Month") or ""
-    month = _MONTHS.get(raw_month[:3]) or (raw_month.zfill(2) if raw_month.isdigit() else None)
-    return f"{year}-{month}" if month else year
-
-
-def _author(el: ET.Element) -> str:
-    if name := el.findtext("CollectiveName"):
-        return name
-    return " ".join(filter(None, [el.findtext("LastName"), el.findtext("Initials")]))
 
 
 def _text(el: ET.Element | None) -> str:
@@ -111,9 +114,7 @@ def _text(el: ET.Element | None) -> str:
 
 
 def _params(**params) -> dict:
-    params["tool"] = "snowball-discovery"
+    params["tool"] = "tumor-discovery"
     if key := os.getenv("NCBI_API_KEY"):
         params["api_key"] = key
-    if email := os.getenv("NCBI_EMAIL"):
-        params["email"] = email
     return params
