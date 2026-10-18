@@ -26,6 +26,7 @@
   /* Text-safe shades of the sticker colours (4.5:1 on white), for the few status words. */
   --green-ink: #12802a; --green-tint: rgba(26, 174, 57, 0.1);
   --orange-ink: #793400; --orange-tint: rgba(221, 91, 0, 0.09);
+  --purple-ink: #391c57; --purple-tint: rgba(214, 182, 246, 0.4);
   --primary-tint: rgba(0, 117, 222, 0.08);
 
   /* Theme colours on the map: the sticker palette, strongest first. */
@@ -58,6 +59,7 @@
     --faint: #6d6b68;
     --green-ink: #5ccf7a; --green-tint: rgba(26, 174, 57, 0.16);
     --orange-ink: #ffa463; --orange-tint: rgba(221, 91, 0, 0.18);
+    --purple-ink: #e2cbfa; --purple-tint: rgba(214, 182, 246, 0.16);
     --primary-tint: rgba(90, 169, 255, 0.14);
     --node-stroke: rgba(0, 0, 0, 0.55);
     --shadow-1: rgba(0, 0, 0, 0.3) 0 2px 8px, rgba(255, 255, 255, 0.03) 0 0 0 1px;
@@ -79,6 +81,7 @@
   --faint: #6d6b68;
   --green-ink: #5ccf7a; --green-tint: rgba(26, 174, 57, 0.16);
   --orange-ink: #ffa463; --orange-tint: rgba(221, 91, 0, 0.18);
+  --purple-ink: #e2cbfa; --purple-tint: rgba(214, 182, 246, 0.16);
   --primary-tint: rgba(90, 169, 255, 0.14);
   --node-stroke: rgba(0, 0, 0, 0.55);
   --shadow-1: rgba(0, 0, 0, 0.3) 0 2px 8px, rgba(255, 255, 255, 0.03) 0 0 0 1px;
@@ -381,6 +384,7 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .chip.accent b { font-weight: 600; color: var(--ink); }
 .badge.new { color: var(--link); background: var(--primary-tint); border-color: transparent; }
 .badge.pre { color: var(--orange-ink); background: var(--orange-tint); border-color: transparent; }
+.badge.beyond { color: var(--purple-ink); background: var(--purple-tint); border-color: transparent; cursor: help; }
 .badge.out { color: var(--muted); background: var(--surface-soft); border-color: transparent; }
 
 /* --- result cards: compact rows to scan, the drawer holds the rest ------------------------- */

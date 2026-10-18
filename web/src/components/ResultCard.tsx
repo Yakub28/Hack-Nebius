@@ -1,5 +1,5 @@
 import type { Discovery, Result } from "../api/types";
-import { GRADES, authors, firstLink, plural, refOf, shortAuthors, studyDesign } from "../lib/format";
+import { CHANNELS, GRADES, KEYWORD_CHANNELS, authors, firstLink, plural, refOf, shortAuthors, studyDesign } from "../lib/format";
 import { useSession } from "../lib/session";
 import { CheckIcon, ExternalIcon, PlusIcon, StarIcon, XIcon } from "./Icons";
 import { useToast } from "./Toast";
@@ -109,6 +109,16 @@ export function Meta({ r }: { r: Result }) {
   );
 }
 
+/** Why a paper is "beyond keywords", or null when it isn't: none of this run's keyword searches returned it.
+ *  Only when they ran and found something, so a failed PubMed channel can't badge every result. */
+function beyondKeywords(r: Result, data: Discovery): string | null {
+  const searches = data.queries.pubmed_queries.length + data.queries.preprint_queries.length;
+  const keyword = (p: Result) => p.channels.some((c) => KEYWORD_CHANNELS.has(c));
+  if (!searches || keyword(r) || !r.channels.length || !data.results.some(keyword)) return null;
+  return `Beyond keyword search: none of this run's ${plural(searches, "PubMed or preprint query", "PubMed and preprint queries")} `
+    + `returned this paper.\nFound by: ${r.channels.map((c) => CHANNELS[c]?.[0] ?? c).join(", ")}.`;
+}
+
 /** One result, compact enough to scan: grade, title, the facts a reader screens on, one line of the judge's
  *  reason and the verified quote. Everything else is one click away in the drawer. */
 export function ResultCard({ r, data, live, selected, cursor, below, isNew, showRelevance, onOpen }: {
@@ -119,7 +129,8 @@ export function ResultCard({ r, data, live, selected, cursor, below, isNew, show
   const out = dismissed.has(r.id);
   const theme = themeName(data, r.theme);
   const design = studyDesign(r.types);
-  const facts = [shortAuthors(r.authors), r.venue, r.year, design, r.citations != null ? plural(r.citations, "citation") : ""].filter(Boolean);
+  const beyond = beyondKeywords(r, data);
+  const facts =[shortAuthors(r.authors), r.venue, r.year, design, r.citations != null ? plural(r.citations, "citation") : ""].filter(Boolean);
   const cls = ["card", below && "below", selected && "selected", cursor && "cursor", out && "out"].filter(Boolean).join(" ");
   return (
     // The whole card opens the paper, except its own links and buttons, and a drag that selected text to copy.
@@ -134,7 +145,8 @@ export function ResultCard({ r, data, live, selected, cursor, below, isNew, show
         </div>
         <div className="meta">
           {isNew && <span className="badge new" title="Not in your previous search's results">New</span>}
-          {r.preprint && <span className="badge pre" title="Not peer reviewed">Preprint</span>}
+          {beyond && <span className="badge beyond" title={beyond}>Beyond keywords</span>}
+          {r.preprint &&<span className="badge pre" title="Not peer reviewed">Preprint</span>}
           {out && <span className="badge out">Set aside</span>}
           {facts.map((f, i) => <span key={i} className={i === 1 ? "venue" : undefined}>{f}</span>)}
         </div>
