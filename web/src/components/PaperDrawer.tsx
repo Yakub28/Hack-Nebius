@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Discovery, Paper, Result } from "../api/types";
 import { CHANNELS, LINK_NAMES, firstLink, safeUrl } from "../lib/format";
 import { CheckIcon } from "./Icons";
@@ -28,6 +28,9 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
   const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
 
   useEffect(() => { panel.current?.scrollTo({ top: 0 }); }, [paper.id]);
+  // Which folds are open lives here, not in each <details>, so it carries over as J and K step through papers.
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const fold = (id: string) => ({ open: !!open[id], onToggle: (o: boolean) => setOpen((m) => (m[id] === o ? m : { ...m, [id]: o })) });
 
   const byId = useMemo(() => {
     const m = new Map<string, Paper & { label?: string }>();
@@ -85,8 +88,7 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
         <Tags r={paper} data={data} />
         <Facts r={paper} />
 
-        <section className="drawer-section">
-          <h3 className="eyebrow">How it was found</h3>
+        <Fold title="How it was found" count={paper.found_via.length} hint="The routes that led to this paper, and its retrieval scores" {...fold("found")}>
           <ul className="why">{paper.found_via.map((f) => <li key={f}>{f}</li>)}</ul>
           <div className="scores">
             <span className="chip"><span className="k">channels</span> {paper.channels.map((c) => CHANNELS[c]?.[0] ?? c).join(", ")}</span>
@@ -96,19 +98,21 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
             {s.cocited > 0 && <span className="chip"><span className="k">co-cited</span> {s.cocited}</span>}
             {s.shared_references > 0 && <span className="chip"><span className="k">shared refs</span> {s.shared_references}</span>}
           </div>
-        </section>
+        </Fold>
 
-        {(cites.length > 0 || citedBy.length > 0) && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Citations among these results</h3>
-            <Neighbors title="Cites" papers={cites} onOpen={onOpen} />
-            <Neighbors title="Cited by" papers={citedBy} onOpen={onOpen} />
-          </section>
+        {cites.length > 0 && (
+          <Fold title="Cites" count={cites.length} hint="Papers among these results and your seeds that this one cites" {...fold("cites")}>
+            <Neighbors papers={cites} onOpen={onOpen} />
+          </Fold>
+        )}
+        {citedBy.length > 0 && (
+          <Fold title="Cited by" count={citedBy.length} hint="Papers among these results and your seeds that cite this one" {...fold("citedBy")}>
+            <Neighbors papers={citedBy} onOpen={onOpen} />
+          </Fold>
         )}
 
         {web.length > 0 && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Web context</h3>
+          <Fold title="Web context" count={web.length} {...fold("web")}>
             <ul className="sources">
               {web.map((x) => (
                 <li key={x.url}>
@@ -119,25 +123,37 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
               ))}
             </ul>
             <p className="note">Pages about this paper, found by web search on its title, plus trial numbers its abstract quotes. Links to read, not claims about the paper.</p>
-          </section>
+          </Fold>
         )}
 
         {paper.abstract && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Abstract</h3>
+          <Fold title="Abstract" {...fold("abstract")}>
             <p className="abstract-full"><Highlighted text={paper.abstract} quote={paper.quote} /></p>
-          </section>
+          </Fold>
         )}
       </aside>
     </>
   );
 }
 
-function Neighbors({ title, papers, onOpen }: { title: string; papers: (Paper & { label?: string })[]; onOpen: (id: string) => void }) {
-  if (!papers.length) return null;
+/** A drawer section that folds away behind its heading. The count says what a closed one holds. */
+function Fold({ title, count, hint, open, onToggle, children }: {
+  title: string; count?: number; hint?: string; open: boolean; onToggle: (open: boolean) => void; children: ReactNode;
+}) {
+  return (
+    <details className="drawer-section fold" open={open} onToggle={(e) => onToggle(e.currentTarget.open)}>
+      <summary title={hint}>
+        <h3 className="eyebrow">{title}</h3>
+        {count !== undefined && <span className="fold-count">{count}</span>}
+      </summary>
+      {children}
+    </details>
+  );
+}
+
+function Neighbors({ papers, onOpen }: { papers: (Paper & { label?: string })[]; onOpen: (id: string) => void }) {
   return (
     <div className="neighbors">
-      <span className="k">{title}</span>
       <ul>
         {papers.map((p) => (
           <li key={p.id}>
