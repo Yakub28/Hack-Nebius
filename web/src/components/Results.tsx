@@ -4,6 +4,7 @@ import type { Discovery, Result } from "../api/types";
 import { CHANNELS, isProblem, plural } from "../lib/format";
 import { exportCsv, exportRis } from "../lib/export";
 import { useSession } from "../lib/session";
+import { Brief } from "./Brief";
 import { AlertIcon, ChevronIcon, DownloadIcon, FilterIcon, InfoIcon, SearchIcon, XIcon } from "./Icons";
 import { Menu } from "./Menu";
 import { PaperDrawer } from "./PaperDrawer";
@@ -156,6 +157,8 @@ export function Results({ data, live, previous }: { data: Discovery; live: boole
           <ul>{notes.map((w) => <li key={w}>{w}</li>)}</ul>
         </details>
       )}
+
+      <Brief data={data} onOpen={openPaper} />
 
       <div className="toolbar">
         <div className="view-switch" role="tablist" aria-label="View">

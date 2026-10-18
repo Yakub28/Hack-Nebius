@@ -1,5 +1,5 @@
 import type { SearchRequest } from "../api/client";
-import type { Discovery, Queries, Result, ResultMap, RunEvent, Seed, WebRound } from "../api/types";
+import type { Brief, Discovery, Queries, Result, ResultMap, RunEvent, Seed, WebRound } from "../api/types";
 
 // Typical seconds per stage, from real runs (2026-10-18): they weight the progress bar, they are not promises.
 export const STAGES = [
@@ -10,7 +10,7 @@ export const STAGES = [
   { key: "hydrate", label: "Fetch records and citation metrics", short: "Records", typical: 8 },
   { key: "first_stage", label: "Embed and rank", short: "Rank", typical: 14 },
   { key: "judge", label: "Grade the strongest candidates", short: "Grade", typical: 55 },
-  { key: "context", label: "Web context and the map", short: "Context", typical: 7 },
+  { key: "context", label: "Web context, the map and a brief", short: "Context", typical: 9 },
 ] as const;
 
 export const TYPICAL_SECONDS = STAGES.reduce((sum, s) => sum + s.typical, 0);
@@ -39,6 +39,7 @@ export interface LiveRun {
   seedGrades?: (number | null)[];
   warnings: string[];
   map?: ResultMap | null;
+  brief?: Brief | null;
   data?: Discovery;
   error?: string;
   /** The result ids on screen when this run started, so its results can be marked new. */
@@ -120,6 +121,8 @@ export function applyEvent(run: LiveRun, e: RunEvent): LiveRun {
       return { ...run, results: run.results.map((r) => (r.id === e.data.id ? { ...r, sources: e.data.sources } : r)) };
     case "map":
       return { ...run, map: e.data.map };
+    case "brief":
+      return { ...run, brief: e.data.brief };
     case "warning":
       return { ...run, warnings: [...run.warnings, e.data.message] };
     case "result":
@@ -170,5 +173,6 @@ export function asDiscovery(run: LiveRun): Discovery {
     timings: Object.fromEntries(Object.entries(run.stages).filter(([, s]) => s.seconds != null).map(([k, s]) => [k, s.seconds!])),
     web_trail: run.webRounds,
     map: run.map ?? null,
+    brief: run.brief ?? null,
   };
 }

@@ -4,7 +4,7 @@ import json
 import numpy as np
 
 from engine import europepmc, landscape, nebius, pubmed, web
-from engine.discover import Candidate, judge, make_plan, resolve_seeds, rrf, verified_quote
+from engine.discover import Candidate, checked_brief, judge, make_plan, pubmed_query, resolve_seeds, rrf, verified_quote
 from engine.paper import Paper
 from engine.pubmed import parse_efetch
 
@@ -112,6 +112,30 @@ def test_a_malformed_plan_is_retried_once(monkeypatch):
     monkeypatch.setattr(nebius, "chat_json", chat_json)
     plan = asyncio.run(make_plan("Which drugs?", [Paper(id="pmid:1", title="Seed")]))
     assert plan["pubmed_queries"] == ["q"] and not replies
+
+
+def test_pubmed_queries_lose_field_tags_that_stand_alone():
+    written = '("semaglutide" OR "tirzepatide") AND ("obesity") AND [tiab] AND ("body weight"[tiab] OR "BMI")'
+    assert pubmed_query(written) == '("semaglutide" OR "tirzepatide") AND ("obesity") AND ("body weight"[tiab] OR "BMI")'
+    assert pubmed_query('[tiab] AND ("weight loss")') == '("weight loss")'
+
+
+def test_the_brief_keeps_only_claims_it_can_check():
+    abstracts = ["Semaglutide cut body weight by 14.9% at 68 weeks.", "Tirzepatide reduced weight by 20.9% over 72 weeks.",
+                 "Liraglutide was compared with placebo."]
+    papers = [Candidate(f"pmid:{i}", paper=Paper(id=f"pmid:{i}", title=f"Trial {i}", abstract=a))
+              for i, a in enumerate(abstracts, 1)]
+    findings = [
+        {"text": "Semaglutide cut weight by 14.9%.", "papers": [1], "quote": abstracts[0]},
+        {"text": "Tirzepatide reduced weight by 20.9%.", "papers": [2, 9], "quote": abstracts[1]},   # 9: no such paper
+        {"text": "Liraglutide beat placebo.", "papers": [3], "quote": "Liraglutide beat placebo in every trial."},
+        {"text": "Weight fell by 25% on semaglutide.", "papers": [1], "quote": abstracts[0]},   # 25 is in no abstract
+    ]
+    reply = {"answer": {"text": "Incretin drugs cut weight by up to 30%.", "papers": [1, 2]}, "findings": findings}
+    brief = checked_brief(reply, papers)
+    assert [f["papers"] for f in brief["findings"]] == [["pmid:1"], ["pmid:2"]]
+    assert brief["answer"] is None and brief["dropped"] == 2
+    assert checked_brief({"findings": findings[:1]}, papers) is None     # one finding that checks out is too few
 
 
 def test_repeated_json_keys_join_their_lists():

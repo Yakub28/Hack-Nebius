@@ -72,6 +72,26 @@ export interface ResultMap {
   edges: { from: string; to: string }[];
 }
 
+/** A claim in the research brief and the results it rests on (ids from this search's results). */
+export interface BriefClaim {
+  text: string;
+  papers: string[];
+}
+
+export interface BriefFinding extends BriefClaim {
+  quote: string;          // verbatim from quote_paper's abstract: the engine checked it word for word
+  quote_paper: string;
+}
+
+/** What the strongest results say together. The engine keeps only findings that check out (checked_brief). */
+export interface Brief {
+  answer: BriefClaim | null;
+  findings: BriefFinding[];
+  read: number;           // graded results the model read
+  dropped: number;        // findings left out because they did not check out
+  model: string;
+}
+
 export type Queries = Record<"pubmed_queries" | "preprint_queries" | "web_queries", string[]>;
 
 export interface Discovery {
@@ -86,6 +106,7 @@ export interface Discovery {
   timings: Record<string, number>;
   web_trail: WebRound[];
   map: ResultMap | null;
+  brief?: Brief | null;
   recorded?: string;
 }
 
@@ -117,6 +138,7 @@ export type RunEvent =
   | { event: "seed_grades"; data: { grades: (number | null)[] } }
   | { event: "sources"; data: { id: string; sources: Source[] } }
   | { event: "map"; data: { map: ResultMap | null } }
+  | { event: "brief"; data: { brief: Brief } }
   | { event: "warning"; data: { message: string } }
   | { event: "result"; data: Discovery }
   | { event: "error"; data: { status: number; detail: string } };

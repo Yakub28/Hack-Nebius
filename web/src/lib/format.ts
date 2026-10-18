@@ -1,4 +1,4 @@
-import type { Paper } from "../api/types";
+import type { Paper, Result } from "../api/types";
 
 export const GRADES: Record<number, string> = { 4: "Direct", 3: "High", 2: "Partial", 1: "Tangent", 0: "No" };
 
@@ -15,6 +15,10 @@ export const CHANNELS: Record<string, [string, string]> = {
 /** The channels that are keyword searches. A paper none of them returned came only from the seeds' citations,
  *  PubMed's similar articles or the web agent: what keyword search alone missed. */
 export const KEYWORD_CHANNELS = new Set(["query", "preprint"]);
+
+export function foundByKeywords(r: Result): boolean {
+  return r.channels.some((c) => KEYWORD_CHANNELS.has(c));
+}
 
 export const LINK_NAMES: Record<string, string> = { pubmed: "PubMed", doi: "DOI", europepmc: "Europe PMC" };
 
