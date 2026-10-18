@@ -18,8 +18,7 @@ seeds (PMID / DOI / title) + question
         │        ├─ cocited   papers co-cited with the seeds by their citers (CoCites)
         │        ├─ query     LLM-written PubMed queries: 1 per seed + facets of the question
         │        ├─ preprint  same queries on Europe PMC SRC:PPR (bioRxiv, medRxiv…)
-        │        ├─ web       Tavily on preprint/PubMed domains, URLs resolved to PMID/DOI
-        │        └─ recent    Semantic Scholar recommendations (needs S2 key; last ~60 days only)
+        │        └─ web       Tavily on preprint/PubMed domains, URLs resolved to PMID/DOI
         │
  3. First stage  Qwen3-Embedding-8B (Nebius): cosine to each seed (max, top-2 mean) and to the question
         │        + citation links to seeds + PubMed similarity rank → RRF fusion
@@ -55,12 +54,12 @@ seeds (PMID / DOI / title) + question
 | NIH iCite | ✅ keyless | metadata, `cited_by`, references, RCR |
 | Europe PMC | ✅ keyless | references (fills NEJM/PMC gaps), preprints |
 | Tavily | ✅ key | web/preprint recall, find a paper by description |
-| Semantic Scholar | ⚠️ ~90% 429 keyless | recommendations only with `S2_API_KEY` |
+| Semantic Scholar | ❌ not used | its recommendations are a competing black box: untraceable, last ~60 days only, ~90% 429 keyless |
 | OpenAlex | ❌ keyless budget exhausted per IP | skip; `related_works` is off-topic for biomedicine |
 
 ## Skip list
 
-LLM-proposed references · HyDE · seed centroid · co-citation or PageRank alone · OpenAlex `related_works` · S2 recs as the core recommender · hard LLM filtering · long listwise reranking · weak cross-encoder after Qwen3 · full-text embeddings.
+LLM-proposed references · HyDE · seed centroid · co-citation or PageRank alone · OpenAlex `related_works` · Semantic Scholar recommendations · hard LLM filtering · long listwise reranking · weak cross-encoder after Qwen3 · full-text embeddings.
 
 ## Evaluation
 

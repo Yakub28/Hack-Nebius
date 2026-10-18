@@ -8,7 +8,7 @@ Built for the Nebius *Healthcare / Life Sciences: Research Paper Discovery* chal
 
 1. **Resolve** your seeds in PubMed. A seed can be a PMID, a DOI, a PubMed URL or an exact title.
 2. **Plan.** The LLM turns the question and seeds into inclusion criteria and search queries.
-3. **Collect candidates** from 8 channels:
+3. **Collect candidates** from 7 channels:
    - PubMed similar articles
    - papers citing the seeds
    - papers the seeds cite
@@ -16,7 +16,6 @@ Built for the Nebius *Healthcare / Life Sciences: Research Paper Discovery* chal
    - PubMed queries
    - Europe PMC preprints
    - Tavily web search
-   - Semantic Scholar recommendations
 4. **Rank** by fusing Qwen3-Embedding-8B similarity (to each seed and to the question) with citation signals, using reciprocal rank fusion (RRF).
 5. **Judge.** Qwen3-235B grades the strongest ~180 candidates 0–4 against the criteria. It grades your seeds too, so you see where "as relevant as my seeds" begins.
 
@@ -41,7 +40,7 @@ curl -s localhost:8000/discover -H 'content-type: application/json' -d '{
 
 A query takes about 30–60 s, most of it judging.
 
-`TAVILY_API_KEY` turns on web search, `S2_API_KEY` turns on Semantic Scholar recommendations, and `NCBI_API_KEY` makes PubMed 3× faster. When a channel fails, the response's `warnings` names it; it is never silently empty.
+`TAVILY_API_KEY` turns on web search, and `NCBI_API_KEY` makes PubMed 3× faster. When a channel fails, the response's `warnings` names it; it is never silently empty.
 
 ## Deploy
 

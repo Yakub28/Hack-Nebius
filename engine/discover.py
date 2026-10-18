@@ -3,7 +3,7 @@
 1. resolve      seeds to PubMed records
 2. plan         LLM: inclusion criteria + search queries, from the question and seeds
 3. graph        the seeds' citation neighbourhood (iCite + Europe PMC)
-4. candidates   eight channels; every hit records where it came from
+4. candidates   seven channels; every hit records where it came from
 5. hydrate      PubMed records + iCite metrics for every candidate
 6. first stage  Qwen3 embeddings + citation signals, fused with RRF
 7. judge        LLM grades the strongest candidates, and the seeds to calibrate the scale
@@ -18,7 +18,7 @@ from collections import Counter
 from collections.abc import Awaitable
 from dataclasses import dataclass, field
 
-from engine import europepmc, icite, nebius, pubmed, s2, web
+from engine import europepmc, icite, nebius, pubmed, web
 from engine.paper import Paper, paper_id
 
 SIMILAR_PER_SEED = 50
@@ -28,7 +28,6 @@ COCITED_KEPT = 200
 QUERY_HITS = 40
 PREPRINT_HITS = 25
 WEB_HITS = 10
-RECENT_HITS = 100
 RRF_K = 60
 # Judge the top of the fused list, plus the semantically strongest candidates: brand-new
 # papers have no citations yet, so the fusion alone would rarely let them through.
@@ -44,7 +43,7 @@ DROPPED_TYPES = {"Comment", "Erratum", "Published Erratum", "Retracted Publicati
 
 @dataclass
 class Hit:
-    channel: str    # similar | cites | refs | cocited | query | preprint | web | recent
+    channel: str    # similar | cites | refs | cocited | query | preprint | web
     rank: int       # 1 = the channel's best
     note: str       # provenance, as shown to the user
 
@@ -231,8 +230,6 @@ async def gather_candidates(seeds: list[Paper], plan: dict, graph: SeedGraph,
     if web.enabled():
         for q in plan["web_queries"]:
             channels[f"web query {q!r}"] = _web(q)
-    if s2.enabled():
-        channels["Semantic Scholar recommendations"] = _recent(pmids)
 
     results = await asyncio.gather(*channels.values(), return_exceptions=True)
     for name, found in zip(channels, results, strict=True):
@@ -279,12 +276,6 @@ async def _preprints(q: str) -> list[Found]:
 async def _web(q: str) -> list[Found]:
     return [(paper_id(**{kind: value}), Hit("web", rank, f"Web search (Tavily): {q} (#{rank})"), None)
             for rank, (kind, value) in enumerate(await web.search(q, limit=WEB_HITS), 1)]
-
-
-async def _recent(pmids: list[str]) -> list[Found]:
-    papers = await s2.recommend(pmids, exclude=[], limit=RECENT_HITS)
-    return [(p.id, Hit("recent", rank, f"Semantic Scholar: recommended for the seeds (#{rank})"), p)
-            for rank, p in enumerate(papers, 1)]
 
 
 def _add(pool: dict[str, Candidate], cid: str, hits: list[Hit], paper: Paper | None) -> None:

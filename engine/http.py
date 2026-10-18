@@ -7,11 +7,9 @@ import time
 
 import httpx
 
-# Seconds between requests per host. NCBI enforces 3 req/s keyless, 10 with a key;
-# Semantic Scholar's introductory key allows 1 req/s.
+# Seconds between requests per host. NCBI enforces 3 req/s keyless, 10 with a key.
 PACE = {
     "eutils.ncbi.nlm.nih.gov": 0.11 if os.getenv("NCBI_API_KEY") else 0.34,
-    "api.semanticscholar.org": 1.0,
     "www.ebi.ac.uk": 0.05,
 }
 MAX_ATTEMPTS = 3
