@@ -35,7 +35,7 @@ function Constellation() {
 
 export function Landing() {
   const [run, setRun] = useState<Discovery | null>(null);
-  useEffect(() => { document.title = "Paper Discovery"; api.recorded().then(setRun).catch(() => {}); }, []);
+  useEffect(() => { document.title = "TUMor"; api.recorded().then(setRun).catch(() => {}); }, []);
 
   const top10 = run?.results.slice(0, 10) ?? [];
   const total = run ? Math.round(Object.values(run.timings).reduce((a, b) => a + b, 0)) : 110;
@@ -49,7 +49,7 @@ export function Landing() {
           <div>
             <span className="badge">Biomedical literature · Nebius Token Factory</span>
             <h1>Start from the papers you trust.</h1>
-            <p>Give a research question and a few seed papers. Watch Paper Discovery follow their citations, search
+            <p>Give a research question and a few seed papers. Watch TUMor follow their citations, search
               PubMed, preprints and the web, and rank new papers live, each with where it was found and a quote
               that shows why.</p>
             <div className="cta-row">
