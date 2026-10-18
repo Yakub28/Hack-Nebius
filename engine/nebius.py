@@ -38,11 +38,15 @@ async def embed(texts: list[str]) -> np.ndarray:
     return matrix / np.linalg.norm(matrix, axis=1, keepdims=True)
 
 
-async def chat_json(system: str, user: str, *, max_tokens: int = 2000) -> dict:
+async def chat_json(system: str, user: str, *, max_tokens: int = 2000, schema: dict | None = None) -> dict:
+    # A schema has the server enforce the shape. Nemotron breaks lists of objects on its own: it writes the
+    # literal key "}, {" where one object should close and the next open.
+    shape = ({"type": "json_schema", "json_schema": {"name": "reply", "schema": schema, "strict": True}}
+             if schema else {"type": "json_object"})
     resp = await _get_client().chat.completions.create(
         model=LLM_MODEL,
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        response_format={"type": "json_object"},
+        response_format=shape,
         temperature=0,
         max_tokens=max_tokens,
         # Nemotron reasons before answering and that counts against max_tokens: the planner spent all 2,000

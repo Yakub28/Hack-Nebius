@@ -21,7 +21,7 @@ make sample   # record one real search into web/public/sample.json (needs the ke
 ## Layout
 
 - `engine/discover.py`: the whole pipeline, top to bottom: resolve → plan → graph → candidates → hydrate →
-  first stage (embeddings + RRF) → judge. Start here.
+  first stage (embeddings + RRF) → judge → context, map and research brief. Start here.
 - `engine/{pubmed,icite,europepmc,web,nebius}.py`: one module per external service; `engine/http.py` is the
   shared client with retries; `engine/paper.py` is the record every source maps to.
 - `api.py`: FastAPI: `/health`, `/discover`, `/discover/stream` (server-sent events while the search runs:

@@ -1,5 +1,5 @@
 import type { Discovery, Result } from "../api/types";
-import { CHANNELS, GRADES, KEYWORD_CHANNELS, authors, firstLink, plural, refOf, shortAuthors, studyDesign } from "../lib/format";
+import { CHANNELS, GRADES, authors, foundByKeywords, firstLink, plural, refOf, shortAuthors, studyDesign } from "../lib/format";
 import { useSession } from "../lib/session";
 import { CheckIcon, ExternalIcon, PlusIcon, StarIcon, XIcon } from "./Icons";
 import { useToast } from "./Toast";
@@ -113,8 +113,7 @@ export function Meta({ r }: { r: Result }) {
  *  Only when they ran and found something, so a failed PubMed channel can't badge every result. */
 function beyondKeywords(r: Result, data: Discovery): string | null {
   const searches = data.queries.pubmed_queries.length + data.queries.preprint_queries.length;
-  const keyword = (p: Result) => p.channels.some((c) => KEYWORD_CHANNELS.has(c));
-  if (!searches || keyword(r) || !r.channels.length || !data.results.some(keyword)) return null;
+  if (!searches || foundByKeywords(r) || !r.channels.length || !data.results.some(foundByKeywords)) return null;
   return `Beyond keyword search: none of this run's ${plural(searches, "PubMed or preprint query", "PubMed and preprint queries")} `
     + `returned this paper.\nFound by: ${r.channels.map((c) => CHANNELS[c]?.[0] ?? c).join(", ")}.`;
 }

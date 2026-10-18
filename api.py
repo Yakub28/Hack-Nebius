@@ -145,6 +145,7 @@ def _discovery_json(d: Discovery) -> dict:
         "timings": d.timings,
         "web_trail": d.web_trail,
         "map": d.map,
+        "brief": d.brief,
     }
 
 

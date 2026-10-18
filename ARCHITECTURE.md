@@ -33,8 +33,10 @@ seeds (PMID / DOI / title) + question
  5. Context      trial IDs quoted in each abstract; Tavily pages about the top 8 (registries, commentary,
         │        news, code), shown as links. Map: PCA of the ranking embeddings + spherical k-means
         │        themes named by the LLM (title-word fallback), with the citation links.
+        │        Brief, alongside: the LLM reads the top 15 graded abstracts and writes an answer and
+        │        3-5 findings; only claims that check out against those abstracts are kept.
         │
- 6. Output       sorted by grade, then fused score. Each card: metadata, links,
+ 6. Output       sorted by grade, then fused score, under the research brief. Each card: metadata, links,
                  "found via" provenance, links to seeds, nearest seed, verified quote, web context.
 ```
 
@@ -47,7 +49,8 @@ seeds (PMID / DOI / title) + question
 | One LLM query per seed, OR'ed | Single LLM Boolean query recall 0.58–0.65 vs manual 0.72–0.84; per-seed queries match manual (Wang 2025). |
 | Score per seed, never a seed centroid | Incoherent seed sets cut CoCites recall 83% → 34%; MAX beats SUM in group fusion. |
 | Qwen3-Embedding-8B | Only embedding model on Nebius ($0.01/M tokens); NFCorpus 0.415, SciFact 0.785. |
-| Nemotron 3.5 Lightning as the LLM, thinking off | NVIDIA partner model, $0.06/$0.24 per M tokens (Qwen3-235B: $0.20/$0.60). Thinking on spent the planner's whole 2,000-token budget and returned nothing; off, 2 s. Same search, one run each: 44–70 s end to end vs 110 s, but 29–31 of the top 50 keep a verified quote vs 43 (untested beyond that). Its JSON drifts (repeated keys, `Group N` keys, the odd malformed plan), so replies are merged, re-read and retried. Qwen stays a `NEBIUS_LLM_MODEL` away. |
+| Nemotron 3.5 Lightning as the LLM, thinking off | NVIDIA partner model, $0.06/$0.24 per M tokens (Qwen3-235B: $0.20/$0.60). Thinking on spent the planner's whole 2,000-token budget and returned nothing; off, 2 s. Same search, one run each: 44–70 s end to end vs 110 s, but 29–31 of the top 50 keep a verified quote vs 43 (untested beyond that). Its JSON drifts (repeated keys, `Group N` keys, the odd malformed plan, PubMed tags standing alone that match nothing), so the plan and brief have a server-enforced shape, replies are merged and re-read, and queries are cleaned. Qwen stays a `NEBIUS_LLM_MODEL` away. |
+| Research brief: every claim checked, or left out | A summary is where an LLM states things no paper says. So the model cites papers only by their number in the list it read; each finding must carry a quote found word for word in a cited abstract, and every number in a claim must appear in a cited abstract (it catches invented and rounded figures, not a real number misapplied). Fewer than 2 surviving findings and the brief is dropped with a note. The server enforces the JSON shape: unenforced, Nemotron broke every list of objects. Patterns (designs, years, the most-cited result, what keyword search missed) are counted in code, not written. In probes 1–2 of 5 offered findings fail the checks; one retry. Untested beyond that. |
 | No HyDE / query2doc | Gains vanish or turn negative on strong embedders. |
 | Graded 0–4 judge with criteria, rank don't filter | Graded > binary (0.502 vs 0.477 nDCG@10). Criteria prompts: 97.7% vs 49% sensitivity zero-shot. Hard LLM filters lose recall. |
 | RRF fusion | Robust with no labels; citation + text fused beat either alone in every study (e.g. P@10 0.533 vs 0.315 / 0.226). |
