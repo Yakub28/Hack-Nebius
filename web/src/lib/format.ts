@@ -16,8 +16,6 @@ export const LINK_NAMES: Record<string, string> = { pubmed: "PubMed", doi: "DOI"
 
 export const MAX_SEEDS = 30;
 
-export const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-
 export function authors(list: string[]): string {
   if (!list.length) return "";
   return list.length > 3 ? `${list.slice(0, 3).join(", ")} et al.` : list.join(", ");
