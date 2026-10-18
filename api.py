@@ -186,7 +186,10 @@ async def web_app(path: str) -> FileResponse:
         raise HTTPException(404, "The web UI is not built. Run `make web-build`, or `make web` for the dev server.")
     file = (DIST / path).resolve()
     if path and file.is_file() and file.is_relative_to(DIST):
-        return FileResponse(file)
+        # Built assets have content hashes in their names, so they can be cached forever.
+        immutable = path.startswith("assets/")
+        return FileResponse(file, headers={"Cache-Control": "public, max-age=31536000, immutable" if immutable else "no-cache"})
     if Path(path).suffix:     # a missing file, e.g. a stale chunk after a redeploy: a real 404, not the app
         raise HTTPException(404, f"No file {path}")
-    return FileResponse(DIST / "index.html")
+    # Never cached: an old index.html would ask for asset hashes that a rebuild has replaced.
+    return FileResponse(DIST / "index.html", headers={"Cache-Control": "no-cache"})
