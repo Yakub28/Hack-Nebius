@@ -50,9 +50,9 @@ async function checkHealth() {
       pill.title = "Set NEBIUS_API_KEY on the server. Sample results still work.";
       return;
     }
-    pill.className = "pill ok";
-    pill.lastElementChild.textContent = "API connected";
-    if (!health.web) pill.title = "Web search is off (no TAVILY_API_KEY)";
+    pill.className = health.web ? "pill ok" : "pill warn";
+    pill.lastElementChild.textContent = health.web ? "API connected" : "API connected · web search off";
+    if (!health.web) pill.title = "Set TAVILY_API_KEY on the server for the web search agent and web context.";
   } catch {
     pill.className = "pill off";
     pill.lastElementChild.textContent = "API offline";

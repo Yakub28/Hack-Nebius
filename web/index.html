@@ -47,7 +47,8 @@
             <li>Follows the seeds' <strong>citations both ways</strong>, plus papers co-cited with them.</li>
             <li>PubMed's own <strong>similar articles</strong> for every seed.</li>
             <li><strong>LLM-written PubMed searches</strong>: one per seed, plus the facets of your question.</li>
-            <li>Preprint servers and the web (Tavily) for <strong>work too new to be cited yet</strong>.</li>
+            <li>Preprint servers, and a <strong>web search agent</strong> (Tavily) that reads what it finds and
+              chooses its next searches, for <strong>work too new to be cited yet</strong>.</li>
           </ul>
           <p class="go">→ Open <a href="app.html">Search</a></p>
         </article>
@@ -59,6 +60,8 @@
             <li>Your seeds are graded too, which draws a <strong>relevance line</strong>: above it, as relevant as your seeds.</li>
             <li>Each result quotes its abstract, and the quote is <strong>checked word for word</strong>. Quotes that fail are dropped.</li>
             <li>Every link to a seed is <strong>a citation or a similarity score</strong> you can check.</li>
+            <li>A <strong>map</strong> groups the results into themes and draws their citations, and the strongest
+              results come with <strong>web context</strong>: trial registrations, commentary, news.</li>
           </ul>
           <p class="go">→ Open <a href="app.html?sample">Sample results</a></p>
         </article>
@@ -66,7 +69,7 @@
 
       <h2>How it works</h2>
       <ol class="steps">
-        <li><b><span class="n">1</span>Resolve</b>Seeds given as PMIDs, DOIs, PubMed links or titles are found in PubMed.</li>
+        <li><b><span class="n">1</span>Resolve</b>Seeds typed in or imported from a reference manager are found in PubMed, or in Europe PMC for preprints.</li>
         <li><b><span class="n">2</span>Plan</b>The LLM turns the question and seeds into inclusion criteria and search queries.</li>
         <li><b><span class="n">3</span>Collect</b>Seven channels gather candidates. Each one records where it came from.</li>
         <li><b><span class="n">4</span>Rank</b>Embedding similarity to each seed and to the question, fused with citation signals.</li>

@@ -1,21 +1,28 @@
-"""Europe PMC: complete reference lists and structured preprint search, keyless."""
+"""Europe PMC: complete reference lists, preprints, and records PubMed doesn't hold. Keyless."""
 from __future__ import annotations
 
 import re
 
 from engine import http
-from engine.paper import Paper, paper_id
+from engine.paper import Paper, paper_id, title_key
 
 REST = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 _TAG_RE = re.compile(r"<[^>]+>")
 
 
-async def references(pmid: str) -> set[str]:
-    """PMIDs a paper cites. Fuller than PubMed or iCite, which only see PMC deposits."""
-    data = await http.get_json(f"{REST}/MED/{pmid}/references",
-                               params={"format": "json", "pageSize": 1000})
+async def references(record: str) -> set[str]:
+    """PMIDs a paper cites, for a Europe PMC "source/id" ("MED/<pmid>", "PPR/PPR…").
+    Fuller than PubMed or iCite, which only see PMC deposits."""
+    data = await http.get_json(f"{REST}/{record}/references", params={"format": "json", "pageSize": 1000})
     refs = (data.get("referenceList") or {}).get("reference") or []
     return {r["id"] for r in refs if r.get("source") == "MED" and r.get("id")}
+
+
+async def citations(record: str) -> set[str]:
+    """PMIDs of papers citing a Europe PMC record. iCite covers PubMed papers; this covers the rest."""
+    data = await http.get_json(f"{REST}/{record}/citations", params={"format": "json", "pageSize": 1000})
+    cites = (data.get("citationList") or {}).get("citation") or []
+    return {c["id"] for c in cites if c.get("source") == "MED" and c.get("id")}
 
 
 async def preprints(query: str, *, limit: int) -> list[Paper]:
@@ -26,6 +33,23 @@ async def preprints(query: str, *, limit: int) -> list[Paper]:
 async def by_doi(doi: str) -> Paper | None:
     found = await _search(f'DOI:"{doi}"', limit=1)
     return found[0] if found else None
+
+
+async def by_title(title: str) -> Paper | None:
+    """Only an exact title match counts, as in PubMed: a wrong seed would steer the whole search."""
+    wanted = title_key(title)
+    if not wanted:
+        return None
+    phrase = " ".join(re.findall(r"[^\W_]+", title))
+    found = [p for p in await _search(f'TITLE:"{phrase}"', limit=5) if title_key(p.title) == wanted]
+    # The same title can be a preprint and its published version: prefer the PubMed record.
+    return next((p for p in found if p.pmid), found[0] if found else None)
+
+
+async def by_pmcid(pmcid: str) -> Paper | None:
+    found = await _search(f"PMCID:{pmcid.upper()}", limit=1)
+    return found[0] if found else None
+
 
 
 async def _search(query: str, *, limit: int) -> list[Paper]:
@@ -51,6 +75,7 @@ def _paper(r: dict) -> Paper:
         pmid=pmid,
         citations=r.get("citedByCount"),
         preprint=is_preprint,
+        epmc=f"{r['source']}/{r['id']}" if r.get("source") and r.get("id") else None,
     )
 
 

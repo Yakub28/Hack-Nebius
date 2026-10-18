@@ -1,0 +1,23 @@
+# Tool configuration only: the app is not packaged. Dependencies are pinned in requirements*.txt.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+# A narrow, high-signal set: catch what is wrong, don't relitigate settled style.
+#   E,F   pyflakes + pycodestyle errors: undefined names, unused imports, broken f-strings
+#   B     bugbear: mutable defaults, loop-variable closures, and friends
+#   I     import order: mechanical, and otherwise diff noise
+#   UP    idioms Python 3.12 makes available
+#   RUF   ruff's own checks
+select = ["E", "F", "B", "I", "UP", "RUF"]
+ignore = [
+    "E501",                        # a few prompts and URLs read worse wrapped
+    "RUF001", "RUF002", "RUF003",  # the prose uses real typography: →, –, ≥
+]
