@@ -12,7 +12,7 @@ Research Paper Discovery* challenge: Nebius Token Factory runs the embeddings (Q
 ```bash
 make venv     # .venv on Python 3.12 + dev deps (uv)
 make run      # API + UI on :8000, reads .env (NEBIUS_API_KEY at least)
-make check    # ruff + pytest: what CI runs. Run it before every commit.
+make check    # ruff + pytest. Run it before every commit.
 make sample   # record one real search into web/sample.json (needs the keys)
 ```
 

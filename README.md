@@ -58,7 +58,7 @@ The `Dockerfile` serves the API on port 8000. Run it as a Nebius Serverless AI e
 ## Test
 
 ```bash
-make check    # ruff + pytest, the same as CI
+make check    # ruff + pytest
 ```
 
 The tests are offline and need no keys.

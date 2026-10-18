@@ -32,7 +32,7 @@ lint:  ## Lint the Python code (ruff)
 	$(PY) -m ruff check .
 
 .PHONY: check
-check: lint test  ## Everything CI runs
+check: lint test  ## Lint and test: run before every commit
 
 .PHONY: sample
 sample:  ## Record one real search into web/sample.json (needs the keys in .env)
