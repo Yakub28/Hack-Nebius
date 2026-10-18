@@ -10,7 +10,7 @@ export const EXAMPLE = {
   seeds: "33567185\nTirzepatide Once Weekly for the Treatment of Obesity",
 };
 
-export function SearchForm({ onError }: { onError: (message: string | null) => void }) {
+export function SearchForm({ onError, onClose }: { onError: (message: string | null) => void; onClose?: () => void }) {
   const { form, setForm, run, start, cancel } = useSession();
   const toast = useToast();
   const navigate = useNavigate();
@@ -68,7 +68,10 @@ export function SearchForm({ onError }: { onError: (message: string | null) => v
 
   return (
     <form className="panel" onSubmit={(e) => { e.preventDefault(); submit(); }} onKeyDown={onKey} autoComplete="off">
-      <div className="panel-head"><h2>New search</h2></div>
+      <div className="panel-head">
+        <h2>{onClose ? "Edit your search" : "New search"}</h2>
+        {onClose && <button type="button" className="link" onClick={onClose}>Close</button>}
+      </div>
       <div className="field">
         <label className="label" htmlFor="question">Research question</label>
         <textarea id="question" rows={3} required minLength={3} value={form.question} disabled={running}
@@ -111,7 +114,7 @@ export function SearchForm({ onError }: { onError: (message: string | null) => v
       <div className="form-alt">
         <button type="button" className="link" disabled={running}
           onClick={() => setForm({ question: EXAMPLE.question, seeds: EXAMPLE.seeds })}>Fill in an example</button>
-        <span><kbd>{IS_MAC ? "⌘" : "Ctrl"}</kbd> <kbd>Enter</kbd> to run · 1–2 minutes</span>
+        <span><kbd>{IS_MAC ? "⌘" : "Ctrl"}</kbd> <kbd>Enter</kbd> to run · usually 1–3 minutes</span>
       </div>
     </form>
   );

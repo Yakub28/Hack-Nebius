@@ -529,24 +529,27 @@ async def judge(question: str, criteria: list[str], seeds: list[Paper],
 
     async def grade(batch: list[Candidate]) -> int:
         """Grades the batch in place; returns how many papers the model skipped."""
-        papers = "\n\n".join(
-            f"[{i}] {c.paper.title}\nAbstract: {c.paper.abstract[:MAX_ABSTRACT_CHARS] or '(none)'}"
-            for i, c in enumerate(batch, 1))
-        async with gate:
-            reply = await nebius.chat_json(JUDGE_PROMPT, f"{header}\n\nPapers:\n\n{papers}")
-        for entry in reply.get("grades", []):
-            index, value = entry.get("paper"), entry.get("grade")
-            if not (isinstance(index, int) and 1 <= index <= len(batch) and value in (0, 1, 2, 3, 4)):
-                continue
-            c = batch[index - 1]
-            c.grade = value
-            c.reason = str(entry.get("reason", ""))
-            c.quote = verified_quote(str(entry.get("quote", "")), c.paper.text)
         nonlocal finished
-        finished += 1
-        emit("graded", candidates=[c for c in batch if c not in seed_entries and c.grade is not None],
-             done=finished, total=len(batches), papers=len(to_judge))
-        return sum(c.grade is None for c in batch)
+        try:
+            papers = "\n\n".join(
+                f"[{i}] {c.paper.title}\nAbstract: {c.paper.abstract[:MAX_ABSTRACT_CHARS] or '(none)'}"
+                for i, c in enumerate(batch, 1))
+            async with gate:
+                reply = await nebius.chat_json(JUDGE_PROMPT, f"{header}\n\nPapers:\n\n{papers}")
+            for entry in reply.get("grades", []):
+                index, value = entry.get("paper"), entry.get("grade")
+                if not (isinstance(index, int) and 1 <= index <= len(batch) and value in (0, 1, 2, 3, 4)):
+                    continue
+                c = batch[index - 1]
+                c.grade = value
+                c.reason = str(entry.get("reason", ""))
+                c.quote = verified_quote(str(entry.get("quote", "")), c.paper.text)
+            return sum(c.grade is None for c in batch)
+        finally:
+            # A failed batch still counts as finished, or the live progress would stall short of the total.
+            finished += 1
+            emit("graded", candidates=[c for c in batch if c not in seed_entries and c.grade is not None],
+                 done=finished, total=len(batches), papers=len(to_judge))
 
     results = await asyncio.gather(*(grade(b) for b in batches), return_exceptions=True)
     failed = [r for r in results if isinstance(r, Exception)]

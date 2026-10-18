@@ -10,7 +10,7 @@ function download(name: string, text: string, type: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function exportRis(list: Result[]) {
+export function exportRis(list: Result[], name = "papers.ris") {
   const records = list.map((r) => [
     `TY  - ${r.preprint ? "UNPB" : "JOUR"}`,
     `TI  - ${r.title}`,
@@ -24,14 +24,14 @@ export function exportRis(list: Result[]) {
     r.grade != null ? `N1  - Grade ${r.grade}/4. ${r.reason}` : "",
     "ER  - ",
   ].filter(Boolean).join("\r\n"));
-  download("papers.ris", records.join("\r\n\r\n") + "\r\n", "application/x-research-info-systems");
+  download(name, records.join("\r\n\r\n") + "\r\n", "application/x-research-info-systems");
 }
 
-export function exportCsv(list: Result[], themeName: (id: number | null) => string) {
+export function exportCsv(list: Result[], themeOf: (r: Result) => string, name = "papers.csv") {
   const cols = ["rank", "grade", "likely_relevant", "title", "year", "venue", "authors", "doi", "pmid",
     "citations", "channels", "theme", "reason", "quote", "url"];
   const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const rows = list.map((r, i) => [i + 1, r.grade, r.likely_relevant, r.title, r.year, r.venue, r.authors.join("; "),
-    r.doi, r.pmid, r.citations, r.channels.join("; "), themeName(r.theme), r.reason, r.quote, firstLink(r)].map(cell).join(","));
-  download("papers.csv", [cols.join(","), ...rows].join("\r\n"), "text/csv");
+    r.doi, r.pmid, r.citations, r.channels.join("; "), themeOf(r), r.reason, r.quote, firstLink(r)].map(cell).join(","));
+  download(name, [cols.join(","), ...rows].join("\r\n"), "text/csv");
 }

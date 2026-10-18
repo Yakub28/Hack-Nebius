@@ -113,8 +113,7 @@ export type RunEvent =
   | { event: "web_round"; data: WebRound }
   | { event: "pool"; data: { size: number } }
   | { event: "ranked"; data: { results: Result[] } }
-  | { event: "graded"; data: { done: number; total: number; papers: number;
-      grades: { id: string; grade: number; reason: string; quote: string | null }[] } }
+  | { event: "graded"; data: { done: number; total: number; papers: number; results: Result[] } }
   | { event: "seed_grades"; data: { grades: (number | null)[] } }
   | { event: "sources"; data: { id: string; sources: Source[] } }
   | { event: "map"; data: { map: ResultMap | null } }

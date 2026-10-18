@@ -24,12 +24,20 @@ export function ResultsMap({ data, list, selected, onOpen }: {
   const edges = map.edges.filter((e) => shown.has(e.from) && shown.has(e.to))
     .filter((e) => e.from === selected || e.to === selected || seedIds.has(e.from) || seedIds.has(e.to));
 
+  // Each theme is labelled at its median point, which a few outlying papers cannot drag into empty space,
+  // then nudged up or down until it clears the seed markers and the labels already placed.
+  const median = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+  const taken = data.seeds.map((s) => at(s.id)).filter((p): p is [number, number] => !!p).map(([x, y]) => ({ x0: x - 12, x1: x + 36, y0: y - 14, y1: y + 14 }));
   const labels = map.themes.map((t) => {
     const pts = visible.filter((r) => r.theme === t.id).map((r) => at(r.id)!);
     if (!pts.length) return null;
-    const x = pts.reduce((sum, p) => sum + p[0], 0) / pts.length;
-    const y = Math.min(...pts.map((p) => p[1])) - 18;     // above the cluster, not on its densest point
-    return { id: t.id, name: t.name, x: Math.min(Math.max(x, 90), W - 90), y: Math.max(y, 16) };
+    const half = t.name.length * 4.9 + 8;     // about half the label's width at 17px
+    const x = Math.min(Math.max(median(pts.map((p) => p[0])), half + 4), W - half - 4);
+    const base = median(pts.map((p) => p[1])) - 26;
+    const y = [0, -24, 24, -48, 48, -72, 72].map((d) => Math.min(Math.max(base + d, 20), H - 8))
+      .find((cy) => !taken.some((b) => x + half > b.x0 && x - half < b.x1 && cy + 4 > b.y0 && cy - 16 < b.y1)) ?? base;
+    taken.push({ x0: x - half, x1: x + half, y0: y - 16, y1: y + 4 });
+    return { id: t.id, name: t.name, x, y };
   }).filter(Boolean) as { id: number; name: string; x: number; y: number }[];
 
   const hoverAt = hover && at(hover.id);
@@ -74,7 +82,11 @@ export function ResultsMap({ data, list, selected, onOpen }: {
               );
             })}
           </g>
-          <g>{labels.map((l) => <text key={l.id} className="theme-label" x={l.x} y={l.y} textAnchor="middle">{l.name}</text>)}</g>
+          <g>{labels.map((l) => (
+            <text key={l.id} className="theme-label" x={l.x} y={l.y} textAnchor="middle">
+              <tspan className="theme-key" style={{ fill: `var(--t${l.id})` }}>● </tspan>{l.name}
+            </text>
+          ))}</g>
         </svg>
         {hover && hoverAt && (
           <div className={`map-tip${hoverAt[1] < H * 0.3 ? " below" : ""}`} style={{ left: `${(hoverAt[0] / W) * 100}%`, top: `${(hoverAt[1] / H) * 100}%` }}>

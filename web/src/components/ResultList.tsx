@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { Discovery, Result } from "../api/types";
 import { ResultCard } from "./ResultCard";
 
@@ -27,11 +27,15 @@ function useSlide() {
   };
 }
 
-export function ResultList({ list, data, live, byRelevance, selected, onOpen, onClear }: {
-  list: Result[]; data: Discovery; live: boolean; byRelevance: boolean; selected: string | null;
-  onOpen: (id: string) => void; onClear: () => void;
+export function ResultList({ list, data, live, byRelevance, selected, cursor, isNew, showRelevance, onOpen, onClear }: {
+  list: Result[]; data: Discovery; live: boolean; byRelevance: boolean; selected: string | null; cursor: string | null;
+  isNew: (id: string) => boolean; showRelevance: boolean; onOpen: (id: string) => void; onClear: () => void;
 }) {
   const slot = useSlide();
+  // Keyboard moves keep the cursor in view; scroll-margin on the cards clears the sticky toolbar.
+  useEffect(() => {
+    if (cursor) document.getElementById(`r-${cursor}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [cursor]);
   if (!list.length) {
     return (
       <div className="none">No results match these filters.{" "}
@@ -43,13 +47,13 @@ export function ResultList({ list, data, live, byRelevance, selected, onOpen, on
   return (
     <ol className="cards">
       {list.map((r, i) => (
-        <li key={r.id} ref={slot(r.id)}>
+        <li key={r.id} id={`r-${r.id}`} ref={slot(r.id)}>
           {i === cut && (
             <div className="cutline">{i === 0 ? "No result reached your seeds' grade"
               : `Below this line: graded lower than your weakest seed (${data.cutoff})`}</div>
           )}
-          <ResultCard r={r} data={data} live={live} selected={r.id === selected}
-            below={data.cutoff != null && !live && !r.likely_relevant} onOpen={onOpen} />
+          <ResultCard r={r} data={data} live={live} selected={r.id === selected} cursor={r.id === cursor && r.id !== selected}
+            below={data.cutoff != null && !live && !r.likely_relevant} isNew={isNew(r.id)} showRelevance={showRelevance} onOpen={onOpen} />
         </li>
       ))}
     </ol>

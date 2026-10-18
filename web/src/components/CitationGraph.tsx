@@ -11,6 +11,8 @@ const THEME_HEX = ["#2a9d99", "#dd5b00", "#62aef0", "#ff64c8", "#1aae39", "#d6b6
 const SEED_HEX = "#ffffff";
 // The night band from design.md: the one dark island, and the palette reads far better against it.
 const NIGHT = "#141d52";
+const FADED = "#2c3670";
+const FOCUS = "#ffd84d";
 
 interface Node {
   id: string;
@@ -18,6 +20,9 @@ interface Node {
   color: string;
   val: number;
   seed: boolean;
+  x?: number;
+  y?: number;
+  z?: number;
 }
 
 /** The results and seeds as a force-directed citation network: what cites what, in 3D. Drag to orbit,
@@ -52,10 +57,24 @@ export function CitationGraph({ data, list, selected, onOpen }: {
     return { nodes, links };
   }, [data, list]);
 
-  const touches = (link: { source: unknown; target: unknown }) => {
-    const id = (end: unknown) => (typeof end === "object" && end ? (end as Node).id : end);
-    return selected != null && (id(link.source) === selected || id(link.target) === selected);
-  };
+  const endId = (end: unknown) => (typeof end === "object" && end ? (end as Node).id : end);
+  const touches = (link: { source: unknown; target: unknown }) =>
+    selected != null && (endId(link.source) === selected || endId(link.target) === selected);
+  // With a paper open, the graph is about that paper: its citation neighbours keep their colour, the rest fade.
+  const near = useMemo(() => {
+    if (!selected) return null;
+    const ids = new Set([selected]);
+    graphData.links.forEach((l) => { if (touches(l)) { ids.add(endId(l.source) as string); ids.add(endId(l.target) as string); } });
+    return ids;
+  }, [selected, graphData]);
+
+  // ...and the camera flies to it, close enough to read its neighbourhood.
+  useEffect(() => {
+    const node = graphData.nodes.find((n) => n.id === selected);
+    if (!node || node.x == null || !graph.current) return;
+    const ratio = 1 + 90 / Math.max(1, Math.hypot(node.x, node.y ?? 0, node.z ?? 0));
+    graph.current.cameraPosition({ x: node.x * ratio, y: (node.y ?? 0) * ratio, z: (node.z ?? 0) * ratio }, node as { x: number; y: number; z: number }, 900);
+  }, [selected, graphData]);
 
   return (
     <section className="graph-panel">
@@ -70,11 +89,11 @@ export function CitationGraph({ data, list, selected, onOpen }: {
               backgroundColor={NIGHT}
               showNavInfo={false}
               nodeLabel={(n: object) => `<div class="graph-tip">${escapeHtml((n as Node).name)}</div>`}
-              nodeColor={(n: object) => ((n as Node).id === selected ? "#ffd84d" : (n as Node).color)}
+              nodeColor={(n: object) => ((n as Node).id === selected ? FOCUS : near && !near.has((n as Node).id) ? FADED : (n as Node).color)}
               nodeVal={(n: object) => (n as Node).val}
               nodeOpacity={0.95}
               nodeResolution={16}
-              linkColor={(l: object) => (touches(l as { source: unknown; target: unknown }) ? "#ffd84d" : "rgba(255,255,255,0.28)")}
+              linkColor={(l: object) => (touches(l as { source: unknown; target: unknown }) ? FOCUS : near ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.28)")}
               linkWidth={(l: object) => (touches(l as { source: unknown; target: unknown }) ? 1.6 : 0.4)}
               linkDirectionalArrowLength={2.5}
               linkDirectionalArrowRelPos={1}
@@ -90,7 +109,7 @@ export function CitationGraph({ data, list, selected, onOpen }: {
       <p className="graph-legend">
         <span><i className="swatch seed" /> your seeds</span>
         <span><i className="swatch" /> results, coloured by theme, sized by grade</span>
-        <span>arrows point from the citing paper to the cited one · drag to orbit · scroll to zoom · click to open</span>
+        <span>arrows point from the citing paper to the cited one · drag to orbit · scroll to zoom · click a paper to focus on it</span>
       </p>
     </section>
   );

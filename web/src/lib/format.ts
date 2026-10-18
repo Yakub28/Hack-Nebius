@@ -44,3 +44,36 @@ export function plural(n: number, one: string, many = `${one}s`): string {
 export function seedLines(text: string): string[] {
   return text.split("\n").map((s) => s.trim()).filter(Boolean);
 }
+
+/** The first author's surname and "et al.": enough to recognise a paper in a list. */
+export function shortAuthors(list: string[]): string {
+  if (!list.length) return "";
+  const first = list[0].split(" ").pop() ?? list[0];
+  return list.length > 1 ? `${first} et al.` : first;
+}
+
+const PHASES: Record<string, string> = { "Clinical Trial, Phase IV": "4", "Clinical Trial, Phase III": "3", "Clinical Trial, Phase II": "2", "Clinical Trial, Phase I": "1" };
+
+/** The study design a reader screens on, from PubMed's publication types. */
+export function studyDesign(types: string[]): string {
+  const has = (t: string) => types.includes(t);
+  const phase = Object.keys(PHASES).find(has);
+  if (has("Meta-Analysis")) return "Meta-analysis";
+  if (has("Systematic Review")) return "Systematic review";
+  if (has("Randomized Controlled Trial")) return phase ? `Phase ${PHASES[phase]} RCT` : "RCT";
+  if (phase) return `Phase ${PHASES[phase]} trial`;
+  if (has("Clinical Trial")) return "Clinical trial";
+  if (has("Observational Study")) return "Observational study";
+  if (has("Review")) return "Review";
+  return "";
+}
+
+/** Warnings that mean a source or step failed, as opposed to notes about what was skipped on purpose. Every
+ *  warning is shown either way; this only decides how loudly. */
+export function isProblem(warning: string): boolean {
+  return /fail|not found|could not|is off|skipped/i.test(warning);
+}
+
+export function isSeedProblem(warning: string): boolean {
+  return /^(Seed not found|Could not look up seed)/.test(warning);
+}
