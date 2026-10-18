@@ -90,7 +90,7 @@ export function SearchHero({ onError }: { onError: (message: string | null) => v
 
   return (
     <div className="hero-search" onKeyDown={onKey}>
-      <span className="eyebrow">TUMor</span>
+      <span className="eyebrow">Snowball</span>
       <h1>What should you read next?</h1>
       <p className="hero-sub">Add a few papers you trust. We'll find what belongs next to them, and show you why.</p>
 

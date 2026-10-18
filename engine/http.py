@@ -62,7 +62,7 @@ def _get_client() -> httpx.AsyncClient:
     global _client
     if _client is None:
         _client = httpx.AsyncClient(timeout=30, follow_redirects=True,
-                                    headers={"User-Agent": "tumor-discovery/0.1"})
+                                    headers={"User-Agent": "snowball/0.1"})
     return _client
 
 

@@ -12,6 +12,10 @@ export const CHANNELS: Record<string, [string, string]> = {
   web: ["Web (Tavily)", "Found by the web search agent, resolved to a PubMed or Europe PMC record"],
 };
 
+/** The channels that are keyword searches. A paper none of them returned came only from the seeds' citations,
+ *  PubMed's similar articles or the web agent: what keyword search alone missed. */
+export const KEYWORD_CHANNELS = new Set(["query", "preprint"]);
+
 export const LINK_NAMES: Record<string, string> = { pubmed: "PubMed", doi: "DOI", europepmc: "Europe PMC" };
 
 export const MAX_SEEDS = 30;

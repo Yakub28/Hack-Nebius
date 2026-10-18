@@ -1,8 +1,8 @@
-# Paper discovery: every common command, so `make help` is the one place to look.
+# Snowball: every common command, so `make help` is the one place to look.
 
 PY ?= .venv/bin/python
 PORT ?= 8000
-IMAGE ?= paper-discovery
+IMAGE ?= snowball
 # A project-local Node (make node) wins over a system one, so the build works without a global install.
 export PATH := $(if $(wildcard .tools/node/bin),$(CURDIR)/.tools/node/bin:,)$(PATH)
 
