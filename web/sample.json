@@ -1,0 +1,1557 @@
+{
+ "question": "Which incretin-based drugs reduce body weight in adults with obesity?",
+ "seeds": [
+  {
+   "label": "S1",
+   "id": "pmid:33567185",
+   "title": "Once-Weekly Semaglutide in Adults with Overweight or Obesity.",
+   "abstract": "Obesity is a global health challenge with few pharmacologic options. Whether adults with obesity can achieve weight loss with once-weekly semaglutide at a dose of 2.4 mg as an adjunct to lifestyle intervention has not been confirmed. In this double-blind trial, we enrolled 1961 adults with a body-mass index (the weight in kilograms divided by the square of the height in meters) of 30 or greater (≥27 in persons with ≥1 weight-related coexisting condition), who did not have diabetes, and randomly assigned them, in a 2:1 ratio, to 68 weeks of treatment with once-weekly subcutaneous semaglutide (at a dose of 2.4 mg) or placebo, plus lifestyle intervention. The coprimary end points were the percentage change in body weight and weight reduction of at least 5%. The primary estimand (a precise description of the treatment effect reflecting the objective of the clinical trial) assessed effects regardless of treatment discontinuation or rescue interventions. The mean change in body weight from baseline to week 68 was -14.9% in the semaglutide group as compared with -2.4% with placebo, for an estimated treatment difference of -12.4 percentage points (95% confidence interval [CI], -13.4 to -11.5; P<0.001). More participants in the semaglutide group than in the placebo group achieved weight reductions of 5% or more (1047 participants [86.4%] vs. 182 [31.5%]), 10% or more (838 [69.1%] vs. 69 [12.0%]), and 15% or more (612 [50.5%] vs. 28 [4.9%]) at week 68 (P<0.001 for all three comparisons of odds). The change in body weight from baseline to week 68 was -15.3 kg in the semaglutide group as compared with -2.6 kg in the placebo group (estimated treatment difference, -12.7 kg; 95% CI, -13.7 to -11.7). Participants who received semaglutide had a greater improvement with respect to cardiometabolic risk factors and a greater increase in participant-reported physical functioning from baseline than those who received placebo. Nausea and diarrhea were the most common adverse events with semaglutide; they were typically transient and mild-to-moderate in severity and subsided with time. More participants in the semaglutide group than in the placebo group discontinued treatment owing to gastrointestinal events (59 [4.5%] vs. 5 [0.8%]). In participants with overweight or obesity, 2.4 mg of semaglutide once weekly plus lifestyle intervention was associated with sustained, clinically relevant reduction in body weight. (Funded by Novo Nordisk; STEP 1 ClinicalTrials.gov number, NCT03548935).",
+   "year": 2021,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "John P H Wilding",
+    "Rachel L Batterham",
+    "Salvatore Calanna",
+    "Melanie Davies",
+    "Luc F Van Gaal",
+    "Ildiko Lingvay",
+    "Barbara M McGowan",
+    "Julio Rosenstock",
+    "Marie T D Tran",
+    "Thomas A Wadden",
+    "Sean Wharton",
+    "Koutaro Yokote",
+    "Niels Zeuthen",
+    "Robert F Kushner",
+    "STEP 1 Study Group"
+   ],
+   "doi": "10.1056/nejmoa2032183",
+   "pmid": "33567185",
+   "citations": null,
+   "rcr": null,
+   "preprint": false,
+   "types": [
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33567185/",
+    "doi": "https://doi.org/10.1056/nejmoa2032183",
+    "europepmc": "https://europepmc.org/article/MED/33567185"
+   },
+   "grade": 4
+  },
+  {
+   "label": "S2",
+   "id": "pmid:35658024",
+   "title": "Tirzepatide Once Weekly for the Treatment of Obesity.",
+   "abstract": "Obesity is a chronic disease that results in substantial global morbidity and mortality. The efficacy and safety of tirzepatide, a novel glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, in people with obesity are not known. In this phase 3 double-blind, randomized, controlled trial, we assigned 2539 adults with a body-mass index (BMI; the weight in kilograms divided by the square of the height in meters) of 30 or more, or 27 or more and at least one weight-related complication, excluding diabetes, in a 1:1:1:1 ratio to receive once-weekly, subcutaneous tirzepatide (5 mg, 10 mg, or 15 mg) or placebo for 72 weeks, including a 20-week dose-escalation period. Coprimary end points were the percentage change in weight from baseline and a weight reduction of 5% or more. The treatment-regimen estimand assessed effects regardless of treatment discontinuation in the intention-to-treat population. At baseline, the mean body weight was 104.8 kg, the mean BMI was 38.0, and 94.5% of participants had a BMI of 30 or higher. The mean percentage change in weight at week 72 was -15.0% (95% confidence interval [CI], -15.9 to -14.2) with 5-mg weekly doses of tirzepatide, -19.5% (95% CI, -20.4 to -18.5) with 10-mg doses, and -20.9% (95% CI, -21.8 to -19.9) with 15-mg doses and -3.1% (95% CI, -4.3 to -1.9) with placebo (P<0.001 for all comparisons with placebo). The percentage of participants who had weight reduction of 5% or more was 85% (95% CI, 82 to 89), 89% (95% CI, 86 to 92), and 91% (95% CI, 88 to 94) with 5 mg, 10 mg, and 15 mg of tirzepatide, respectively, and 35% (95% CI, 30 to 39) with placebo; 50% (95% CI, 46 to 54) and 57% (95% CI, 53 to 61) of participants in the 10-mg and 15-mg groups had a reduction in body weight of 20% or more, as compared with 3% (95% CI, 1 to 5) in the placebo group (P<0.001 for all comparisons with placebo). Improvements in all prespecified cardiometabolic measures were observed with tirzepatide. The most common adverse events with tirzepatide were gastrointestinal, and most were mild to moderate in severity, occurring primarily during dose escalation. Adverse events caused treatment discontinuation in 4.3%, 7.1%, 6.2%, and 2.6% of participants receiving 5-mg, 10-mg, and 15-mg tirzepatide doses and placebo, respectively. In this 72-week trial in participants with obesity, 5 mg, 10 mg, or 15 mg of tirzepatide once weekly provided substantial and sustained reductions in body weight. (Supported by Eli Lilly; SURMOUNT-1 ClinicalTrials.gov number, NCT04184622.).",
+   "year": 2022,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Ania M Jastreboff",
+    "Louis J Aronne",
+    "Nadia N Ahmad",
+    "Sean Wharton",
+    "Lisa Connery",
+    "Breno Alves",
+    "Arihiro Kiyosue",
+    "Shuyu Zhang",
+    "Bing Liu",
+    "Mathijs C Bunck",
+    "Adam Stefanski",
+    "SURMOUNT-1 Investigators"
+   ],
+   "doi": "10.1056/nejmoa2206038",
+   "pmid": "35658024",
+   "citations": null,
+   "rcr": null,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35658024/",
+    "doi": "https://doi.org/10.1056/nejmoa2206038",
+    "europepmc": "https://europepmc.org/article/MED/35658024"
+   },
+   "grade": 4
+  }
+ ],
+ "criteria": [
+  "Adults with obesity or overweight",
+  "GLP-1 or dual incretin receptor agonist",
+  "Body-weight change as an outcome",
+  "Randomised trial or meta-analysis of trials"
+ ],
+ "queries": {
+  "pubmed_queries": [
+   "(\"semaglutide\"[tiab] OR \"tirzepatide\"[tiab]) AND obesity[MeSH] AND \"weight loss\"[tiab]"
+  ],
+  "preprint_queries": [
+   "\"incretin\" AND \"obesity\" AND \"weight\""
+  ],
+  "web_queries": [
+   "randomised trials of GLP-1 agonists for weight loss in adults with obesity"
+  ]
+ },
+ "cutoff": 4,
+ "results": [
+  {
+   "id": "pmid:37385275",
+   "title": "Tirzepatide once weekly for the treatment of obesity in people with type 2 diabetes (SURMOUNT-2): a double-blind, randomised, multicentre, placebo-controlled, phase 3 trial.",
+   "abstract": "Weight reduction is essential for improving health outcomes in people with obesity and type 2 diabetes. We assessed the efficacy and safety of tirzepatide, a glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, versus placebo, for weight management in people living with obesity and type 2 diabetes. This phase 3, double-blind, randomised, placebo-controlled trial was conducted in seven countries. Adults (aged ≥18 years) with a body-mass index (BMI) of 27 kg/m2 or higher and glycated haemoglobin (HbA1c) of 7-10% (53-86 mmol/mol) were randomly assigned (1:1:1), using a computer-generated random sequence via a validated interactive web-response system, to receive either once-weekly, subcutaneous tirzepatide (10 mg or 15 mg) or placebo for 72 weeks. All participants, investigators, and the sponsor were masked to treatment assignment. Coprimary endpoints were the percent change in bodyweight from baseline and bodyweight reduction of 5% or higher. The treatment-regimen estimand assessed effects regardless of treatment discontinuation or initiation of antihyperglycaemic rescue therapy. Efficacy and safety endpoints were analysed with data from all randomly assigned participants (intention-to-treat population). This trial is registered with ClinicalTrials.gov, NCT04657003. Between March 29, 2021, and April 10, 2023, of 1514 adults assessed for eligibility, 938 (mean age 54·2 years [SD 10·6], 476 [51%] were female, 710 [76%] were White, and 561 [60%] were Hispanic or Latino) were randomly assigned and received at least one dose of tirzepatide 10 mg (n=312), tirzepatide 15 mg (n=311), or placebo (n=315). Baseline mean bodyweight was 100·7 kg (SD 21·1), BMI 36·1 kg/m2 (SD 6·6), and HbA1c 8·02% (SD 0·89; 64·1 mmol/mol [SD 9·7]). Least-squares mean change in bodyweight at week 72 with tirzepatide 10 mg and 15 mg was -12·8% (SE 0·6) and -14·7% (0·5), respectively, and -3·2% (0·5) with placebo, resulting in estimated treatment differences versus placebo of -9·6% percentage points (95% CI -11·1 to -8·1) with tirzepatide 10 mg and -11·6% percentage points (-13·0 to -10·1) with tirzepatide 15 mg (all p<0·0001). More participants treated with tirzepatide versus placebo met bodyweight reduction thresholds of 5% or higher (79-83% vs 32%). The most frequent adverse events with tirzepatide were gastrointestinal-related, including nausea, diarrhoea, and vomiting and were mostly mild to moderate in severity, with few events leading to treatment discontinuation (<5%). Serious adverse events were reported by 68 (7%) participants overall and two deaths occurred in the tirzepatide 10 mg group, but deaths were not considered to be related to the study treatment by the investigator. In this 72-week trial in adults living with obesity and type 2 diabetes, once-weekly tirzepatide 10 mg and 15 mg provided substantial and clinically meaningful reduction in bodyweight, with a safety profile that was similar to other incretin-based therapies for weight management. Eli Lilly and Company.",
+   "year": 2023,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "W Timothy Garvey",
+    "Juan P Frias",
+    "Ania M Jastreboff",
+    "Carel W le Roux",
+    "Naveed Sattar",
+    "Diego Aizenberg",
+    "Huzhang Mao",
+    "Shuyu Zhang",
+    "Nadia N Ahmad",
+    "Mathijs C Bunck",
+    "Imane Benabbad",
+    "Xiaotian M Zhang",
+    "SURMOUNT-2 investigators"
+   ],
+   "doi": "10.1016/s0140-6736(23)01200-x",
+   "pmid": "37385275",
+   "citations": 663,
+   "rcr": 77.9161727717625,
+   "preprint": false,
+   "types": [
+    "Randomized Controlled Trial",
+    "Multicenter Study",
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/37385275/",
+    "doi": "https://doi.org/10.1016/s0140-6736(23)01200-x",
+    "europepmc": "https://europepmc.org/article/MED/37385275"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Weight reduction is essential for improving health outcomes in people with obesity and type 2 diabetes.",
+   "found_via": [
+    "PubMed: similar to S2 (#1)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.88
+   },
+   "scores": {
+    "fused": 0.04918,
+    "seed_similarity": 0.88,
+    "question_similarity": 0.685,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:38078870",
+   "title": "Continued Treatment With Tirzepatide for Maintenance of Weight Reduction in Adults With Obesity: The SURMOUNT-4 Randomized Clinical Trial.",
+   "abstract": "The effect of continued treatment with tirzepatide on maintaining initial weight reduction is unknown. To assess the effect of tirzepatide, with diet and physical activity, on the maintenance of weight reduction. This phase 3, randomized withdrawal clinical trial conducted at 70 sites in 4 countries with a 36-week, open-label tirzepatide lead-in period followed by a 52-week, double-blind, placebo-controlled period included adults with a body mass index greater than or equal to 30 or greater than or equal to 27 and a weight-related complication, excluding diabetes. Participants (n = 783) enrolled in an open-label lead-in period received once-weekly subcutaneous maximum tolerated dose (10 or 15 mg) of tirzepatide for 36 weeks. At week 36, a total of 670 participants were randomized (1:1) to continue receiving tirzepatide (n = 335) or switch to placebo (n = 335) for 52 weeks. The primary end point was the mean percent change in weight from week 36 (randomization) to week 88. Key secondary end points included the proportion of participants at week 88 who maintained at least 80% of the weight loss during the lead-in period. Participants (n = 670; mean age, 48 years; 473 [71%] women; mean weight, 107.3 kg) who completed the 36-week lead-in period experienced a mean weight reduction of 20.9%. The mean percent weight change from week 36 to week 88 was -5.5% with tirzepatide vs 14.0% with placebo (difference, -19.4% [95% CI, -21.2% to -17.7%]; P < .001). Overall, 300 participants (89.5%) receiving tirzepatide at 88 weeks maintained at least 80% of the weight loss during the lead-in period compared with 16.6% receiving placebo (P < .001). The overall mean weight reduction from week 0 to 88 was 25.3% for tirzepatide and 9.9% for placebo. The most common adverse events were mostly mild to moderate gastrointestinal events, which occurred more commonly with tirzepatide vs placebo. In participants with obesity or overweight, withdrawing tirzepatide led to substantial regain of lost weight, whereas continued treatment maintained and augmented initial weight reduction. ClinicalTrials.gov Identifier: NCT04660643.",
+   "year": 2024,
+   "venue": "JAMA",
+   "authors": [
+    "Louis J Aronne",
+    "Naveed Sattar",
+    "Deborah B Horn",
+    "Harold E Bays",
+    "Sean Wharton",
+    "Wen-Yuan Lin",
+    "Nadia N Ahmad",
+    "Shuyu Zhang",
+    "Ran Liao",
+    "Mathijs C Bunck",
+    "Irina Jouravskaya",
+    "Madhumita A Murphy",
+    "SURMOUNT-4 Investigators"
+   ],
+   "doi": "10.1001/jama.2023.24945",
+   "pmid": "38078870",
+   "citations": 719,
+   "rcr": 131.65166393972245,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/38078870/",
+    "doi": "https://doi.org/10.1001/jama.2023.24945",
+    "europepmc": "https://europepmc.org/article/MED/38078870"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "The effect of continued treatment with tirzepatide on maintaining initial weight reduction is unknown.",
+   "found_via": [
+    "PubMed: similar to S2 (#3)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.84
+   },
+   "scores": {
+    "fused": 0.04762,
+    "seed_similarity": 0.84,
+    "question_similarity": 0.655,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:33625476",
+   "title": "Effect of Subcutaneous Semaglutide vs Placebo as an Adjunct to Intensive Behavioral Therapy on Body Weight in Adults With Overweight or Obesity: The STEP 3 Randomized Clinical Trial.",
+   "abstract": "Weight loss improves cardiometabolic risk factors in people with overweight or obesity. Intensive lifestyle intervention and pharmacotherapy are the most effective noninvasive weight loss approaches. To compare the effects of once-weekly subcutaneous semaglutide, 2.4 mg vs placebo for weight management as an adjunct to intensive behavioral therapy with initial low-calorie diet in adults with overweight or obesity. Randomized, double-blind, parallel-group, 68-week, phase 3a study (STEP 3) conducted at 41 sites in the US from August 2018 to April 2020 in adults without diabetes (N = 611) and with either overweight (body mass index ≥27) plus at least 1 comorbidity or obesity (body mass index ≥30). Participants were randomized (2:1) to semaglutide, 2.4 mg (n = 407) or placebo (n = 204), both combined with a low-calorie diet for the first 8 weeks and intensive behavioral therapy (ie, 30 counseling visits) during 68 weeks. The co-primary end points were percentage change in body weight and the loss of 5% or more of baseline weight by week 68. Confirmatory secondary end points included losses of at least 10% or 15% of baseline weight. Of 611 randomized participants (495 women [81.0%], mean age 46 years [SD, 13], body weight 105.8 kg [SD, 22.9], and body mass index 38.0 [SD, 6.7]), 567 (92.8%) completed the trial, and 505 (82.7%) were receiving treatment at trial end. At week 68, the estimated mean body weight change from baseline was -16.0% for semaglutide vs -5.7% for placebo (difference, -10.3 percentage points [95% CI, -12.0 to -8.6]; P < .001). More participants treated with semaglutide vs placebo lost at least 5% of baseline body weight (86.6% vs 47.6%, respectively; P < .001). A higher proportion of participants in the semaglutide vs placebo group achieved weight losses of at least 10% or 15% (75.3% vs 27.0% and 55.8% vs 13.2%, respectively; P < .001). Gastrointestinal adverse events were more frequent with semaglutide (82.8%) vs placebo (63.2%). Treatment was discontinued owing to these events in 3.4% of semaglutide participants vs 0% of placebo participants. Among adults with overweight or obesity, once-weekly subcutaneous semaglutide compared with placebo, used as an adjunct to intensive behavioral therapy and initial low-calorie diet, resulted in significantly greater weight loss during 68 weeks. Further research is needed to assess the durability of these findings. ClinicalTrials.gov Identifier: NCT03611582.",
+   "year": 2021,
+   "venue": "JAMA",
+   "authors": [
+    "Thomas A Wadden",
+    "Timothy S Bailey",
+    "Liana K Billings",
+    "Melanie Davies",
+    "Juan P Frias",
+    "Anna Koroleva",
+    "Ildiko Lingvay",
+    "Patrick M O'Neil",
+    "Domenica M Rubino",
+    "Dorthe Skovgaard",
+    "Signe O R Wallenstein",
+    "W Timothy Garvey",
+    "STEP 3 Investigators"
+   ],
+   "doi": "10.1001/jama.2021.1831",
+   "pmid": "33625476",
+   "citations": 871,
+   "rcr": 61.66301891422632,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Comparative Study",
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33625476/",
+    "doi": "https://doi.org/10.1001/jama.2021.1831",
+    "europepmc": "https://europepmc.org/article/MED/33625476"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Weight loss improves cardiometabolic risk factors in people with overweight or obesity.",
+   "found_via": [
+    "PubMed: similar to S1 (#1)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.88
+   },
+   "scores": {
+    "fused": 0.03279,
+    "seed_similarity": 0.88,
+    "question_similarity": 0.685,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:38819983",
+   "title": "Tirzepatide for Weight Reduction in Chinese Adults With Obesity: The SURMOUNT-CN Randomized Clinical Trial.",
+   "abstract": "Obesity has become a global public health concern and China has the largest number of affected people worldwide. To assess the efficacy and safety of treatment with tirzepatide for weight reduction in Chinese adults with obesity or overweight and weight-related comorbidities. This randomized, double-blind, placebo-controlled, phase 3 clinical trial conducted at 29 centers in China from September 2021 to December 2022 included Chinese adults (aged ≥18 years) with a body mass index (BMI) greater than or equal to 28 or greater than or equal to 24 and at least 1 weight-related comorbidity, excluding diabetes. Participants were randomly assigned (1:1:1) to receive once-weekly, subcutaneous 10-mg (n = 70) or 15-mg (n = 71) tirzepatide or placebo (n = 69), plus a lifestyle intervention, for 52 weeks. Co-primary end points were the percent change in body weight from baseline and weight reduction of at least 5% at week 52. Efficacy and safety analyses were performed on an intention-to-treat population. Of 210 randomized participants (103 [49.0%] female; mean [SD] age, 36.1 [9.1] years; body weight, 91.8 [16.0] kg; BMI, 32.3 [3.8]), 201 (95.7%) completed the trial. The mean change in body weight at week 52 was -13.6% (95% CI, -15.8% to -11.4%) with tirzepatide 10 mg, -17.5% (95% CI, -19.7% to -15.3%) with tirzepatide 15 mg, and -2.3% with placebo (difference between 10 mg and placebo, -11.3% [95% CI, -14.3% to -8.3%; P < .001]; difference between 15 mg and placebo, -15.1% [95% CI, -18.2% to -12.1%; P < .001]). The percentage of participants achieving body weight reductions of 5% or greater was 87.7% with tirzepatide 10 mg, 85.8% with tirzepatide 15 mg, and 29.3% with placebo (P < .001 for comparisons with placebo). The most frequent treatment-emergent adverse events with tirzepatide were gastrointestinal. Most were mild to moderate in severity, with few events leading to treatment discontinuation (<5%). In Chinese adults with obesity or overweight, once-weekly treatment with tirzepatide 10 mg or 15 mg resulted in statistically significant and clinically meaningful weight reduction with an acceptable safety profile. ClinicalTrials.gov Identifier: NCT05024032.",
+   "year": 2024,
+   "venue": "JAMA",
+   "authors": [
+    "Lin Zhao",
+    "Zhifeng Cheng",
+    "Yibing Lu",
+    "Ming Liu",
+    "Hong Chen",
+    "Min Zhang",
+    "Rui Wang",
+    "Yuan Yuan",
+    "Xiaoying Li"
+   ],
+   "doi": "10.1001/jama.2024.9217",
+   "pmid": "38819983",
+   "citations": 117,
+   "rcr": 17.46067624250295,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/38819983/",
+    "doi": "https://doi.org/10.1001/jama.2024.9217",
+    "europepmc": "https://europepmc.org/article/MED/38819983"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "To assess the efficacy and safety of treatment with tirzepatide for weight reduction in Chinese adults with obesity or overweight and weight-related comorbidities.",
+   "found_via": [
+    "PubMed: similar to S2 (#2)",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.86
+   },
+   "scores": {
+    "fused": 0.03226,
+    "seed_similarity": 0.86,
+    "question_similarity": 0.67,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:36322838",
+   "title": "Once-Weekly Semaglutide in Adolescents with Obesity.",
+   "abstract": "A once-weekly, 2.4-mg dose of subcutaneous semaglutide, a glucagon-like peptide-1 receptor agonist, is used to treat obesity in adults, but assessment of the drug in adolescents has been lacking. In this double-blind, parallel-group, randomized, placebo-controlled trial, we enrolled adolescents (12 to <18 years of age) with obesity (a body-mass index [BMI] in the 95th percentile or higher) or with overweight (a BMI in the 85th percentile or higher) and at least one weight-related coexisting condition. Participants were randomly assigned in a 2:1 ratio to receive once-weekly subcutaneous semaglutide (at a dose of 2.4 mg) or placebo for 68 weeks, plus lifestyle intervention. The primary end point was the percentage change in BMI from baseline to week 68; the secondary confirmatory end point was weight loss of at least 5% at week 68. A total of 201 participants underwent randomization, and 180 (90%) completed treatment. All but one of the participants had obesity. The mean change in BMI from baseline to week 68 was -16.1% with semaglutide and 0.6% with placebo (estimated difference, -16.7 percentage points; 95% confidence interval [CI], -20.3 to -13.2; P<0.001). At week 68, a total of 95 of 131 participants (73%) in the semaglutide group had weight loss of 5% or more, as compared with 11 of 62 participants (18%) in the placebo group (estimated odds ratio, 14.0; 95% CI, 6.3 to 31.0; P<0.001). Reductions in body weight and improvement with respect to cardiometabolic risk factors (waist circumference and levels of glycated hemoglobin, lipids [except high-density lipoprotein cholesterol], and alanine aminotransferase) were greater with semaglutide than with placebo. The incidence of gastrointestinal adverse events was greater with semaglutide than with placebo (62% vs. 42%). Five participants (4%) in the semaglutide group and no participants in the placebo group had cholelithiasis. Serious adverse events were reported in 15 of 133 participants (11%) in the semaglutide group and in 6 of 67 participants (9%) in the placebo group. Among adolescents with obesity, once-weekly treatment with a 2.4-mg dose of semaglutide plus lifestyle intervention resulted in a greater reduction in BMI than lifestyle intervention alone. (Funded by Novo Nordisk; STEP TEENS ClinicalTrials.gov number, NCT04102189.).",
+   "year": 2022,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Daniel Weghuber",
+    "Timothy Barrett",
+    "Margarita Barrientos-Pérez",
+    "Inge Gies",
+    "Dan Hesse",
+    "Ole K Jeppesen",
+    "Aaron S Kelly",
+    "Lucy D Mastrandrea",
+    "Rasmus Sørrig",
+    "Silva Arslanian",
+    "STEP TEENS Investigators"
+   ],
+   "doi": "10.1056/nejmoa2208601",
+   "pmid": "36322838",
+   "citations": 551,
+   "rcr": 48.53491257761356,
+   "preprint": false,
+   "types": [
+    "Randomized Controlled Trial",
+    "Journal Article",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/36322838/",
+    "doi": "https://doi.org/10.1056/nejmoa2208601",
+    "europepmc": "https://europepmc.org/article/MED/36322838"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "In this double-blind, parallel-group, randomized, placebo-controlled trial, we enrolled adolescents (12 to <18 years of age) with obesity (a body-mass index [BMI] in the 95th percentile or higher) or with overweight (a BMI in the 85th percentile or higher) and at least one weight-related coexisting condition.",
+   "found_via": [
+    "PubMed: similar to S1 (#3)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.84
+   },
+   "scores": {
+    "fused": 0.03175,
+    "seed_similarity": 0.84,
+    "question_similarity": 0.655,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:33755728",
+   "title": "Effect of Continued Weekly Subcutaneous Semaglutide vs Placebo on Weight Loss Maintenance in Adults With Overweight or Obesity: The STEP 4 Randomized Clinical Trial.",
+   "abstract": "The effect of continuing vs withdrawing treatment with semaglutide, a glucagon-like peptide 1 receptor agonist, on weight loss maintenance in people with overweight or obesity is unknown. To compare continued once-weekly treatment with subcutaneous semaglutide, 2.4 mg, with switch to placebo for weight maintenance (both with lifestyle intervention) in adults with overweight or obesity after a 20-week run-in with subcutaneous semaglutide titrated to 2.4 mg weekly. Randomized, double-blind, 68-week phase 3a withdrawal study conducted at 73 sites in 10 countries from June 2018 to March 2020 in adults with body mass index of at least 30 (or ≥27 with ≥1 weight-related comorbidity) and without diabetes. A total of 902 participants received once-weekly subcutaneous semaglutide during run-in. After 20 weeks (16 weeks of dose escalation; 4 weeks of maintenance dose), 803 participants (89.0%) who reached the 2.4-mg/wk semaglutide maintenance dose were randomized (2:1) to 48 weeks of continued subcutaneous semaglutide (n = 535) or switched to placebo (n = 268), plus lifestyle intervention in both groups. The primary end point was percent change in body weight from week 20 to week 68; confirmatory secondary end points were changes in waist circumference, systolic blood pressure, and physical functioning (assessed using the Short Form 36 Version 2 Health Survey, Acute Version [SF-36]). Among 803 study participants who completed the 20-week run-in period (with a mean weight loss of 10.6%) and were randomized (mean age, 46 [SD, 12] years; 634 [79%] women; mean body weight, 107.2 kg [SD, 22.7 kg]), 787 participants (98.0%) completed the trial and 741 (92.3%) completed treatment. With continued semaglutide, mean body weight change from week 20 to week 68 was -7.9% vs +6.9% with the switch to placebo (difference, -14.8 [95% CI, -16.0 to -13.5] percentage points; P < .001). Waist circumference (-9.7 cm [95% CI, -10.9 to -8.5 cm]), systolic blood pressure (-3.9 mm Hg [95% CI, -5.8 to -2.0 mm Hg]), and SF-36 physical functioning score (2.5 [95% CI, 1.6-3.3]) also improved with continued subcutaneous semaglutide vs placebo (all P < .001). Gastrointestinal events were reported in 49.1% of participants who continued subcutaneous semaglutide vs 26.1% with placebo; similar proportions discontinued treatment because of adverse events with continued semaglutide (2.4%) and placebo (2.2%). Among adults with overweight or obesity who completed a 20-week run-in period with subcutaneous semaglutide, 2.4 mg once weekly, maintaining treatment with semaglutide compared with switching to placebo resulted in continued weight loss over the following 48 weeks. ClinicalTrials.gov Identifier: NCT03548987.",
+   "year": 2021,
+   "venue": "JAMA",
+   "authors": [
+    "Domenica Rubino",
+    "Niclas Abrahamsson",
+    "Melanie Davies",
+    "Dan Hesse",
+    "Frank L Greenway",
+    "Camilla Jensen",
+    "Ildiko Lingvay",
+    "Ofri Mosenzon",
+    "Julio Rosenstock",
+    "Miguel A Rubio",
+    "Gottfried Rudofsky",
+    "Sayeh Tadayon",
+    "Thomas A Wadden",
+    "Dror Dicker",
+    "STEP 4 Investigators"
+   ],
+   "doi": "10.1001/jama.2021.3224",
+   "pmid": "33755728",
+   "citations": 1131,
+   "rcr": 81.0964912387685,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Comparative Study",
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33755728/",
+    "doi": "https://doi.org/10.1001/jama.2021.3224",
+    "europepmc": "https://europepmc.org/article/MED/33755728"
+   },
+   "grade": 4,
+   "likely_relevant": true,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "The effect of continuing vs withdrawing treatment with semaglutide, a glucagon-like peptide 1 receptor agonist, on weight loss maintenance in people with overweight or obesity is unknown.",
+   "found_via": [
+    "PubMed: similar to S1 (#2)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.86
+   },
+   "scores": {
+    "fused": 0.01613,
+    "seed_similarity": 0.86,
+    "question_similarity": 0.67,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:37366315",
+   "title": "Triple-Hormone-Receptor Agonist Retatrutide for Obesity - A Phase 2 Trial.",
+   "abstract": "Retatrutide (LY3437943) is an agonist of the glucose-dependent insulinotropic polypeptide, glucagon-like peptide 1, and glucagon receptors. Its dose-response relationships with respect to side effects, safety, and efficacy for the treatment of obesity are not known. We conducted a phase 2, double-blind, randomized, placebo-controlled trial involving adults who had a body-mass index (BMI, the weight in kilograms divided by the square of the height in meters) of 30 or higher or who had a BMI of 27 to less than 30 plus at least one weight-related condition. Participants were randomly assigned in a 2:1:1:1:1:2:2 ratio to receive subcutaneous retatrutide (1 mg, 4 mg [initial dose, 2 mg], 4 mg [initial dose, 4 mg], 8 mg [initial dose, 2 mg], 8 mg [initial dose, 4 mg], or 12 mg [initial dose, 2 mg]) or placebo once weekly for 48 weeks. The primary end point was the percentage change in body weight from baseline to 24 weeks. Secondary end points included the percentage change in body weight from baseline to 48 weeks and a weight reduction of 5% or more, 10% or more, or 15% or more. Safety was also assessed. We enrolled 338 adults, 51.8% of whom were men. The least-squares mean percentage change in body weight at 24 weeks in the retatrutide groups was -7.2% in the 1-mg group, -12.9% in the combined 4-mg group, -17.3% in the combined 8-mg group, and -17.5% in the 12-mg group, as compared with -1.6% in the placebo group. At 48 weeks, the least-squares mean percentage change in the retatrutide groups was -8.7% in the 1-mg group, -17.1% in the combined 4-mg group, -22.8% in the combined 8-mg group, and -24.2% in the 12-mg group, as compared with -2.1% in the placebo group. At 48 weeks, a weight reduction of 5% or more, 10% or more, and 15% or more had occurred in 92%, 75%, and 60%, respectively, of the participants who received 4 mg of retatrutide; 100%, 91%, and 75% of those who received 8 mg; 100%, 93%, and 83% of those who received 12 mg; and 27%, 9%, and 2% of those who received placebo. The most common adverse events in the retatrutide groups were gastrointestinal; these events were dose-related, were mostly mild to moderate in severity, and were partially mitigated with a lower starting dose (2 mg vs. 4 mg). Dose-dependent increases in heart rate peaked at 24 weeks and declined thereafter. In adults with obesity, retatrutide treatment for 48 weeks resulted in substantial reductions in body weight. (Funded by Eli Lilly; ClinicalTrials.gov number, NCT04881760.).",
+   "year": 2023,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Ania M Jastreboff",
+    "Lee M Kaplan",
+    "Juan P Frías",
+    "Qiwei Wu",
+    "Yu Du",
+    "Sirel Gurbuz",
+    "Tamer Coskun",
+    "Axel Haupt",
+    "Zvonko Milicevic",
+    "Mark L Hartman",
+    "Retatrutide Phase 2 Obesity Trial Investigators"
+   ],
+   "doi": "10.1056/nejmoa2301972",
+   "pmid": "37366315",
+   "citations": 895,
+   "rcr": 107.72212974336098,
+   "preprint": false,
+   "types": [
+    "Randomized Controlled Trial",
+    "Clinical Trial, Phase II",
+    "Journal Article"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/37366315/",
+    "doi": "https://doi.org/10.1056/nejmoa2301972",
+    "europepmc": "https://europepmc.org/article/MED/37366315"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "We conducted a phase 2, double-blind, randomized, placebo-controlled trial involving adults who had a body-mass index (BMI, the weight in kilograms divided by the square of the height in meters) of 30 or higher or who had a BMI of 27 to less than 30 plus at least one weight-related condition.",
+   "found_via": [
+    "PubMed: similar to S1 (#12)",
+    "PubMed: similar to S2 (#4)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.82
+   },
+   "scores": {
+    "fused": 0.04688,
+    "seed_similarity": 0.82,
+    "question_similarity": 0.64,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:35015037",
+   "title": "Effect of Weekly Subcutaneous Semaglutide vs Daily Liraglutide on Body Weight in Adults With Overweight or Obesity Without Diabetes: The STEP 8 Randomized Clinical Trial.",
+   "abstract": "Phase 3 trials have not compared semaglutide and liraglutide, glucagon-like peptide-1 analogues available for weight management. To compare the efficacy and adverse event profiles of once-weekly subcutaneous semaglutide, 2.4 mg, vs once-daily subcutaneous liraglutide, 3.0 mg (both with diet and physical activity), in people with overweight or obesity. Randomized, open-label, 68-week, phase 3b trial conducted at 19 US sites from September 2019 (enrollment: September 11-November 26) to May 2021 (end of follow-up: May 11) in adults with body mass index of 30 or greater or 27 or greater with 1 or more weight-related comorbidities, without diabetes (N = 338). Participants were randomized (3:1:3:1) to receive once-weekly subcutaneous semaglutide, 2.4 mg (16-week escalation; n = 126), or matching placebo, or once-daily subcutaneous liraglutide, 3.0 mg (4-week escalation; n = 127), or matching placebo, plus diet and physical activity. Participants unable to tolerate 2.4 mg of semaglutide could receive 1.7 mg; participants unable to tolerate 3.0 mg of liraglutide discontinued treatment and could restart the 4-week titration. Placebo groups were pooled (n = 85). The primary end point was percentage change in body weight, and confirmatory secondary end points were achievement of 10% or more, 15% or more, and 20% or more weight loss, assessed for semaglutide vs liraglutide at week 68. Semaglutide vs liraglutide comparisons were open-label, with active treatment groups double-blinded against matched placebo groups. Comparisons of active treatments vs pooled placebo were supportive secondary end points. Of 338 randomized participants (mean [SD] age, 49 [13] years; 265 women [78.4%]; mean [SD] body weight, 104.5 [23.8] kg; mean [SD] body mass index, 37.5 [6.8]), 319 (94.4%) completed the trial, and 271 (80.2%) completed treatment. The mean weight change from baseline was -15.8% with semaglutide vs -6.4% with liraglutide (difference, -9.4 percentage points [95% CI, -12.0 to -6.8]; P < .001); weight change with pooled placebo was -1.9%. Participants had significantly greater odds of achieving 10% or more, 15% or more, and 20% or more weight loss with semaglutide vs liraglutide (70.9% of participants vs 25.6% [odds ratio, 6.3 {95% CI, 3.5 to 11.2}], 55.6% vs 12.0% [odds ratio, 7.9 {95% CI, 4.1 to 15.4}], and 38.5% vs 6.0% [odds ratio, 8.2 {95% CI, 3.5 to 19.1}], respectively; all P < .001). Proportions of participants discontinuing treatment for any reason were 13.5% with semaglutide and 27.6% with liraglutide. Gastrointestinal adverse events were reported by 84.1% with semaglutide and 82.7% with liraglutide. Among adults with overweight or obesity without diabetes, once-weekly subcutaneous semaglutide compared with once-daily subcutaneous liraglutide, added to counseling for diet and physical activity, resulted in significantly greater weight loss at 68 weeks. ClinicalTrials.gov Identifier: NCT04074161.",
+   "year": 2022,
+   "venue": "JAMA",
+   "authors": [
+    "Domenica M Rubino",
+    "Frank L Greenway",
+    "Usman Khalid",
+    "Patrick M O'Neil",
+    "Julio Rosenstock",
+    "Rasmus Sørrig",
+    "Thomas A Wadden",
+    "Alicja Wizert",
+    "W Timothy Garvey",
+    "STEP 8 Investigators"
+   ],
+   "doi": "10.1001/jama.2021.23619",
+   "pmid": "35015037",
+   "citations": 773,
+   "rcr": 68.63783660035473,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35015037/",
+    "doi": "https://doi.org/10.1001/jama.2021.23619",
+    "europepmc": "https://europepmc.org/article/MED/35015037"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Phase 3 trials have not compared semaglutide and liraglutide, glucagon-like peptide-1 analogues available for weight management.",
+   "found_via": [
+    "PubMed: similar to S1 (#4)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.82
+   },
+   "scores": {
+    "fused": 0.03125,
+    "seed_similarity": 0.82,
+    "question_similarity": 0.64,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:33667417",
+   "title": "Semaglutide 2·4 mg once a week in adults with overweight or obesity, and type 2 diabetes (STEP 2): a randomised, double-blind, double-dummy, placebo-controlled, phase 3 trial.",
+   "abstract": "This trial assessed the efficacy and safety of the GLP-1 analogue once a week subcutaneous semaglutide 2·4 mg versus semaglutide 1·0 mg (the dose approved for diabetes treatment) and placebo for weight management in adults with overweight or obesity, and type 2 diabetes. This double-blind, double-dummy, phase 3, superiority study enrolled adults with a body-mass index of at least 27 kg/m2 and glycated haemoglobin 7-10% (53-86 mmol/mol) who had been diagnosed with type 2 diabetes at least 180 days before screening. Patients were recruited from 149 outpatient clinics in 12 countries across Europe, North America, South America, the Middle East, South Africa, and Asia. Patients were randomly allocated (1:1:1) via an interactive web-response system and stratified by background glucose-lowering medication and glycated haemoglobin, to subcutaneous injection of semaglutide 2·4 mg, or semaglutide 1·0 mg, or visually matching placebo, once a week for 68 weeks, plus a lifestyle intervention. Patients, investigators, and those assessing outcomes were masked to group assignment. Coprimary endpoints were percentage change in bodyweight and achievement of weight reduction of at least 5% at 68 weeks for semaglutide 2·4 mg versus placebo, assessed by intention to treat. Safety was assessed in all patients who received at least one dose of study drug. This study is registered with ClinicalTrials.gov, NCT03552757 and is closed to new participants. From June 4 to Nov 14, 2018, 1595 patients were screened, of whom 1210 were randomly assigned to semaglutide 2·4 mg (n=404), semaglutide 1·0 mg (n=403), or placebo (n=403) and included in the intention-to-treat analysis. Estimated change in mean bodyweight from baseline to week 68 was -9·6% (SE 0·4) with semaglutide 2·4 mg vs -3·4% (0·4) with placebo. Estimated treatment difference for semaglutide 2·4 mg versus placebo was -6·2 percentage points (95% CI -7·3 to -5·2; p<0·0001). At week 68, more patients on semaglutide 2·4 mg than on placebo achieved weight reductions of at least 5% (267 [68·8%] of 388 vs 107 [28·5%] of 376; odds ratio 4·88, 95% CI 3·58 to 6·64; p<0·0001). Adverse events were more frequent with semaglutide 2·4 mg (in 353 [87·6%] of 403 patients) and 1·0 mg (329 [81·8%] of 402) than with placebo (309 [76·9%] of 402). Gastrointestinal adverse events, which were mostly mild to moderate, were reported in 256 (63·5%) of 403 patients with semaglutide 2·4 mg, 231 (57·5%) of 402 with semaglutide 1·0 mg, and 138 (34·3%) of 402 with placebo. In adults with overweight or obesity, and type 2 diabetes, semaglutide 2·4 mg once a week achieved a superior and clinically meaningful decrease in bodyweight compared with placebo. Novo Nordisk.",
+   "year": 2021,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "Melanie Davies",
+    "Louise Færch",
+    "Ole K Jeppesen",
+    "Arash Pakseresht",
+    "Sue D Pedersen",
+    "Leigh Perreault",
+    "Julio Rosenstock",
+    "Iichiro Shimomura",
+    "Adie Viljoen",
+    "Thomas A Wadden",
+    "Ildiko Lingvay",
+    "STEP 2 Study Group"
+   ],
+   "doi": "10.1016/s0140-6736(21)00213-0",
+   "pmid": "33667417",
+   "citations": 1159,
+   "rcr": 81.24605153402615,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't",
+    "Equivalence Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33667417/",
+    "doi": "https://doi.org/10.1016/s0140-6736(21)00213-0",
+    "europepmc": "https://europepmc.org/article/MED/33667417"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "This trial assessed the efficacy and safety of the GLP-1 analogue once a week subcutaneous semaglutide 2·4 mg versus semaglutide 1·0 mg (the dose approved for diabetes treatment) and placebo for weight management in adults with overweight or obesity, and type 2 diabetes.",
+   "found_via": [
+    "PubMed: similar to S1 (#5)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.8
+   },
+   "scores": {
+    "fused": 0.03077,
+    "seed_similarity": 0.8,
+    "question_similarity": 0.625,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:35131037",
+   "title": "Semaglutide once a week in adults with overweight or obesity, with or without type 2 diabetes in an east Asian population (STEP 6): a randomised, double-blind, double-dummy, placebo-controlled, phase 3a trial.",
+   "abstract": "Semaglutide 2·4 mg once weekly has been investigated for weight management in global populations. Differences exist between Asian and non-Asian populations in terms of body composition and definitions of obesity. In the Semaglutide Treatment Effect in People with obesity (STEP) 6 trial, we assessed the effect of semaglutide versus placebo for weight management in adults from east Asia with obesity, with or without type 2 diabetes. This randomised, double-blind, double-dummy, placebo-controlled, phase 3a superiority trial was done at 28 outpatient clinics in Japan and South Korea. Eligible participants were adults (aged ≥18 years in South Korea; ≥20 years in Japan) with a BMI of at least 27·0 kg/m2 with two or more weight-related comorbidities or a BMI of 35·0 kg/m2 or more with one or more weight-related comorbidity (one comorbidity had to be either hypertension, dyslipidaemia, or, in Japan only, type 2 diabetes) who had at least one self-reported unsuccessful dietary attempt to lose bodyweight. Participants were randomly assigned (4:1:2:1) to once-weekly subcutaneous semaglutide 2·4 mg or matching placebo, or semaglutide 1·7 mg or matching placebo, plus lifestyle recommendations for 68 weeks. Data for the placebo groups were pooled in statistical analyses. The primary endpoints were percentage change in bodyweight from baseline at week 68 and the proportion of participants who had achieved a reduction of at least 5% of baseline bodyweight at week 68. Change in abdominal visceral fat area was assessed as a supportive secondary endpoint using computed tomography scanning in a subset of participants. Efficacy outcomes were assessed in the full analysis set, which included all randomly assigned participants according to the intention-to-treat principle. Safety was assessed in all participants who received at least one dose of the study drug. This trial was registered with ClinicalTrials.gov, NCT03811574. Between Jan 21, 2019 and June 4, 2019, 437 participants were screened, of whom 401 were randomly assigned to semaglutide 2·4 mg (n=199), semaglutide 1·7 mg (n=101), or placebo (n=101) and included in the intention-to-treat analysis. Estimated mean change in bodyweight from baseline to week 68 was -13·2% (SEM 0·5) in the semaglutide 2·4 mg group and -9·6% (0·8) in the semaglutide 1·7 mg group versus -2·1% (0·8) in the placebo group (estimated treatment difference [ETD] -11·1 percentage points [95% CI -12·9 to -9·2] for semaglutide 2·4 mg vs placebo; -7·5 percentage points [95% CI -9·6 to -5·4] for semaglutide 1·7 mg vs placebo; both p<0·0001). At week 68, a larger proportion of participants had achieved a 5% or higher reduction in baseline bodyweight in the semaglutide 2·4 mg group (160 [83%] of 193 participants) and semaglutide 1·7 mg group (71 [72%] of 98 participants) than in the placebo group (21 [21%] of 100 participants); odds ratio [OR] 21·7 [95% CI 11·3 to 41·9] for semaglutide 2·4 mg vs placebo; OR 11·1 [95% CI 5·5 to 22·2] for semaglutide 1·7 mg vs placebo; both p<0·0001). Abdominal visceral fat area was reduced by 40·0% (SEM 2·6) among participants in the semaglutide 2·4 mg group and 22·2% (3·7) among participants in the semaglutide 1·7 mg group versus 6·9% (3·8) in the placebo group (ETD -33·2% [95% CI -42·1 to -24·2] for semaglutide 2·4 mg vs placebo; -15·3% [95% CI -25·6 to -4·9] for semaglutide 1·7 mg vs placebo). 171 (86%) of 199 participants in the semaglutide 2·4 mg group, 82 (82%) of 100 participants in the semaglutide 1·7 mg group, and 80 (79%) of 101 participants in the placebo group reported adverse events. Gastrointestinal disorders, which were mostly mild to moderate, were reported in 118 (59%) of 199 participants in the semaglutide 2·4 mg group, 64 (64%) of 100 participants in the semaglutide 1·7 mg group, and 30 (30%) of 101 participants in the placebo group. Adverse events leading to trial product discontinuation occurred in five (3%) of 199 participants in the semaglutide 2·4 mg group, three (3%) of 100 participants in the semaglutide 1·7 mg group, and one (1%) of 101 participants in the placebo group. Adults from east Asia with obesity, with or without type 2 diabetes, given semaglutide 2·4 mg once a week had superior and clinically meaningful reductions in bodyweight, and greater reductions in abdominal visceral fat area compared with placebo, representing a promising treatment option for weight management in this population. Novo Nordisk. For the Korean and Japanese translations of the abstract see Supplementary Materials section.",
+   "year": 2022,
+   "venue": "The lancet. Diabetes & endocrinology",
+   "authors": [
+    "Takashi Kadowaki",
+    "Joakim Isendahl",
+    "Usman Khalid",
+    "Sang Yeoup Lee",
+    "Tomoyuki Nishida",
+    "Wataru Ogawa",
+    "Kazuyuki Tobe",
+    "Toshimasa Yamauchi",
+    "Soo Lim",
+    "STEP 6 investigators"
+   ],
+   "doi": "10.1016/s2213-8587(22)00008-0",
+   "pmid": "35131037",
+   "citations": 279,
+   "rcr": 24.003465895739847,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't",
+    "Equivalence Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35131037/",
+    "doi": "https://doi.org/10.1016/s2213-8587(22)00008-0",
+    "europepmc": "https://europepmc.org/article/MED/35131037"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Semaglutide 2·4 mg once weekly has been investigated for weight management in global populations.",
+   "found_via": [
+    "PubMed: similar to S1 (#6)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.78
+   },
+   "scores": {
+    "fused": 0.0303,
+    "seed_similarity": 0.78,
+    "question_similarity": 0.61,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:34170647",
+   "title": "Tirzepatide versus Semaglutide Once Weekly in Patients with Type 2 Diabetes.",
+   "abstract": "Tirzepatide is a dual glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 (GLP-1) receptor agonist that is under development for the treatment of type 2 diabetes. The efficacy and safety of once-weekly tirzepatide as compared with semaglutide, a selective GLP-1 receptor agonist, are unknown. In an open-label, 40-week, phase 3 trial, we randomly assigned 1879 patients, in a 1:1:1:1 ratio, to receive tirzepatide at a dose of 5 mg, 10 mg, or 15 mg or semaglutide at a dose of 1 mg. At baseline, the mean glycated hemoglobin level was 8.28%, the mean age 56.6 years, and the mean weight 93.7 kg. The primary end point was the change in the glycated hemoglobin level from baseline to 40 weeks. The estimated mean change from baseline in the glycated hemoglobin level was -2.01 percentage points, -2.24 percentage points, and -2.30 percentage points with 5 mg, 10 mg, and 15 mg of tirzepatide, respectively, and -1.86 percentage points with semaglutide; the estimated differences between the 5-mg, 10-mg, and 15-mg tirzepatide groups and the semaglutide group were -0.15 percentage points (95% confidence interval [CI], -0.28 to -0.03; P = 0.02), -0.39 percentage points (95% CI, -0.51 to -0.26; P<0.001), and -0.45 percentage points (95% CI, -0.57 to -0.32; P<0.001), respectively. Tirzepatide at all doses was noninferior and superior to semaglutide. Reductions in body weight were greater with tirzepatide than with semaglutide (least-squares mean estimated treatment difference, -1.9 kg, -3.6 kg, and -5.5 kg, respectively; P<0.001 for all comparisons). The most common adverse events were gastrointestinal and were primarily mild to moderate in severity in the tirzepatide and semaglutide groups (nausea, 17 to 22% and 18%; diarrhea, 13 to 16% and 12%; and vomiting, 6 to 10% and 8%, respectively). Of the patients who received tirzepatide, hypoglycemia (blood glucose level, <54 mg per deciliter) was reported in 0.6% (5-mg group), 0.2% (10-mg group), and 1.7% (15-mg group); hypoglycemia was reported in 0.4% of those who received semaglutide. Serious adverse events were reported in 5 to 7% of the patients who received tirzepatide and in 3% of those who received semaglutide. In patients with type 2 diabetes, tirzepatide was noninferior and superior to semaglutide with respect to the mean change in the glycated hemoglobin level from baseline to 40 weeks. (Funded by Eli Lilly; SURPASS-2 ClinicalTrials.gov number, NCT03987919.).",
+   "year": 2021,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Juan P Frías",
+    "Melanie J Davies",
+    "Julio Rosenstock",
+    "Federico C Pérez Manghi",
+    "Laura Fernández Landó",
+    "Brandon K Bergman",
+    "Bing Liu",
+    "Xuewei Cui",
+    "Katelyn Brown",
+    "SURPASS-2 Investigators"
+   ],
+   "doi": "10.1056/nejmoa2107519",
+   "pmid": "34170647",
+   "citations": 1596,
+   "rcr": 107.56761044154989,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Comparative Study",
+    "Equivalence Trial",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/34170647/",
+    "doi": "https://doi.org/10.1056/nejmoa2107519",
+    "europepmc": "https://europepmc.org/article/MED/34170647"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "At baseline, the mean glycated hemoglobin level was 8.28%, the mean age 56.6 years, and the mean weight 93.7 kg.",
+   "found_via": [
+    "PubMed: similar to S2 (#5)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.8
+   },
+   "scores": {
+    "fused": 0.01538,
+    "seed_similarity": 0.8,
+    "question_similarity": 0.625,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:33567185",
+   "title": "Once-Weekly Semaglutide in Adults with Overweight or Obesity.",
+   "abstract": "Obesity is a global health challenge with few pharmacologic options. Whether adults with obesity can achieve weight loss with once-weekly semaglutide at a dose of 2.4 mg as an adjunct to lifestyle intervention has not been confirmed. In this double-blind trial, we enrolled 1961 adults with a body-mass index (the weight in kilograms divided by the square of the height in meters) of 30 or greater (≥27 in persons with ≥1 weight-related coexisting condition), who did not have diabetes, and randomly assigned them, in a 2:1 ratio, to 68 weeks of treatment with once-weekly subcutaneous semaglutide (at a dose of 2.4 mg) or placebo, plus lifestyle intervention. The coprimary end points were the percentage change in body weight and weight reduction of at least 5%. The primary estimand (a precise description of the treatment effect reflecting the objective of the clinical trial) assessed effects regardless of treatment discontinuation or rescue interventions. The mean change in body weight from baseline to week 68 was -14.9% in the semaglutide group as compared with -2.4% with placebo, for an estimated treatment difference of -12.4 percentage points (95% confidence interval [CI], -13.4 to -11.5; P<0.001). More participants in the semaglutide group than in the placebo group achieved weight reductions of 5% or more (1047 participants [86.4%] vs. 182 [31.5%]), 10% or more (838 [69.1%] vs. 69 [12.0%]), and 15% or more (612 [50.5%] vs. 28 [4.9%]) at week 68 (P<0.001 for all three comparisons of odds). The change in body weight from baseline to week 68 was -15.3 kg in the semaglutide group as compared with -2.6 kg in the placebo group (estimated treatment difference, -12.7 kg; 95% CI, -13.7 to -11.7). Participants who received semaglutide had a greater improvement with respect to cardiometabolic risk factors and a greater increase in participant-reported physical functioning from baseline than those who received placebo. Nausea and diarrhea were the most common adverse events with semaglutide; they were typically transient and mild-to-moderate in severity and subsided with time. More participants in the semaglutide group than in the placebo group discontinued treatment owing to gastrointestinal events (59 [4.5%] vs. 5 [0.8%]). In participants with overweight or obesity, 2.4 mg of semaglutide once weekly plus lifestyle intervention was associated with sustained, clinically relevant reduction in body weight. (Funded by Novo Nordisk; STEP 1 ClinicalTrials.gov number, NCT03548935).",
+   "year": 2021,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "John P H Wilding",
+    "Rachel L Batterham",
+    "Salvatore Calanna",
+    "Melanie Davies",
+    "Luc F Van Gaal",
+    "Ildiko Lingvay",
+    "Barbara M McGowan",
+    "Julio Rosenstock",
+    "Marie T D Tran",
+    "Thomas A Wadden",
+    "Sean Wharton",
+    "Koutaro Yokote",
+    "Niels Zeuthen",
+    "Robert F Kushner",
+    "STEP 1 Study Group"
+   ],
+   "doi": "10.1056/nejmoa2032183",
+   "pmid": "33567185",
+   "citations": 3912,
+   "rcr": 280.99036007647237,
+   "preprint": false,
+   "types": [
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33567185/",
+    "doi": "https://doi.org/10.1056/nejmoa2032183",
+    "europepmc": "https://europepmc.org/article/MED/33567185"
+   },
+   "grade": 3,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Whether adults with obesity can achieve weight loss with once-weekly semaglutide at a dose of 2.4 mg as an adjunct to lifestyle intervention has not been confirmed.",
+   "found_via": [
+    "PubMed: similar to S2 (#6)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.78
+   },
+   "scores": {
+    "fused": 0.01515,
+    "seed_similarity": 0.78,
+    "question_similarity": 0.61,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:38850440",
+   "title": "Efficacy and safety of once-weekly tirzepatide for weight management compared to placebo: An updated systematic review and meta-analysis including the latest SURMOUNT-2 trial.",
+   "abstract": "Tirzepatide, a newly developed dual glucose-dependent insulinotropic peptide (GIP) and glucagon-like peptide-1 (GLP-1) receptor agonist, has received approval for treating type 2 diabetes (T2D) and is currently being studied for its potential in long-term weight control. We aim to explore the safety and efficacy of once-weekly subcutaneous tirzepatide for weight loss in T2D or obese patients. A comprehensive search was performed on various databases including PubMed, Embase, Cochrane Library, Web of Science, and ClinicalTrials.gov from inception up to April 29, 2024, to identify randomized controlled trials (RCTs) that assessed the efficacy of once-weekly tirzepatide compared to a placebo in adults with or without T2D. The mean difference (MD) and risk ratio (RR) were calculated for continuous and dichotomous outcomes, respectively. The risk of bias was evaluated using the RoB-2 tool (Cochrane), while the statistical analysis was conducted utilizing RevMan 5.4.1 software. Seven RCTs comprising 4795 individuals ranging from 12 to 72 weeks were identified. Compared to the placebo group, tirzepatide at doses of 5, 10, and 15 mg demonstrated significant dose-dependent weight loss. The mean difference (MD) in the percentage change in body weight (BW) was -8.07% (95% CI -11.01, -5.13; p < 0.00001), -10.79% (95% CI -13.86, -7.71; p < 0.00001), and -11.83% (95% CI -14.52, -9.14; p < 0.00001), respectively. Additionally, the MD in the absolute change in BW was -7.5 kg (95% CI -10.9, -4.1; p < 0.0001), -11.0 kg (95% CI -16.9, -5.2; p = 0.0002), and -11.5 kg (95% CI -16.2, -6.7; p < 0.00001), for the 5, 10, and 15 mg doses, respectively. All three doses of tirzepatide also significantly reduced body mass index and waist circumference. Furthermore, it led to a greater percentage of patients experiencing weight loss exceeding 5, 10, 15, 20, and 25%. Moreover, tirzepatide showed great success in reducing blood pressure, blood sugar levels, and lipid profiles. In terms of safety, gastrointestinal side effects were the most frequently reported adverse events in all three doses of tirzepatide groups, which were generally mild-to-moderate and transient. Tirzepatide treatment could lead to remarkable and sustained weight loss that is well-tolerated and safe, representing a novel and valuable therapeutic strategy for long-term weight management.",
+   "year": 2024,
+   "venue": "Endocrine",
+   "authors": [
+    "Wenhui Qin",
+    "Jun Yang",
+    "Ying Ni",
+    "Chao Deng",
+    "Qinjuan Ruan",
+    "Jun Ruan",
+    "Peng Zhou",
+    "Kai Duan"
+   ],
+   "doi": "10.1007/s12020-024-03896-z",
+   "pmid": "38850440",
+   "citations": 49,
+   "rcr": 6.961711444767888,
+   "preprint": false,
+   "types": [
+    "Journal Article",
+    "Meta-Analysis",
+    "Systematic Review"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/38850440/",
+    "doi": "https://doi.org/10.1007/s12020-024-03896-z",
+    "europepmc": "https://europepmc.org/article/MED/38850440"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Tirzepatide, a newly developed dual glucose-dependent insulinotropic peptide (GIP) and glucagon-like peptide-1 (GLP-1) receptor agonist, has received approval for treating type 2 diabetes (T2D) and is currently being studied for its potential in long-term weight control.",
+   "found_via": [
+    "PubMed: similar to S2 (#8)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.74
+   },
+   "scores": {
+    "fused": 0.04412,
+    "seed_similarity": 0.74,
+    "question_similarity": 0.58,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:37840095",
+   "title": "Tirzepatide after intensive lifestyle intervention in adults with overweight or obesity: the SURMOUNT-3 phase 3 trial.",
+   "abstract": "The effects of tirzepatide, a glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, on weight reduction after successful intensive lifestyle intervention are unknown. This double-blind, placebo-controlled trial randomized (1:1) adults with body mass index ≥30 or ≥27 kg/m2 and at least one obesity-related complication (excluding diabetes), who achieved ≥5.0% weight reduction after a 12-week intensive lifestyle intervention, to tirzepatide maximum tolerated dose (10 or 15 mg) or placebo once weekly for 72 weeks (n = 579). The treatment regimen estimand assessed effects regardless of treatment adherence in the intention-to-treat population. The coprimary endpoint of additional mean per cent weight change from randomization to week 72 was met with changes of -18.4% (standard error (s.e.) 0.7) with tirzepatide and 2.5% (s.e. 1.0) with placebo (estimated treatment difference -20.8 percentage points (95% confidence interval (CI) -23.2%, -18.5%; P < 0.001). The coprimary endpoint of the percentage of participants achieving additional weight reduction ≥5% was met with 87.5% (s.e. 2.2) with tirzepatide and 16.5% (s.e. 3.0) with placebo achieving this threshold (odds ratio 34.6%; 95% CI 19.2%, 62.6%; P < 0.001). The most common adverse events with tirzepatide were gastrointestinal, with most being mild to moderate in severity. Tirzepatide provided substantial additional reduction in body weight in participants who had achieved ≥5.0% weight reduction with intensive lifestyle intervention. ClinicalTrials.gov registration: NCT04657016 .",
+   "year": 2023,
+   "venue": "Nature medicine",
+   "authors": [
+    "Thomas A Wadden",
+    "Ariana M Chao",
+    "Sriram Machineni",
+    "Robert Kushner",
+    "Jamy Ard",
+    "Gitanjali Srivastava",
+    "Bruno Halpern",
+    "Shuyu Zhang",
+    "Jiaxun Chen",
+    "Mathijs C Bunck",
+    "Nadia N Ahmad",
+    "Tammy Forrester"
+   ],
+   "doi": "10.1038/s41591-023-02597-w",
+   "pmid": "37840095",
+   "citations": 380,
+   "rcr": 44.14586145872203,
+   "preprint": false,
+   "types": [
+    "Randomized Controlled Trial",
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/37840095/",
+    "doi": "https://doi.org/10.1038/s41591-023-02597-w",
+    "europepmc": "https://europepmc.org/article/MED/37840095"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "The effects of tirzepatide, a glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, on weight reduction after successful intensive lifestyle intervention are unknown.",
+   "found_via": [
+    "PubMed: similar to S2 (#9)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.72
+   },
+   "scores": {
+    "fused": 0.04348,
+    "seed_similarity": 0.72,
+    "question_similarity": 0.565,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:33894838",
+   "title": "Safety, tolerability, pharmacokinetics, and pharmacodynamics of concomitant administration of multiple doses of cagrilintide with semaglutide 2·4 mg for weight management: a randomised, controlled, phase 1b trial.",
+   "abstract": "Cagrilintide, a long-acting amylin analogue, and semaglutide 2·4 mg, a glucagon-like peptide-1 analogue, are both being investigated as options for weight management. We aimed to determine the safety, tolerability, pharmacokinetics, and pharmacodynamics of this drug combination. In this randomised, placebo-controlled, multiple-ascending dose, phase 1b trial, individuals aged 18-55 years with a body-mass index 27·0-39·9 kg/m2 and who were otherwise healthy were recruited from a single centre in the USA. The trial included six sequential overlapping cohorts, and in each cohort eligible participants were randomly assigned (3:1) to once-weekly subcutaneous cagrilintide (0·16, 0·30, 0·60, 1·2, 2·4, or 4·5 mg) or matched placebo, in combination with once-weekly subcutaneous semaglutide 2·4 mg, without lifestyle interventions. In each cohort, the doses of cagrilintide and semaglutide were co-escalated in 4-week intervals to the desired dose over 16 weeks, participants were treated at the target dose for 4 weeks, and then followed up for 5 weeks. Participants, investigators, and the sponsor were masked to treatment assignment. The primary endpoint was number of treatment-emergent adverse events from baseline to end of follow-up. Secondary pharmacokinetic endpoints assessed from day of last dose (week 19) to end of treatment (week 20) were area under the plasma concentration-time curve from 0 to 168 h (AUC0-168 h) and maximum concentration [Cmax] of cagrilintide and semaglutide; exploratory pharmacokinetic endpoints were half-life, time to Cmax [tmax], plasma clearance, and volume of distribution of cagrilintide and semaglutide; and exploratory pharmacodynamic endpoints were changes in bodyweight, glycaemic parameters, and hormones. Safety, pharmacokinetic, and pharmacodynamic endpoints were assessed in all participants who were exposed to at least one dose of study drug. This study is registered with ClinicalTrials.gov, NCT03600480, and is now complete. Between July 25, 2018, and Dec 17, 2019, 285 individuals were screened and 96 were randomly assigned to cagrilintide (0·16-2·4 mg group n=12; 4·5 mg group n=11) or placebo (n=24), in combination with semaglutide 2·4 mg, of whom 95 were exposed to treatment (one patient in 0·60 mg cagrilintide group was not exposed) and included in the safety and full analysis datasets. The mean age was 40·6 years (SD 9·2), 56 (59%) of 95 participants were men and 51 (54%) were Black or African American. Of 566 adverse events reported in 92 participants (69 [97%] of 71 participants assigned to 0·16-4·5 mg cagrilintide and 23 [96%] of 24 assigned to placebo), 207 (37%) were gastrointestinal disorders. Most adverse events were mild to moderate in severity and the proportion of participants with one or more adverse event was similar across treatment groups. Exposure was proportional to cagrilintide dose and did not affect semaglutide exposure or elimination. AUC0-168 h ranged from 926 nmol × h/L to 24 271 nmol × h/L, and Cmax ranged from 6·14 nmol/L to 170 nmol/L with cagrilintide 0·16-4·5 mg. AUC0-168 h ranged from 12 757 nmol × h/L to 15 305 nmol × h/L, and Cmax ranged from 96·4 nmol/L to 120 nmol/L with semaglutide 2·4 mg. Cagrilintide 0·16-4·5 mg had a half-life of 159-195 h, with a median tmax of 24-72 h. Semaglutide 2·4 mg had a half-life of 145-165 h, with a median tmax of 12-24 h. Plasma clearance and volume of distribution for both cagrilintide and semaglutide were similar across treatment groups. At week 20, mean percentage bodyweight reductions were greater with cagrilintide 1·2 and 2·4 mg than with placebo (15·7% [SE 1·6] for cagrilintide 1·2 mg and 17·1% [1·5] for cagrilintide 2·4 mg vs 9·8% [1·2] for pooled placebo cohorts 1-5; estimated treatment difference of -6·0% [95% CI -9·9 to -2·0] for cagrilintide 1·2 mg and -7·4% [-11·2 to -3·5] for cagrilintide 2·4 mg vs pooled placebo), and with cagrilintide 4·5 mg than with matched placebo (15·4% [1·3] vs 8·0% [2·2]; estimated treatment difference -7·4% [-12·8 to -2·1]), all in combination with semaglutide 2·4 mg. Glycaemic parameters improved in all treatment groups, independently of cagrilintide dose. Changes in hormones were similar across treatment groups. Concomitant treatment with cagrilintide and semaglutide 2·4 mg was well tolerated with an acceptable safety profile. Future larger and longer trials are needed to fully assess the efficacy and safety of this treatment combination. Novo Nordisk A/S.",
+   "year": 2021,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "Lone B Enebo",
+    "Kasper K Berthelsen",
+    "Martin Kankam",
+    "Michael T Lund",
+    "Domenica M Rubino",
+    "Altynai Satylganova",
+    "David C W Lau"
+   ],
+   "doi": "10.1016/s0140-6736(21)00845-x",
+   "pmid": "33894838",
+   "citations": 262,
+   "rcr": 17.46680470939711,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase I",
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/33894838/",
+    "doi": "https://doi.org/10.1016/s0140-6736(21)00845-x",
+    "europepmc": "https://europepmc.org/article/MED/33894838"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Cagrilintide, a long-acting amylin analogue, and semaglutide 2·4 mg, a glucagon-like peptide-1 analogue, are both being investigated as options for weight management.",
+   "found_via": [
+    "PubMed: similar to S1 (#7)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.76
+   },
+   "scores": {
+    "fused": 0.02985,
+    "seed_similarity": 0.76,
+    "question_similarity": 0.595,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:37385278",
+   "title": "Oral semaglutide 50 mg taken once per day in adults with overweight or obesity (OASIS 1): a randomised, double-blind, placebo-controlled, phase 3 trial.",
+   "abstract": "We assessed the efficacy and safety of the oral glucagon-like peptide-1 analogue, semaglutide 50 mg, taken once per day versus placebo for the treatment of overweight or obesity in adults without type 2 diabetes. This randomised, double-blind, placebo-controlled, phase 3, superiority trial enrolled adults with a BMI of at least 30 kg/m2, or at least 27 kg/m2 with bodyweight-related complications and comorbidities, without type 2 diabetes. The trial was done at 50 outpatient clinics in nine countries across Asia, Europe, and North America. Participants were randomly allocated (1:1) via an interactive web-response system to oral semaglutide escalated to 50 mg, or visually matching placebo, once per day for 68 weeks, plus lifestyle intervention. Group assignment was masked for participants, investigators, and those assessing outcomes. Coprimary endpoints were the percentage change in bodyweight and whether participants reached a bodyweight reduction of at least 5% at week 68 for oral semaglutide 50 mg versus placebo, assessed regardless of treatment discontinuation or use of other bodyweight-lowering therapies (an intention-to-treat analysis). Safety was assessed in participants who received at least one dose of trial drug. This trial, registered with ClinicalTrials.gov (NCT05035095), is now complete. From Sept 13 to Nov 22, 2021, 709 participants were screened, of whom 667 were randomly assigned to oral semaglutide 50 mg (n=334) or placebo (n=333). The estimated mean bodyweight change from baseline to week 68 was -15·1% (SE 0·5) with oral semaglutide 50 mg versus -2·4% (0·5) with placebo (estimated treatment difference -12·7 percentage points, 95% CI -14·2 to -11·3; p<0·0001). More participants reached bodyweight reductions of at least 5% (269 [85%] of 317 vs 76 [26%] of 295; odds ratio [OR] 12·6, 95% CI 8·5 to 18·7; p<0·0001), 10% (220 [69%] vs 35 [12%]; OR 14·7, 9·6 to 22·6), 15% (170 [54%] vs 17 [6%]; OR 17·9, 10·4 to 30·7), and 20% (107 [34%] vs 8 [3%]; OR 18·5, 8·8 to 38·9) at week 68 with oral semaglutide 50 mg versus placebo. Adverse events were more frequent with oral semaglutide 50 mg (307 [92%] of 334) than with placebo (285 [86%] of 333). Gastrointestinal adverse events (mostly mild to moderate) were reported in 268 (80%) participants with oral semaglutide 50 mg and 154 (46%) with placebo. In adults with overweight or obesity without type 2 diabetes, oral semaglutide 50 mg once per day led to a superior and clinically meaningful decrease in bodyweight compared with placebo. Novo Nordisk.",
+   "year": 2023,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "Filip K Knop",
+    "Vanita R Aroda",
+    "Ruben D do Vale",
+    "Thomas Holst-Hansen",
+    "Peter N Laursen",
+    "Julio Rosenstock",
+    "Domenica M Rubino",
+    "W Timothy Garvey",
+    "OASIS 1 Investigators"
+   ],
+   "doi": "10.1016/s0140-6736(23)01185-6",
+   "pmid": "37385278",
+   "citations": 355,
+   "rcr": 39.71022058995847,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't",
+    "Equivalence Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/37385278/",
+    "doi": "https://doi.org/10.1016/s0140-6736(23)01185-6",
+    "europepmc": "https://europepmc.org/article/MED/37385278"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "We assessed the efficacy and safety of the oral glucagon-like peptide-1 analogue, semaglutide 50 mg, taken once per day versus placebo for the treatment of overweight or obesity in adults without type 2 diabetes.",
+   "found_via": [
+    "PubMed: similar to S1 (#9)",
+    "Cites S1"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.72
+   },
+   "scores": {
+    "fused": 0.02899,
+    "seed_similarity": 0.72,
+    "question_similarity": 0.565,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:35133415",
+   "title": "Effect of Subcutaneous Tirzepatide vs Placebo Added to Titrated Insulin Glargine on Glycemic Control in Patients With Type 2 Diabetes: The SURPASS-5 Randomized Clinical Trial.",
+   "abstract": "The effects of tirzepatide, a dual glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, as an addition to insulin glargine for treatment of type 2 diabetes have not been described. To assess the efficacy and safety of tirzepatide added to insulin glargine in patients with type 2 diabetes with inadequate glycemic control. Randomized phase 3 clinical trial conducted at 45 medical research centers and hospitals in 8 countries (enrollment from August 30, 2019, to March 20, 2020; follow-up completed January 13, 2021) in 475 adults with type 2 diabetes and inadequate glycemic control while treated with once-daily insulin glargine with or without metformin. Patients were randomized in a 1:1:1:1 ratio to receive once-weekly subcutaneous injections of 5-mg (n = 116), 10-mg (n = 119), or 15-mg (n = 120) tirzepatide or volume-matched placebo (n = 120) over 40 weeks. Tirzepatide was initiated at 2.5 mg/week and escalated by 2.5 mg every 4 weeks until the assigned dose was achieved. The primary end point was mean change from baseline in glycated hemoglobin A1c (HbA1c) at week 40. The 5 key secondary end points included mean change in body weight and percentage of patients achieving prespecified HbA1c levels. Among 475 randomized participants (211 [44%] women; mean [SD] age, 60.6 [9.9] years; mean [SD] HbA1c, 8.31% [0.85%]), 451 (94.9%) completed the trial. Treatment was prematurely discontinued by 10% of participants in the 5-mg tirzepatide group, 12% in the 10-mg tirzepatide group, 18% in the 15-mg tirzepatide group, and 3% in the placebo group. At week 40, mean HbA1c change from baseline was -2.40% with 10-mg tirzepatide and -2.34% with 15-mg tirzepatide vs -0.86% with placebo (10 mg: difference vs placebo, -1.53% [97.5% CI, -1.80% to -1.27%]; 15 mg: difference vs placebo, -1.47% [97.5% CI, -1.75% to -1.20%]; P < .001 for both). Mean HbA1c change from baseline was -2.11% with 5-mg tirzepatide (difference vs placebo, -1.24% [95% CI, -1.48% to -1.01%]; P < .001]). Mean body weight change from baseline was -5.4 kg with 5-mg tirzepatide, -7.5 kg with 10-mg tirzepatide, -8.8 kg with 15-mg tirzepatide and 1.6 kg with placebo (5 mg: difference, -7.1 kg [95% CI, -8.7 to -5.4]; 10 mg: difference, -9.1 kg [95% CI, -10.7 to -7.5]; 15 mg: difference, -10.5 kg [95% CI, -12.1 to -8.8]; P < .001 for all). Higher percentages of patients treated with tirzepatide vs those treated with placebo had HbA1c less than 7% (85%-90% vs 34%; P < .001 for all). The most common treatment-emergent adverse events in the tirzepatide groups vs placebo group were diarrhea (12%-21% vs 10%) and nausea (13%-18% vs 3%). Among patients with type 2 diabetes and inadequate glycemic control despite treatment with insulin glargine, the addition of subcutaneous tirzepatide, compared with placebo, to titrated insulin glargine resulted in statistically significant improvements in glycemic control after 40 weeks. ClinicalTrials.gov Identifier: NCT04039503.",
+   "year": 2022,
+   "venue": "JAMA",
+   "authors": [
+    "Dominik Dahl",
+    "Yukiko Onishi",
+    "Paul Norwood",
+    "Ruth Huh",
+    "Ross Bray",
+    "Hiren Patel",
+    "Ángel Rodríguez"
+   ],
+   "doi": "10.1001/jama.2022.0078",
+   "pmid": "35133415",
+   "citations": 494,
+   "rcr": 43.87899873080651,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Comparative Study",
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35133415/",
+    "doi": "https://doi.org/10.1001/jama.2022.0078",
+    "europepmc": "https://europepmc.org/article/MED/35133415"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "The 5 key secondary end points included mean change in body weight and percentage of patients achieving prespecified HbA1c levels.",
+   "found_via": [
+    "PubMed: similar to S2 (#7)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.76
+   },
+   "scores": {
+    "fused": 0.01493,
+    "seed_similarity": 0.76,
+    "question_similarity": 0.595,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:30122305",
+   "title": "Efficacy and safety of semaglutide compared with liraglutide and placebo for weight loss in patients with obesity: a randomised, double-blind, placebo and active controlled, dose-ranging, phase 2 trial.",
+   "abstract": "Obesity is a major public health issue, and new pharmaceuticals for weight management are needed. Therefore, we evaluated the efficacy and safety of the glucagon-like peptide-1 (GLP-1) analogue semaglutide in comparison with liraglutide and a placebo in promoting weight loss. We did a randomised, double-blind, placebo and active controlled, multicentre, dose-ranging, phase 2 trial. The study was done in eight countries involving 71 clinical sites. Eligible participants were adults (≥18 years) without diabetes and with a body-mass index (BMI) of 30 kg/m2 or more. We randomly assigned participants (6:1) to each active treatment group (ie, semaglutide [0·05 mg, 0·1 mg, 0·2 mg, 0·3 mg, or 0·4 mg; initiated at 0·05 mg per day and incrementally escalated every 4 weeks] or liraglutide [3·0 mg; initiated at 0·6 mg per day and escalated by 0·6 mg per week]) or matching placebo group (equal injection volume and escalation schedule to active treatment group) using a block size of 56. All treatment doses were delivered once-daily via subcutaneous injections. Participants and investigators were masked to the assigned study treatment but not the target dose. The primary endpoint was percentage weight loss at week 52. The primary analysis was done using intention-to-treat ANCOVA estimation with missing data derived from the placebo pool. This study is registered with ClinicalTrials.gov, number NCT02453711. Between Oct 1, 2015, and Feb 11, 2016, 957 individuals were randomly assigned (102-103 participants per active treatment group and 136 in the pooled placebo group). Mean baseline characteristics included age 47 years, bodyweight 111·5 kg, and BMI 39·3 kg/m2. Bodyweight data were available for 891 (93%) of 957 participants at week 52. Estimated mean weight loss was -2·3% for the placebo group versus -6·0% (0·05 mg), -8·6% (0·1 mg), -11·6% (0·2 mg), -11·2% (0·3 mg), and -13·8% (0·4 mg) for the semaglutide groups. All semaglutide groups versus placebo were significant (unadjusted p≤0·0010), and remained significant after adjustment for multiple testing (p≤0·0055). Mean bodyweight reductions for 0·2 mg or more of semaglutide versus liraglutide were all significant (-13·8% to -11·2% vs -7·8%). Estimated weight loss of 10% or more occurred in 10% of participants receiving placebo compared with 37-65% receiving 0·1 mg or more of semaglutide (p<0·0001 vs placebo). All semaglutide doses were generally well tolerated, with no new safety concerns. The most common adverse events were dose-related gastrointestinal symptoms, primarily nausea, as seen previously with GLP-1 receptor agonists. In combination with dietary and physical activity counselling, semaglutide was well tolerated over 52 weeks and showed clinically relevant weight loss compared with placebo at all doses. Novo Nordisk A/S.",
+   "year": 2018,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "Patrick M O'Neil",
+    "Andreas L Birkenfeld",
+    "Barbara McGowan",
+    "Ofri Mosenzon",
+    "Sue D Pedersen",
+    "Sean Wharton",
+    "Charlotte Giwercman Carson",
+    "Cecilie Heerdegen Jepsen",
+    "Maria Kabisch",
+    "John P H Wilding"
+   ],
+   "doi": "10.1016/s0140-6736(18)31773-2",
+   "pmid": "30122305",
+   "citations": 656,
+   "rcr": 27.543469489512546,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase II",
+    "Comparative Study",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/30122305/",
+    "doi": "https://doi.org/10.1016/s0140-6736(18)31773-2",
+    "europepmc": "https://europepmc.org/article/MED/30122305"
+   },
+   "grade": 2,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Obesity is a major public health issue, and new pharmaceuticals for weight management are needed.",
+   "found_via": [
+    "PubMed: similar to S1 (#8)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.74
+   },
+   "scores": {
+    "fused": 0.01471,
+    "seed_similarity": 0.74,
+    "question_similarity": 0.58,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:37351564",
+   "title": "Daily Oral GLP-1 Receptor Agonist Orforglipron for Adults with Obesity.",
+   "abstract": "Obesity is a major risk factor for many leading causes of illness and death worldwide. Data are needed regarding the efficacy and safety of the nonpeptide glucagon-like peptide-1 (GLP-1) receptor agonist orforglipron as a once-daily oral therapy for weight reduction in adults with obesity. In this phase 2, randomized, double-blind trial, we enrolled adults with obesity, or with overweight plus at least one weight-related coexisting condition, and without diabetes. Participants were randomly assigned to receive orforglipron at one of four doses (12, 24, 36, or 45 mg) or placebo once daily for 36 weeks. The percentage change from baseline in body weight was assessed at week 26 (primary end point) and at week 36 (secondary end point). A total of 272 participants underwent randomization. At baseline, the mean body weight was 108.7 kg, and the mean body-mass index (the weight in kilograms divided by the square of the height in meters) was 37.9. At week 26, the mean change from baseline in body weight ranged from -8.6% to -12.6% across the orforglipron dose cohorts and was -2.0% in the placebo group. At week 36, the mean change ranged from -9.4% to -14.7% with orforglipron and was -2.3% with placebo. A weight reduction of at least 10% by week 36 occurred in 46 to 75% of the participants who received orforglipron, as compared with 9% who received placebo. The use of orforglipron led to improvement in all prespecified weight-related and cardiometabolic measures. The most common adverse events reported with orforglipron were gastrointestinal events, which were mild to moderate, occurred primarily during dose escalation, and led to discontinuation of orforglipron in 10 to 17% of participants across dose cohorts. The safety profile of orforglipron was consistent with that of the GLP-1 receptor agonist class. Daily oral orforglipron, a nonpeptide GLP-1 receptor agonist, was associated with weight reduction. Adverse events reported with orforglipron were similar to those with injectable GLP-1 receptor agonists. (Funded by Eli Lilly; GZGI ClinicalTrials.gov number, NCT05051579.).",
+   "year": 2023,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Sean Wharton",
+    "Thomas Blevins",
+    "Lisa Connery",
+    "Julio Rosenstock",
+    "Sohini Raha",
+    "Rong Liu",
+    "Xiaosu Ma",
+    "Kieren J Mather",
+    "Axel Haupt",
+    "Deborah Robins",
+    "Edward Pratt",
+    "Christof Kazda",
+    "Manige Konig",
+    "GZGI Investigators"
+   ],
+   "doi": "10.1056/nejmoa2302392",
+   "pmid": "37351564",
+   "citations": 384,
+   "rcr": 41.5722267450379,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase I",
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/37351564/",
+    "doi": "https://doi.org/10.1056/nejmoa2302392",
+    "europepmc": "https://europepmc.org/article/MED/37351564"
+   },
+   "grade": 1,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "Data are needed regarding the efficacy and safety of the nonpeptide glucagon-like peptide-1 (GLP-1) receptor agonist orforglipron as a once-daily oral therapy for weight reduction in adults with obesity.",
+   "found_via": [
+    "PubMed: similar to S2 (#11)",
+    "Cites S1",
+    "Cites S2"
+   ],
+   "channels": [
+    "cites",
+    "similar"
+   ],
+   "cites_seeds": [
+    "S1",
+    "S2"
+   ],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.68
+   },
+   "scores": {
+    "fused": 0.04225,
+    "seed_similarity": 0.68,
+    "question_similarity": 0.535,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:39089293",
+   "title": "Efficacy and safety of once-weekly semaglutide 2·4 mg versus placebo in people with obesity and prediabetes (STEP 10): a randomised, double-blind, placebo-controlled, multicentre phase 3 trial.",
+   "abstract": "There are currently limited data regarding the effect of semaglutide 2·4 mg in individuals with obesity and prediabetes in clinical trials. We aimed to assess the efficacy and safety of semaglutide 2·4 mg for weight management and glycaemic control in participants with obesity and prediabetes. STEP 10 was a randomised, double-blind, parallel-group, phase 3 trial done across 30 trial sites in Canada, Denmark, Finland, Spain, and the UK and included participants aged 18 years or older with a BMI of 30 kg/m2 or higher and prediabetes according to UK National Institute for Health and Care Excellence criteria (defined as having at least one of the following at screening: HbA1c of 6·0-6·4% [42-47 mmol/mol] or fasting plasma glucose [FPG] of 5·5-6·9 mmol/L). Participants were randomly assigned (2:1) to once-weekly subcutaneous semaglutide 2·4 mg or placebo with diet and physical activity counselling for 52 weeks, followed by a 28-week off-treatment period. Primary endpoints were percentage change in bodyweight and proportion of participants reverting to normoglycaemia (HbA1c <6·0% [<42 mmol/mol] and FPG <5·5 mmol/L) at week 52 (assessed in all randomly assigned participants by intention to treat). Selective safety data were collected for participants who received at least one dose of study drug. This trial is registered with ClinicalTrials.gov, NCT05040971, and is complete. Between Sept 16 and Dec 29, 2021, 138 participants were randomly assigned to semaglutide 2·4 mg and 69 to placebo. 147 (71%) were female and 60 (29%) were male; 183 (88%) were White. All randomly assigned participants received at least one dose of study drug. Baseline mean age was 53 years (SD 11), bodyweight 111·6 kg (22·2), BMI 40·1 kg/m2 (6·9), waist circumference 120·1 cm (14·7), HbA1c 5·9% (0·3; 41·3 mmol/mol [3·0]), and FPG 5·9 mmol/L (0·6). There was a significantly greater reduction in bodyweight with semaglutide 2·4 mg than with placebo at week 52 (-13·9% [SD 0·7] vs -2·7% [0·6]; estimated treatment difference -11·2% [95% CI -13·0 to -9·4]; p<0·0001). Greater proportions of participants reverted to normoglycaemia at week 52 with semaglutide 2·4 mg than with placebo (103 [81%] of 127 vs nine [14%] of 64; odds ratio 19·8 [95% CI 8·7 to 45·2]; p<0·0001). Serious adverse events occurred in 12 (9%) participants receiving semaglutide 2·4 mg versus six (9%) receiving placebo. Adverse events leading to treatment discontinuation occurred in eight (6%) participants in the semaglutide 2·4 mg group versus one (1%) participant in the placebo group. No new safety signals were reported. Semaglutide 2·4 mg provided superior reduction in bodyweight and reversion to normoglycaemia versus placebo in participants with obesity and prediabetes. The safety and tolerability profile was consistent with previous studies and with the GLP-1 receptor agonist class. These findings support the potential use of semaglutide 2·4 mg as a treatment option for individuals with obesity and prediabetes to achieve reversion to normoglycaemia. Novo Nordisk. For the Spanish translation of the abstract see Supplementary Materials section.",
+   "year": 2024,
+   "venue": "The lancet. Diabetes & endocrinology",
+   "authors": [
+    "Barbara M McGowan",
+    "Jens M Bruun",
+    "Matt Capehorn",
+    "Sue D Pedersen",
+    "Kirsi H Pietiläinen",
+    "Hanna Angelene Kudiyanur Muniraju",
+    "Maria Quiroga",
+    "Anette Varbo",
+    "David C W Lau",
+    "STEP 10 Study Group"
+   ],
+   "doi": "10.1016/s2213-8587(24)00182-7",
+   "pmid": "39089293",
+   "citations": 154,
+   "rcr": 24.869987833399037,
+   "preprint": false,
+   "types": [
+    "Journal Article",
+    "Randomized Controlled Trial",
+    "Clinical Trial, Phase III",
+    "Multicenter Study",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/39089293/",
+    "doi": "https://doi.org/10.1016/s2213-8587(24)00182-7",
+    "europepmc": "https://europepmc.org/article/MED/39089293"
+   },
+   "grade": 1,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "We aimed to assess the efficacy and safety of semaglutide 2·4 mg for weight management and glycaemic control in participants with obesity and prediabetes.",
+   "found_via": [
+    "PubMed: similar to S1 (#10)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.7
+   },
+   "scores": {
+    "fused": 0.01429,
+    "seed_similarity": 0.7,
+    "question_similarity": 0.55,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:34370970",
+   "title": "Once-weekly tirzepatide versus once-daily insulin degludec as add-on to metformin with or without SGLT2 inhibitors in patients with type 2 diabetes (SURPASS-3): a randomised, open-label, parallel-group, phase 3 trial.",
+   "abstract": "Tirzepatide is a novel dual glucose-dependent insulinotropic polypeptide and GLP-1 receptor agonist under development for the treatment of type 2 diabetes. We aimed to assess the efficacy and safety of tirzepatide versus titrated insulin degludec in people with type 2 diabetes inadequately controlled by metformin with or without SGLT2 inhibitors. In this open-label, parallel-group, multicentre (122 sites), multinational (13 countries), phase 3 study, eligible participants (aged ≥18 years) had a baseline glycated haemoglobin (HbA1c) of 7·0-10·5%, body-mass index of at least 25 kg/m2, stable weight, and were insulin-naive and treated with metformin alone or in combination with an SGLT2 inhibitor for at least 3 months before screening. Participants were randomly assigned (1:1:1:1), using an interactive web-response system, to once-weekly subcutaneous injection of tirzepatide (5, 10, or 15 mg) or once-daily subcutaneous injection of titrated insulin degludec, and were stratified by country, HbA1c, and concomitant use of oral antihyperglycaemic medications. Tirzepatide was initially given at 2·5 mg and the dose was escalated by 2·5 mg every 4 weeks until the assigned dose was reached. Insulin degludec was initially given at 10 U per day and was titrated once weekly to a fasting self-monitored blood glucose of less than 5·0 mmol/L (<90 mg/dL), following a treat-to-target algorithm, for 52 weeks. The primary efficacy endpoint was non-inferiority of tirzepatide 10 mg or 15 mg, or both, versus insulin degludec in mean change from baseline in HbA1c at week 52. Key secondary efficacy endpoints were non-inferiority of tirzepatide 5 mg versus insulin degludec in mean change from baseline in HbA1c at week 52, superiority of all doses of tirzepatide versus insulin degludec in mean change from baseline in HbA1c and bodyweight, and the proportion of participants achieving HbA1c of less than 7·0% (<53 mmol/mol) at week 52. We used a boundary of 0·3% to establish non-inferiority in HbA1c difference between treatments. Efficacy and safety analyses were assessed in the modified intention-to-treat population (all participants who received at least one dose of study drug). This trial is registered with ClinicalTrials.gov, number NCT03882970, and is complete. Between April 1 and Nov 15, 2019, we assessed 1947 participants for eligibility, 1444 of whom were randomly assigned to treatment. The modified intention-to-treat population was 1437 participants from the tirzepatide 5 mg (n=358), tirzepatide 10 mg (n=360), tirzepatide 15 mg (n=359), and insulin degludec (n=360) groups. From a mean baseline HbA1c of 8·17% (SD 0·91), the reductions in HbA1c at week 52 were 1·93% (SE 0·05) for tirzepatide 5 mg, 2·20% (0·05) for tirzepatide 10 mg, and 2·37% (0·05) for tirzepatide 15 mg, and 1·34% (0·05) for insulin degludec. The non-inferiority margin of 0·3% was met. The estimated treatment difference (ETD) versus insulin degludec ranged from -0·59% to -1·04% for tirzepatide (p<0·0001 for all tirzepatide doses). The proportion of participants achieving a HbA1c of less than 7·0% (<53 mmol/mol) at week 52 was greater (p<0·0001) in all three tirzepatide groups (82%-93%) versus insulin degludec (61%). At week 52, from a baseline of 94·3 kg (SD 20·1), all three tirzepatide doses decreased bodyweight (-7·5 kg to -12·9 kg), whereas insulin degludec increased bodyweight by 2·3 kg. The ETD versus insulin degludec ranged from -9·8 kg to -15·2 kg for tirzepatide (p<0·0001 for all tirzepatide doses). The most common adverse events in tirzepatide-treated participants were mild to moderate gastrointestinal events that decreased over time. A higher incidence of nausea (12-24%), diarrhoea (15-17%), decreased appetite (6-12%), and vomiting (6-10%) was reported in participants treated with tirzepatide than in those treated with insulin degludec (2%, 4%, 1%, and 1%, respectively). Hypoglycaemia (<54 mg/dL or severe) was reported in five (1%), four (1%), and eight (2%) participants on tirzepatide 5, 10, and 15 mg, respectively, versus 26 (7%) on insulin degludec. Treatment discontinuation due to an adverse event was more common in the tirzepatide groups than in the insulin degludec group. Five participants died during the study; none of the deaths were considered by the investigators to be related to the study treatment. In patients with type 2 diabetes, tirzepatide (5, 10, and 15 mg) was superior to titrated insulin degludec, with greater reductions in HbA1c and bodyweight at week 52 and a lower risk of hypoglycaemia. Tirzepatide showed a similar safety profile to that of GLP-1 receptor agonists. Eli Lilly and Company.",
+   "year": 2021,
+   "venue": "Lancet (London, England)",
+   "authors": [
+    "Bernhard Ludvik",
+    "Francesco Giorgino",
+    "Esteban Jódar",
+    "Juan P Frias",
+    "Laura Fernández Landó",
+    "Katelyn Brown",
+    "Ross Bray",
+    "Ángel Rodríguez"
+   ],
+   "doi": "10.1016/s0140-6736(21)01443-4",
+   "pmid": "34370970",
+   "citations": 531,
+   "rcr": 36.027075772363084,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/34370970/",
+    "doi": "https://doi.org/10.1016/s0140-6736(21)01443-4",
+    "europepmc": "https://europepmc.org/article/MED/34370970"
+   },
+   "grade": 1,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "In this open-label, parallel-group, multicentre (122 sites), multinational (13 countries), phase 3 study, eligible participants (aged ≥18 years) had a baseline glycated haemoglobin (HbA1c) of 7·0-10·5%, body-mass index of at least 25 kg/m2, stable weight, and were insulin-naive and treated with metformin alone or in combination with an SGLT2 inhibitor for at least 3 months before screening.",
+   "found_via": [
+    "PubMed: similar to S2 (#10)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.7
+   },
+   "scores": {
+    "fused": 0.01429,
+    "seed_similarity": 0.7,
+    "question_similarity": 0.55,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:35658024",
+   "title": "Tirzepatide Once Weekly for the Treatment of Obesity.",
+   "abstract": "Obesity is a chronic disease that results in substantial global morbidity and mortality. The efficacy and safety of tirzepatide, a novel glucose-dependent insulinotropic polypeptide and glucagon-like peptide-1 receptor agonist, in people with obesity are not known. In this phase 3 double-blind, randomized, controlled trial, we assigned 2539 adults with a body-mass index (BMI; the weight in kilograms divided by the square of the height in meters) of 30 or more, or 27 or more and at least one weight-related complication, excluding diabetes, in a 1:1:1:1 ratio to receive once-weekly, subcutaneous tirzepatide (5 mg, 10 mg, or 15 mg) or placebo for 72 weeks, including a 20-week dose-escalation period. Coprimary end points were the percentage change in weight from baseline and a weight reduction of 5% or more. The treatment-regimen estimand assessed effects regardless of treatment discontinuation in the intention-to-treat population. At baseline, the mean body weight was 104.8 kg, the mean BMI was 38.0, and 94.5% of participants had a BMI of 30 or higher. The mean percentage change in weight at week 72 was -15.0% (95% confidence interval [CI], -15.9 to -14.2) with 5-mg weekly doses of tirzepatide, -19.5% (95% CI, -20.4 to -18.5) with 10-mg doses, and -20.9% (95% CI, -21.8 to -19.9) with 15-mg doses and -3.1% (95% CI, -4.3 to -1.9) with placebo (P<0.001 for all comparisons with placebo). The percentage of participants who had weight reduction of 5% or more was 85% (95% CI, 82 to 89), 89% (95% CI, 86 to 92), and 91% (95% CI, 88 to 94) with 5 mg, 10 mg, and 15 mg of tirzepatide, respectively, and 35% (95% CI, 30 to 39) with placebo; 50% (95% CI, 46 to 54) and 57% (95% CI, 53 to 61) of participants in the 10-mg and 15-mg groups had a reduction in body weight of 20% or more, as compared with 3% (95% CI, 1 to 5) in the placebo group (P<0.001 for all comparisons with placebo). Improvements in all prespecified cardiometabolic measures were observed with tirzepatide. The most common adverse events with tirzepatide were gastrointestinal, and most were mild to moderate in severity, occurring primarily during dose escalation. Adverse events caused treatment discontinuation in 4.3%, 7.1%, 6.2%, and 2.6% of participants receiving 5-mg, 10-mg, and 15-mg tirzepatide doses and placebo, respectively. In this 72-week trial in participants with obesity, 5 mg, 10 mg, or 15 mg of tirzepatide once weekly provided substantial and sustained reductions in body weight. (Supported by Eli Lilly; SURMOUNT-1 ClinicalTrials.gov number, NCT04184622.).",
+   "year": 2022,
+   "venue": "The New England journal of medicine",
+   "authors": [
+    "Ania M Jastreboff",
+    "Louis J Aronne",
+    "Nadia N Ahmad",
+    "Sean Wharton",
+    "Lisa Connery",
+    "Breno Alves",
+    "Arihiro Kiyosue",
+    "Shuyu Zhang",
+    "Bing Liu",
+    "Mathijs C Bunck",
+    "Adam Stefanski",
+    "SURMOUNT-1 Investigators"
+   ],
+   "doi": "10.1056/nejmoa2206038",
+   "pmid": "35658024",
+   "citations": 2872,
+   "rcr": 263.40851277922485,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase III",
+    "Journal Article",
+    "Randomized Controlled Trial"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35658024/",
+    "doi": "https://doi.org/10.1056/nejmoa2206038",
+    "europepmc": "https://europepmc.org/article/MED/35658024"
+   },
+   "grade": 1,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": "In this phase 3 double-blind, randomized, controlled trial, we assigned 2539 adults with a body-mass index (BMI; the weight in kilograms divided by the square of the height in meters) of 30 or more, or 27 or more and at least one weight-related complication, excluding diabetes, in a 1:1:1:1 ratio to receive once-weekly, subcutaneous tirzepatide (5 mg, 10 mg, or 15 mg) or placebo for 72 weeks, including a 20-week dose-escalation period.",
+   "found_via": [
+    "PubMed: similar to S1 (#11)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.68
+   },
+   "scores": {
+    "fused": 0.01408,
+    "seed_similarity": 0.68,
+    "question_similarity": 0.535,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  },
+  {
+   "id": "pmid:35468322",
+   "title": "Effects of subcutaneous tirzepatide versus placebo or semaglutide on pancreatic islet function and insulin sensitivity in adults with type 2 diabetes: a multicentre, randomised, double-blind, parallel-arm, phase 1 clinical trial.",
+   "abstract": "Tirzepatide, a dual glucose-dependent insulinotropic polypeptide (GIP)/GLP-1 receptor agonist, shows a remarkable ability to lower blood glucose, enabling many patients with long-standing type 2 diabetes to achieve normoglycaemia. We aimed to understand the physiological mechanisms underlying the action of tirzepatide in type 2 diabetes. This multicentre, randomised, double-blind, parallel-arm, phase 1 study was done at two centres in Germany. Eligible patients were aged 20-74 years, had type 2 diabetes for at least 6 months, and were being treated with lifestyle advice and stable doses of metformin, with or without one additional stable dose of another oral antihyperglycaemic medicine, 3 months before study entry. Via a randomisation table, patients were randomly assigned (3:3:2) to subcutaneously receive either tirzepatide 15 mg, semaglutide 1 mg, or placebo once per week. Endpoint measurements were done at baseline and the last week of therapy (week 28). The primary endpoint was the effect of tirzepatide versus placebo on the change in clamp disposition index (combining measures of insulin secretion and sensitivity) from baseline to week 28 of treatment and was analysed in the pharmacodynamic analysis set, which comprised all randomly assigned participants who received at least one dose of a study drug and had evaluable pharmacodynamic data. Safety was analysed in the safety population, which comprised all randomly assigned participants who received at least one dose of a study drug. Secondary endpoints included the effect of tirzepatide versus semaglutide on the change in clamp disposition index from baseline to week 28 of treatment, glucose control, total insulin secretion rate, M value (insulin sensitivity), and fasting and postprandial glucagon concentrations. Exploratory endpoints included the change in fasting and postprandial insulin concentrations. This study is registered with ClinicalTrials.gov, NCT03951753, and is complete. Between June 28, 2019, and April 8, 2021, we screened 184 individuals and enrolled 117 participants, all of whom were included in the safety population (45 in the tirzepatide 15 mg group, 44 in the semaglutide 1 mg group, and 28 in the placebo group). Because of discontinuations and exclusions due to missing or unevaluable data, 39 patients in each treatment group and 24 patients in the placebo group comprised the pharmacodynamic analysis set. With tirzepatide, the clamp disposition index increased from a least squares mean of 0·3 pmol m-2 L min-2 kg-1 (SE 0·03) at baseline by 1·9 pmol m-2 L min-2 kg-1 (0·16) to total 2·3 pmol m-2 L min-2 kg-1 (SE 0·16) at week 28 and, with placebo, the clamp disposition index did not change much from baseline (least squares mean at baseline 0·4 pmol m-2 L min-2 kg-1 [SE 0·04]; change from baseline 0·0 pmol m-2 L min-2 kg-1 [0·03]; least squares mean at week 28 0·3 [SE 0·03]; estimated treatment difference [ETD] tirzepatide vs placebo 1·92 [95% CI 1·59-2·24]; p<0·0001). The improvement with tirzepatide in clamp disposition index was significantly greater than with semaglutide (ETD 0·84 pmol m-2 L min-2 kg-1 [95% CI 0·46-1·21]). This result reflected significant improvements in total insulin secretion rate (ETD 102·09 pmol min-1 m-2 [51·84-152·33]) and insulin sensitivity (ETD 1·52 mg min-1 kg-1 [0·53-2·52]) for tirzepatide versus semaglutide. On meal tolerance testing, tirzepatide significantly reduced glucose excursions (lower insulin and glucagon concentrations) compared with placebo, with effects on these variables being greater than with semaglutide. The safety profiles of tirzepatide and semaglutide were similar, with gastrointestinal adverse events being the most common (11 [24%], 13 [30%], and seven [25%] with nausea; nine [20%], 13 [30%], and six [21%] with diarrhoea; and three [7%], five [11%], and one [4%] with vomiting, for tirzepatide, semaglutide, and placebo, respectively). There were no deaths. The glycaemic efficacy of GIP/GLP-1 receptor agonist tirzepatide in type 2 diabetes results from concurrent improvements in key components of diabetes pathophysiology, namely β-cell function, insulin sensitivity, and glucagon secretion. These effects were large and help to explain the remarkable glucose-lowering ability of tirzepatide seen in phase 3 studies. Eli Lilly.",
+   "year": 2022,
+   "venue": "The lancet. Diabetes & endocrinology",
+   "authors": [
+    "Tim Heise",
+    "Andrea Mari",
+    "J Hans DeVries",
+    "Shweta Urva",
+    "Jing Li",
+    "Edward John Pratt",
+    "Tamer Coskun",
+    "Melissa K Thomas",
+    "Kieren J Mather",
+    "Axel Haupt",
+    "Zvonko Milicevic"
+   ],
+   "doi": "10.1016/s2213-8587(22)00085-7",
+   "pmid": "35468322",
+   "citations": 225,
+   "rcr": 18.490461741862912,
+   "preprint": false,
+   "types": [
+    "Clinical Trial, Phase I",
+    "Journal Article",
+    "Multicenter Study",
+    "Randomized Controlled Trial",
+    "Research Support, Non-U.S. Gov't"
+   ],
+   "links": {
+    "pubmed": "https://pubmed.ncbi.nlm.nih.gov/35468322/",
+    "doi": "https://doi.org/10.1016/s2213-8587(22)00085-7",
+    "europepmc": "https://europepmc.org/article/MED/35468322"
+   },
+   "grade": 1,
+   "likely_relevant": false,
+   "reason": "Placeholder reason: sample data, not graded by the LLM.",
+   "quote": null,
+   "found_via": [
+    "PubMed: similar to S2 (#12)"
+   ],
+   "channels": [
+    "similar"
+   ],
+   "cites_seeds": [],
+   "cited_by_seeds": [],
+   "nearest_seed": {
+    "label": "S1",
+    "similarity": 0.66
+   },
+   "scores": {
+    "fused": 0.01389,
+    "seed_similarity": 0.66,
+    "question_similarity": 0.52,
+    "cocited": 0,
+    "shared_references": 0
+   }
+  }
+ ],
+ "warnings": [
+  "Sample data: grades, reasons and similarity scores are placeholders, not engine output"
+ ],
+ "stats": {
+  "similar": 24,
+  "pool": 23,
+  "judged": 23
+ },
+ "timings": {
+  "resolve": 1.2,
+  "plan": 5.8,
+  "graph": 4.1,
+  "candidates": 7.5,
+  "hydrate": 3.9,
+  "first_stage": 4.4,
+  "judge": 27.3
+ }
+}
