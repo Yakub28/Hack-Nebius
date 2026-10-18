@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Discovery, Paper, Result } from "../api/types";
 import { CHANNELS, LINK_NAMES, firstLink, safeUrl } from "../lib/format";
 import { CheckIcon } from "./Icons";
@@ -6,7 +6,7 @@ import { Facts, GradeBadge, Meta, PaperActions, Tags } from "./ResultCard";
 
 /** The abstract with the verified quote marked where it occurs. The engine checked the quote against the
  *  text with case and whitespace squashed, so the match here is just as forgiving. React escapes both parts. */
-function Highlighted({ text, quote }: { text: string; quote: string | null }) {
+export function Highlighted({ text, quote }: { text: string; quote: string | null }) {
   const match = useMemo(() => {
     if (!quote) return null;
     const words = quote.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
@@ -22,12 +22,15 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
   paper: Result; data: Discovery; list: Result[]; live: boolean;
   onOpen: (id: string) => void; onClose: () => void;
 }) {
-  const panel = useRef<HTMLElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   const index = list.findIndex((r) => r.id === paper.id);
   const prev = index > 0 ? list[index - 1] : null;
   const next = index >= 0 && index < list.length - 1 ? list[index + 1] : null;
 
   useEffect(() => { panel.current?.scrollTo({ top: 0 }); }, [paper.id]);
+  // Which folds are open lives here, not in each <details>, so it carries over as J and K step through papers.
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const fold = (id: string) => ({ open: !!open[id], onToggle: (o: boolean) => setOpen((m) => (m[id] === o ? m : { ...m, [id]: o })) });
 
   const byId = useMemo(() => {
     const m = new Map<string, Paper & { label?: string }>();
@@ -44,7 +47,7 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
   return (
     <>
       <div className="drawer-scrim" onClick={onClose} aria-hidden="true" />
-      <aside className="drawer" ref={panel} aria-label="Paper details">
+      <aside className="drawer" aria-label="Paper details">
         <div className="drawer-bar">
           <span className="eyebrow">{index >= 0 ? `Paper ${index + 1} of ${list.length}` : "Paper"}</span>
           <div className="drawer-nav">
@@ -60,84 +63,98 @@ export function PaperDrawer({ paper, data, list, live, onOpen, onClose }: {
             </button>
           </div>
         </div>
-
-        <div className="drawer-head">
-          <GradeBadge grade={paper.grade} pending={live} />
-          <div>
-            <h2><a href={firstLink(paper)} target="_blank" rel="noopener">{paper.title}</a></h2>
-            <Meta r={paper} />
+        <div className="drawer-body" ref={panel}>
+          <div className="drawer-head">
+            <GradeBadge grade={paper.grade} pending={live} />
+            <div>
+              <h2><a href={firstLink(paper)} target="_blank" rel="noopener">{paper.title}</a></h2>
+              <Meta r={paper} />
+            </div>
           </div>
+          <div className="drawer-actions">
+            <PaperActions paper={paper} labels />
+            <div className="links">
+              {Object.entries(paper.links).map(([name, url]) => <a key={name} href={url} target="_blank" rel="noopener">{LINK_NAMES[name] ?? name} ↗</a>)}
+            </div>
+          </div>
+
+          {paper.reason && (
+            <section className="drawer-section first">
+              <h3 className="eyebrow">Why it is relevant</h3>
+              <p className="reason">{paper.reason}</p>
+              {paper.quote && <blockquote className="quote"><CheckIcon />“{paper.quote}”<span className="tag">Verbatim from the abstract, checked word for word</span></blockquote>}
+            </section>
+          )}
+          <Tags r={paper} data={data} />
+          <Facts r={paper} />
+
+          <Fold title="How it was found" count={paper.found_via.length} hint="The routes that led to this paper, and its retrieval scores" {...fold("found")}>
+            <ul className="why">{paper.found_via.map((f) => <li key={f}>{f}</li>)}</ul>
+            <div className="scores">
+              <span className="chip"><span className="k">channels</span> {paper.channels.map((c) => CHANNELS[c]?.[0] ?? c).join(", ")}</span>
+              <span className="chip" title="Reciprocal rank fusion of the retrieval signals"><span className="k">fused</span> {s.fused.toFixed(4)}</span>
+              <span className="chip"><span className="k">seed sim</span> {s.seed_similarity.toFixed(2)}</span>
+              <span className="chip"><span className="k">question sim</span> {s.question_similarity.toFixed(2)}</span>
+              {s.cocited > 0 && <span className="chip"><span className="k">co-cited</span> {s.cocited}</span>}
+              {s.shared_references > 0 && <span className="chip"><span className="k">shared refs</span> {s.shared_references}</span>}
+            </div>
+          </Fold>
+
+          {cites.length > 0 && (
+            <Fold title="Cites" count={cites.length} hint="Papers among these results and your seeds that this one cites" {...fold("cites")}>
+              <Neighbors papers={cites} onOpen={onOpen} />
+            </Fold>
+          )}
+          {citedBy.length > 0 && (
+            <Fold title="Cited by" count={citedBy.length} hint="Papers among these results and your seeds that cite this one" {...fold("citedBy")}>
+              <Neighbors papers={citedBy} onOpen={onOpen} />
+            </Fold>
+          )}
+
+          {web.length > 0 && (
+            <Fold title="Web context" count={web.length} {...fold("web")}>
+              <ul className="sources">
+                {web.map((x) => (
+                  <li key={x.url}>
+                    <span className="chip">{x.kind}</span>
+                    <a href={safeUrl(x.url)} target="_blank" rel="noopener nofollow">{x.title}</a><span className="dom">{x.domain}</span>
+                    {x.snippet && <p>{x.snippet}</p>}
+                  </li>
+                ))}
+              </ul>
+              <p className="note">Pages about this paper, found by web search on its title, plus trial numbers its abstract quotes. Links to read, not claims about the paper.</p>
+            </Fold>
+          )}
+
+          {paper.abstract && (
+            <Fold title="Abstract" {...fold("abstract")}>
+              <p className="abstract-full"><Highlighted text={paper.abstract} quote={paper.quote} /></p>
+            </Fold>
+          )}
         </div>
-        <div className="drawer-actions">
-          <PaperActions paper={paper} labels />
-          <div className="links">
-            {Object.entries(paper.links).map(([name, url]) => <a key={name} href={url} target="_blank" rel="noopener">{LINK_NAMES[name] ?? name} ↗</a>)}
-          </div>
-        </div>
-
-        {paper.reason && (
-          <section className="drawer-section first">
-            <h3 className="eyebrow">Why it is relevant</h3>
-            <p className="reason">{paper.reason}</p>
-            {paper.quote && <blockquote className="quote"><CheckIcon />“{paper.quote}”<span className="tag">Verbatim from the abstract, checked word for word</span></blockquote>}
-          </section>
-        )}
-        <Tags r={paper} data={data} />
-        <Facts r={paper} />
-
-        <section className="drawer-section">
-          <h3 className="eyebrow">How it was found</h3>
-          <ul className="why">{paper.found_via.map((f) => <li key={f}>{f}</li>)}</ul>
-          <div className="scores">
-            <span className="chip"><span className="k">channels</span> {paper.channels.map((c) => CHANNELS[c]?.[0] ?? c).join(", ")}</span>
-            <span className="chip" title="Reciprocal rank fusion of the retrieval signals"><span className="k">fused</span> {s.fused.toFixed(4)}</span>
-            <span className="chip"><span className="k">seed sim</span> {s.seed_similarity.toFixed(2)}</span>
-            <span className="chip"><span className="k">question sim</span> {s.question_similarity.toFixed(2)}</span>
-            {s.cocited > 0 && <span className="chip"><span className="k">co-cited</span> {s.cocited}</span>}
-            {s.shared_references > 0 && <span className="chip"><span className="k">shared refs</span> {s.shared_references}</span>}
-          </div>
-        </section>
-
-        {(cites.length > 0 || citedBy.length > 0) && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Citations among these results</h3>
-            <Neighbors title="Cites" papers={cites} onOpen={onOpen} />
-            <Neighbors title="Cited by" papers={citedBy} onOpen={onOpen} />
-          </section>
-        )}
-
-        {web.length > 0 && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Web context</h3>
-            <ul className="sources">
-              {web.map((x) => (
-                <li key={x.url}>
-                  <span className="chip">{x.kind}</span>
-                  <a href={safeUrl(x.url)} target="_blank" rel="noopener nofollow">{x.title}</a><span className="dom">{x.domain}</span>
-                  {x.snippet && <p>{x.snippet}</p>}
-                </li>
-              ))}
-            </ul>
-            <p className="note">Pages about this paper, found by web search on its title, plus trial numbers its abstract quotes. Links to read, not claims about the paper.</p>
-          </section>
-        )}
-
-        {paper.abstract && (
-          <section className="drawer-section">
-            <h3 className="eyebrow">Abstract</h3>
-            <p className="abstract-full"><Highlighted text={paper.abstract} quote={paper.quote} /></p>
-          </section>
-        )}
       </aside>
     </>
   );
 }
 
-function Neighbors({ title, papers, onOpen }: { title: string; papers: (Paper & { label?: string })[]; onOpen: (id: string) => void }) {
-  if (!papers.length) return null;
+/** A drawer section that folds away behind its heading. The count says what a closed one holds. */
+function Fold({ title, count, hint, open, onToggle, children }: {
+  title: string; count?: number; hint?: string; open: boolean; onToggle: (open: boolean) => void; children: ReactNode;
+}) {
+  return (
+    <details className="drawer-section fold" open={open} onToggle={(e) => onToggle(e.currentTarget.open)}>
+      <summary title={hint}>
+        <h3 className="eyebrow">{title}</h3>
+        {count !== undefined && <span className="fold-count">{count}</span>}
+      </summary>
+      {children}
+    </details>
+  );
+}
+
+function Neighbors({ papers, onOpen }: { papers: (Paper & { label?: string })[]; onOpen: (id: string) => void }) {
   return (
     <div className="neighbors">
-      <span className="k">{title}</span>
       <ul>
         {papers.map((p) => (
           <li key={p.id}>

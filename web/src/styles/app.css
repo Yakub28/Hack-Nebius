@@ -266,7 +266,7 @@ details.more summary {
   cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px;
 }
 details.more summary::-webkit-details-marker { display: none; }
-details.more summary::before, .toggle::before {
+details.more summary::before, .fold > summary::before, .kept-abstract > summary::before, .toggle::before {
   content: ""; width: 6px; height: 6px; flex: none; margin: 0 8px 1px 2px;
   border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg);
   transition: transform 0.12s ease;
@@ -274,10 +274,24 @@ details.more summary::before, .toggle::before {
 details[open] > summary::before, .toggle[aria-expanded="true"]::before { transform: rotate(45deg); }
 .qgroup { margin-top: 12px; }
 .qgroup h3, .qgroup h4 { margin: 0 0 6px; }
-.qgroup code {
-  display: block; font: 12.5px/1.5 var(--mono); color: var(--ink-2);
-  background: var(--surface-soft); border-radius: var(--r-xs); padding: 6px 8px; margin-bottom: 5px; word-break: break-word;
+.qlist { list-style: none; margin: 0; padding: 0; }
+.q {
+  display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; padding: 6px 9px;
+  background: var(--surface-soft); border-radius: var(--r-xs);
+  font-size: 13px; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere;
 }
+.q-text { flex: 1; min-width: 0; }
+/* A wrapped clause indents, so every line that starts flush is a new concept. */
+.q-line { display: block; padding-left: 1.5em; text-indent: -1.5em; }
+.q-op { color: var(--muted); }
+.q code.q-text { font: 12.5px/1.5 var(--mono); color: var(--ink-2); }
+.q-tag {
+  margin-left: 4px; padding: 0 4px; border-radius: var(--r-xs); box-shadow: inset 0 0 0 1px var(--hairline-strong);
+  font-size: 11px; color: var(--muted); white-space: nowrap; vertical-align: 1px;
+}
+.q-run { flex: none; display: inline-flex; margin-top: 2px; color: var(--faint); }
+.q-run:hover, .q-run:focus-visible { color: var(--link); }
+.q-run svg { width: 14px; height: 14px; }
 .qgroup .qwhy { margin: 2px 0 8px; font-size: 13px; color: var(--muted); line-height: 1.45; }
 
 /* --- empty state --------------------------------------------------------------------- */
@@ -318,7 +332,16 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   background: color-mix(in srgb, var(--canvas) 86%, transparent);
   backdrop-filter: saturate(1.6) blur(12px); -webkit-backdrop-filter: saturate(1.6) blur(12px);
 }
-.toolbar select, .toolbar input[type="search"] { height: 36px; padding-top: 0; padding-bottom: 0; }
+.toolbar select, .toolbar input[type="search"] { height: 36px; padding-top: 0; padding-bottom: 0; border-radius: var(--r-md); font-size: 14px; }
+/* The sort sits between the menus, so it reads as one: their weight, hover, chevron and focus ring, not a form
+   field's blue border that stays after picking (which would look like an active filter). The 2px top padding:
+   a select centres on font metrics, not on a line box like the buttons, and sits a pixel high without it. */
+.sort-box { position: relative; display: inline-flex; align-items: center; }
+.sort-box select { appearance: none; -webkit-appearance: none; padding: 2px 30px 0 12px; font-weight: 500; }
+.sort-box select:hover { background: var(--surface-soft); }
+.sort-box select:focus { border-color: var(--hairline-strong); box-shadow: none; }
+.sort-box select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.sort-box svg { position: absolute; right: 10px; width: 14px; height: 14px; color: var(--muted); pointer-events: none; }
 .search-box { flex: 1 1 200px; min-width: 160px; position: relative; display: flex; align-items: center; }
 .search-box svg { position: absolute; left: 11px; width: 15px; height: 15px; color: var(--faint); pointer-events: none; }
 .search-box input { padding-left: 33px; }
@@ -615,8 +638,8 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .foot-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-/* The full nav needs about 700px; below that it goes compact rather than wrapping. */
-@media (max-width: 720px) {
+/* The full nav needs about 780px; below that it goes compact rather than wrapping. */
+@media (max-width: 800px) {
   .nav-inner { padding: 8px 16px; gap: 10px; }
   .brand span { display: none; }
   .nav-links a { padding: 6px 8px; font-size: 14px; }
@@ -735,15 +758,21 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 
 /* --- paper drawer ---------------------------------------------------------------------- */
 @keyframes slide-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* The bar stays put and only the body scrolls, so neither the content nor its scrollbar runs under the bar. */
 .drawer {
-  position: fixed; top: var(--nav-h, 57px); left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
+  position: fixed; top: var(--nav-h, 57px); left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw);
+  display: flex; flex-direction: column;
   background: var(--surface); border-right: 1px solid var(--hairline); box-shadow: var(--shadow-2);
-  padding: 0 24px 32px; animation: slide-in 0.2s ease-out both; overscroll-behavior: contain;
+  animation: slide-in 0.2s ease-out both;
 }
 .drawer-bar {
-  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
-  margin: 0 -24px 14px; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--hairline);
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; border-bottom: 1px solid var(--hairline);
 }
+.drawer-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 24px 32px; }
+/* Scrolled past its top, the page bounces (macOS) and the sticky nav bounces with it while the fixed drawer stays
+   put, so the nav slides over the drawer's bar. The page doesn't bounce while a paper is open. */
+html:has(.drawer) { overscroll-behavior-y: none; }
 .drawer-nav { display: flex; gap: 6px; }
 .drawer-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: start; }
 .drawer-head h2 { font-size: 19px; line-height: 1.35; letter-spacing: -0.25px; }
@@ -756,6 +785,18 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 .drawer-actions .act.on.out { background: var(--orange-tint); border-color: transparent; }
 .drawer-section { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--hairline); }
 .drawer-section h3 { margin-bottom: 8px; }
+/* Folding sections stack as one accordion: a hairline between each, and the heading row is the toggle. */
+.drawer-section.fold { padding-top: 0; }
+.drawer-section.fold + .drawer-section.fold { margin-top: 0; }
+.fold > summary { display: flex; align-items: center; padding: 14px 0; cursor: pointer; list-style: none; color: var(--muted); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary:hover { color: var(--ink); }
+.fold > summary h3 { margin: 0; color: inherit; }
+.fold-count {
+  margin-left: 8px; padding: 0 7px; border-radius: var(--r-full); background: var(--surface-soft);
+  font-size: 12px; font-weight: 500; line-height: 18px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.fold[open] { padding-bottom: 12px; }
 .drawer .reason { margin: 0; font-size: 15px; }
 .drawer .quote { margin-top: 10px; font-size: 15px; }
 .abstract-full { margin: 0; font-size: 15px; line-height: 1.65; color: var(--ink-2); }
@@ -778,7 +819,6 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .workspace.drawer-open .action-bar { left: calc((100vw + 560px) / 2); }
 }
 .neighbors { margin-top: 8px; font-size: 14px; }
-.neighbors .k { display: block; color: var(--muted); font-size: 13px; margin-bottom: 4px; }
 .neighbors ul { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .neighbor {
   display: block; width: 100%; text-align: left; padding: 6px 8px; border-radius: var(--r-sm);
@@ -798,14 +838,18 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
 .map-tip b { display: block; font-weight: 600; color: var(--ink); }
 .map-tip span { color: var(--muted); }
 .graph-panel { margin-bottom: 12px; }
-.graph-canvas { border-radius: var(--r-xl); overflow: hidden; background: #141d52; min-height: 560px; position: relative; }
+/* A deeper night than the hero band, lit from the middle, so the glowing nodes carry the colour. */
+.graph-canvas {
+  border-radius: var(--r-xl); overflow: hidden; min-height: 560px; position: relative;
+  background: radial-gradient(120% 95% at 50% 40%, #1a2463 0%, #0c1233 55%, #05081a 100%);
+}
 .graph-loading { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255, 255, 255, 0.7); font-size: 14px; }
 .graph-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 2px 0; font-size: 13px; color: var(--muted); }
 .graph-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, #2a9d99, #dd5b00, #62aef0); }
 .swatch.seed { background: #fff; box-shadow: inset 0 0 0 1px var(--hairline-strong); }
 .scene-tooltip .graph-tip, .graph-tip {
-  max-width: 300px; padding: 6px 9px; border-radius: var(--r-md); background: rgba(20, 29, 82, 0.92); color: #fff;
+  max-width: 300px; padding: 6px 9px; border-radius: var(--r-md); background: rgba(12, 18, 51, 0.92); color: #fff;
   font: 500 13px/1.4 var(--font); white-space: normal;
 }
 @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
@@ -840,10 +884,10 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .workspace .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 }
 @media (max-width: 600px) {
-  .drawer { padding: 0 16px 24px; }
-  .drawer-bar { margin: 0 -16px 12px; padding: 10px 16px; }
+  .drawer-body { padding: 12px 16px 24px; }
+  .drawer-bar { padding: 10px 16px; }
   .drawer-head { grid-template-columns: minmax(0, 1fr); }
-  .drawer-nav .kbd-hint, .summary .kbd-hint { display: none; }
+  .drawer-nav .kbd-hint { display: none; }
   .live-head { flex-direction: column; gap: 6px; }
   .live-clock { align-items: flex-start; }
   .stepper { display: none; }
@@ -929,4 +973,38 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .search-card { padding: 16px; }
   .hero-question { font-size: 19px; }
   .search-actions .btn.primary { flex: 1 1 100%; }
+}
+
+/* --- shortlist page: what was kept, grouped by the question it was kept for ------------------ */
+.nav-shortlist { display: inline-flex; align-items: center; gap: 6px; }
+.nav-shortlist svg { display: none; width: 16px; height: 16px; }
+.nav-count {
+  min-width: 20px; padding: 1px 6px; border-radius: var(--r-full); text-align: center;
+  background: var(--surface-soft); color: var(--ink-2); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.nav-shortlist[aria-current="page"] .nav-count { background: var(--primary-tint); color: var(--link); }
+.shortlist { max-width: 880px; }
+.shortlist-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin: 8px 0 20px; }
+.shortlist-head h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -0.5px; }
+.shortlist-head p { margin: 6px 0 0; font-size: 14px; }
+.shortlist-actions { display: flex; align-items: center; gap: 8px; }
+.shortlist-actions .link { margin-left: 6px; }
+.link:disabled { color: var(--faint); cursor: default; text-decoration: none; }
+.kept-group + .kept-group { margin-top: 28px; }
+.kept-group-head { margin-bottom: 10px; }
+.kept-group-head h2 { margin: 4px 0 0; font-size: 17px; line-height: 1.4; font-weight: 600; letter-spacing: -0.2px; }
+.kept-card { cursor: default; }
+.kept-title { color: var(--ink); }
+.kept-title:hover { color: var(--link); }
+.kept-card.out .act:first-child { opacity: 1; }      /* the star that puts a removed paper back is always in reach */
+.kept-abstract { margin-top: 8px; }
+.kept-abstract > summary {
+  display: inline-flex; align-items: center; cursor: pointer; list-style: none; font-size: 13px; font-weight: 500; color: var(--muted);
+}
+.kept-abstract > summary::-webkit-details-marker { display: none; }
+.kept-abstract > summary:hover { color: var(--ink); }
+.kept-abstract .abstract-full { margin-top: 6px; font-size: 14px; }
+@media (max-width: 600px) {
+  .nav-shortlist svg { display: block; }
+  .nav-word { display: none; }
 }

@@ -4,6 +4,7 @@ import { ToastProvider } from "./components/Toast";
 import { SessionProvider } from "./lib/session";
 import { Landing } from "./pages/Landing";
 import { Search } from "./pages/Search";
+import { Shortlist } from "./pages/Shortlist";
 
 /** Links to the old static pages (app.html, app.html?sample) keep working. */
 function LegacyApp() {
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/search" element={<Search />} />
             <Route path="/recorded" element={<Search recorded />} />
+            <Route path="/shortlist" element={<Shortlist />} />
             <Route path="/app.html" element={<LegacyApp />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

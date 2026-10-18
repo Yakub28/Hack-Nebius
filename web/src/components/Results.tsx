@@ -1,17 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Discovery, Result } from "../api/types";
 import { CHANNELS, isProblem, plural } from "../lib/format";
 import { exportCsv, exportRis } from "../lib/export";
 import { useSession } from "../lib/session";
-import { CitationGraph } from "./CitationGraph";
-import { AlertIcon, DownloadIcon, FilterIcon, InfoIcon, SearchIcon, XIcon } from "./Icons";
+import { AlertIcon, ChevronIcon, DownloadIcon, FilterIcon, InfoIcon, SearchIcon, XIcon } from "./Icons";
 import { Menu } from "./Menu";
 import { PaperDrawer } from "./PaperDrawer";
 import { ResultList } from "./ResultList";
 import { ResultsMap } from "./ResultsMap";
 import { ThemeDot, themeName, useSeedAction } from "./ResultCard";
 import { useToast } from "./Toast";
+
+/* three.js is several hundred KB that only the 3D view needs: lazy, so the rest of the app never pays for it. */
+const CitationGraph = lazy(() => import("./CitationGraph").then((m) => ({ default: m.CitationGraph })));
 
 const VIEWS = [
   { id: "list", label: "List" },
@@ -140,9 +142,6 @@ export function Results({ data, live, previous }: { data: Discovery; live: boole
           {!live && total > 0 && <> · <b>{total} s</b></>}
           {fresh > 0 && <> · <span className="badge new">{fresh} new</span> since your last search</>}
         </p>
-        <span className="kbd-hint" title="J/K move · Enter opens · S keeps · X sets aside · A adds as a seed">
-          <kbd>J</kbd><kbd>K</kbd> move · <kbd>S</kbd> keep · <kbd>X</kbd> set aside · <kbd>A</kbd> seed
-        </span>
       </div>
 
       {problems.length > 0 && (
@@ -174,11 +173,14 @@ export function Results({ data, live, previous }: { data: Discovery; live: boole
           <input type="search" placeholder="Filter by title, author, journal…" aria-label="Filter results" value={text}
             onChange={(e) => setText(e.target.value)} />
         </label>
-        <select aria-label="Sort results" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
-          <option value="relevance">Relevance</option>
-          <option value="newest">Newest</option>
-          <option value="cited">Most cited</option>
-        </select>
+        <label className="sort-box">
+          <select aria-label="Sort results" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
+            <option value="relevance">Relevance</option>
+            <option value="newest">Newest</option>
+            <option value="cited">Most cited</option>
+          </select>
+          <ChevronIcon />
+        </label>
         <Menu label="Filters" icon={<FilterIcon />} badge={active} align="right">
           <h4 className="eyebrow">Found via</h4>
           <div className="pills">
@@ -246,7 +248,11 @@ export function Results({ data, live, previous }: { data: Discovery; live: boole
       {live && <p className="live-note"><span className="pulse" /> Live: grades arrive in batches and the list re-ranks as they do.</p>}
 
       {view === "map" && hasMap ? <ResultsMap data={data} list={list} selected={open} onOpen={openPaper} />
-        : view === "graph" && hasMap ? <CitationGraph data={data} list={list} selected={open} onOpen={openPaper} />
+        : view === "graph" && hasMap ? (
+          <Suspense fallback={<section className="graph-panel"><div className="graph-canvas"><div className="graph-loading">Loading the 3D view…</div></div></section>}>
+            <CitationGraph data={data} list={list} selected={open} onOpen={openPaper} />
+          </Suspense>
+        )
           : <ResultList list={list} data={data} live={live} byRelevance={sort === "relevance" && !live}
               selected={open} cursor={cursor} isNew={isNew} showRelevance={!allRelevant} onOpen={openPaper} onClear={clear} />}
 

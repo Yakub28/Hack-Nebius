@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useSession } from "../lib/session";
+import { StarIcon } from "./Icons";
 
 export function BrandMark() {
   return (
@@ -65,6 +66,17 @@ function RunPill() {
   return <Link to="/search" className="badge run-pill"><span className="pulse" />Searching…</Link>;
 }
 
+/** The shortlist's count rides along in the nav; on a phone the star stands in for the word. */
+function ShortlistLink() {
+  const { kept } = useSession();
+  const n = Object.keys(kept).length;
+  return (
+    <NavLink to="/shortlist" className="nav-shortlist" aria-label={n ? `Shortlist, ${n} kept` : "Shortlist"}>
+      <StarIcon filled={n > 0} /><span className="nav-word">Shortlist</span>{n > 0 && <span className="nav-count">{n}</span>}
+    </NavLink>
+  );
+}
+
 export function Nav() {
   // The paper drawer hangs just below the nav. Publish the nav's real height, which changes with width and
   // wrapping, so the drawer never starts underneath it.
@@ -87,6 +99,7 @@ export function Nav() {
           <NavLink to="/" end>Overview</NavLink>
           <NavLink to="/search">Search</NavLink>
           <NavLink to="/recorded">Recorded run</NavLink>
+          <ShortlistLink />
         </nav>
         <div className="nav-right">
           <RunPill />
