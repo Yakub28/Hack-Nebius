@@ -4,6 +4,8 @@ Give it a research question and the papers you already trust. It returns new pap
 
 Built for the Nebius *Healthcare / Life Sciences: Research Paper Discovery* challenge. Nebius Token Factory runs the embeddings and the LLM, and Tavily does the web search.
 
+**Hackathon submission:** how Snowball answers the challenge, the use of NVIDIA Nemotron, and what we measured are in [HACKATHON.md](HACKATHON.md).
+
 ## How it works
 
 1. **Resolve** your seeds in PubMed. A seed can be a PMID, a DOI, a PubMed URL or an exact title.
