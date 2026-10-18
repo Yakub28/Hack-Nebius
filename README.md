@@ -24,11 +24,12 @@ The reasoning and evidence behind each choice are in [ARCHITECTURE.md](ARCHITECT
 ## Run
 
 ```bash
-uv venv -p 3.12 && uv pip install -r requirements-dev.txt
+make venv                         # .venv on Python 3.12, via uv
 cp .env.example .env              # set NEBIUS_API_KEY at least
-set -a; . ./.env; set +a
-.venv/bin/uvicorn api:app --reload  # http://localhost:8000/docs
+make run                          # http://localhost:8000/docs
 ```
+
+`make help` lists the other commands.
 
 ```bash
 curl -s localhost:8000/discover -H 'content-type: application/json' -d '{
@@ -48,7 +49,7 @@ The API serves the web UI from `web/`: a landing page at http://localhost:8000 a
 
 To host the UI separately from the API, serve `web/` from any static host and set `apiBase` in `web/config.js`.
 
-`/app.html?sample` opens a sample result set that needs no Nebius key: real PubMed records with placeholder grades, labelled as such. Rebuild it with `.venv/bin/python scripts/make_sample.py`.
+`/app.html?sample` opens a recorded real search that needs no key and no wait, labelled as such with its date. Record a new one with `make sample` (needs the keys).
 
 ## Deploy
 
@@ -57,5 +58,7 @@ The `Dockerfile` serves the API on port 8000. Run it as a Nebius Serverless AI e
 ## Test
 
 ```bash
-.venv/bin/python -m pytest -q
+make check    # ruff + pytest, the same as CI
 ```
+
+The tests are offline and need no keys.
