@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import type { Discovery } from "../api/types";
 import { GRADES } from "../lib/format";
+import { SeedField } from "../components/SeedField";
 
-/** The hero's constellation is a citation graph: two seeds (diamonds) and the papers they lead to. */
+/** The hero's constellation is a citation graph: two seeds (diamonds) and the papers they lead to. A still
+ *  picture for the one-column hero; wider screens get the same picture live (SeedField). */
 function Constellation() {
   const results: [number, number, number, string][] = [
     [80, 90, 10, "#2a9d99"], [110, 250, 12, "#dd5b00"], [210, 60, 8, "#62aef0"], [230, 230, 12, "#ff64c8"],
@@ -42,6 +44,7 @@ export function Landing() {
   return (
     <>
       <section className="hero-band">
+        <SeedField />
         <div className="hero-inner">
           <div>
             <span className="badge">Biomedical literature · Nebius Token Factory</span>
@@ -53,8 +56,14 @@ export function Landing() {
               <Link className="btn primary" to="/search">Start a search</Link>
               <Link className="btn secondary" to="/recorded">See a recorded run</Link>
             </div>
+            <div className="field-legend" aria-label="What the picture shows">
+              <span><i className="key-seed" aria-hidden="true" /> a seed you trust</span>
+              <span><i className="key-dot" aria-hidden="true" /> a paper it leads to, coloured by theme</span>
+              <span><i className="key-line" aria-hidden="true" /> cites</span>
+              <span><i className="key-line dashed" aria-hidden="true" /> similar content</span>
+            </div>
           </div>
-          <Constellation />
+          <div className="hero-art"><Constellation /></div>
         </div>
       </section>
 
