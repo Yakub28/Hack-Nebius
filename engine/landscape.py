@@ -99,6 +99,9 @@ async def name_themes(groups: list[list[str]]) -> list[str] | None:
                           for i, titles in enumerate(groups, 1))
     reply = await nebius.chat_json(NAME_PROMPT, listing, max_tokens=300)
     names = reply.get("names")
+    keys = [f"Group {i}" for i in range(1, len(groups) + 1)]
+    if names is None and all(k in reply for k in keys):
+        names = [reply[k] for k in keys]      # Nemotron often answers {"Group 1": ...} instead of the list asked for
     if (isinstance(names, list) and len(names) == len(groups)
             and all(isinstance(n, str) and 0 < len(n.strip()) <= 60 for n in names)):
         return [n.strip() for n in names]

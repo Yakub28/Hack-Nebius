@@ -17,7 +17,7 @@ Built for the Nebius *Healthcare / Life Sciences: Research Paper Discovery* chal
    - Europe PMC preprints
    - Tavily web search
 4. **Rank** by fusing Qwen3-Embedding-8B similarity (to each seed and to the question) with citation signals, using reciprocal rank fusion (RRF).
-5. **Judge.** Qwen3-235B grades the strongest ~180 candidates 0–4 against the criteria. It grades your seeds too, so you see where "as relevant as my seeds" begins.
+5. **Judge.** NVIDIA Nemotron 3.5 Lightning grades the strongest ~180 candidates 0–4 against the criteria. It grades your seeds too, so you see where "as relevant as my seeds" begins.
 
 The reasoning and evidence behind each choice are in [ARCHITECTURE.md](ARCHITECTURE.md).
 

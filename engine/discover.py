@@ -254,11 +254,17 @@ server search"],
 
 async def make_plan(question: str, seeds: list[Paper]) -> dict:
     seed_text = "\n\n".join(f"S{i}: {s.title}\n{s.abstract[:1500]}" for i, s in enumerate(seeds, 1))
-    plan = await nebius.chat_json(PLAN_PROMPT, f"Research question: {question}\n\nSeed papers:\n\n{seed_text}")
-    for key in ("criteria", "pubmed_queries", "preprint_queries", "web_queries"):
-        if not isinstance(plan.get(key), list) or not all(isinstance(x, str) for x in plan[key]):
-            raise ValueError(f"plan is missing a list of strings for {key!r}: {plan}")
-    return plan
+    # Nemotron returns a malformed plan now and then (1 in 8 probes), and without a plan there is no search.
+    for attempt in range(2):
+        try:
+            plan = await nebius.chat_json(PLAN_PROMPT, f"Research question: {question}\n\nSeed papers:\n\n{seed_text}")
+            for key in ("criteria", "pubmed_queries", "preprint_queries", "web_queries"):
+                if not isinstance(plan.get(key), list) or not all(isinstance(x, str) for x in plan[key]):
+                    raise ValueError(f"plan is missing a list of strings for {key!r}: {plan}")
+            return plan
+        except ValueError:
+            if attempt:
+                raise
 
 
 # --- 3. graph -----------------------------------------------------------------
@@ -535,8 +541,11 @@ async def judge(question: str, criteria: list[str], seeds: list[Paper],
                 f"[{i}] {c.paper.title}\nAbstract: {c.paper.abstract[:MAX_ABSTRACT_CHARS] or '(none)'}"
                 for i, c in enumerate(batch, 1))
             async with gate:
-                reply = await nebius.chat_json(JUDGE_PROMPT, f"{header}\n\nPapers:\n\n{papers}")
+                # A batch of 8 reasons and quotes runs to ~1,800 tokens; at 2,000 the odd one was cut off mid-JSON.
+                reply = await nebius.chat_json(JUDGE_PROMPT, f"{header}\n\nPapers:\n\n{papers}", max_tokens=4000)
             for entry in reply.get("grades", []):
+                if not isinstance(entry, dict):     # Nemotron now and then slips a bare string into the list
+                    continue
                 index, value = entry.get("paper"), entry.get("grade")
                 if not (isinstance(index, int) and 1 <= index <= len(batch) and value in (0, 1, 2, 3, 4)):
                     continue

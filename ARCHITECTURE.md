@@ -26,7 +26,7 @@ seeds (PMID / DOI / title) + question
  3. First stage  Qwen3-Embedding-8B (Nebius): cosine to each seed (max, top-2 mean) and to the question
         │        + citation links to seeds + PubMed similarity rank → RRF fusion
         │
- 4. Judge        top ~150 → Qwen3-235B-A22B-Instruct (Nebius) grades 0–4 against explicit
+ 4. Judge        top ~150 → Nemotron 3.5 Lightning (Nebius, thinking off) grades 0–4 against explicit
         │        criteria extracted from question + seeds; quotes the abstract as evidence.
         │        Seeds are graded too: the lowest seed grade is the "likely relevant" line.
         │
@@ -47,6 +47,7 @@ seeds (PMID / DOI / title) + question
 | One LLM query per seed, OR'ed | Single LLM Boolean query recall 0.58–0.65 vs manual 0.72–0.84; per-seed queries match manual (Wang 2025). |
 | Score per seed, never a seed centroid | Incoherent seed sets cut CoCites recall 83% → 34%; MAX beats SUM in group fusion. |
 | Qwen3-Embedding-8B | Only embedding model on Nebius ($0.01/M tokens); NFCorpus 0.415, SciFact 0.785. |
+| Nemotron 3.5 Lightning as the LLM, thinking off | NVIDIA partner model, $0.06/$0.24 per M tokens (Qwen3-235B: $0.20/$0.60). Thinking on spent the planner's whole 2,000-token budget and returned nothing; off, 2 s. Same search, one run each: 44–70 s end to end vs 110 s, but 29–31 of the top 50 keep a verified quote vs 43 (untested beyond that). Its JSON drifts (repeated keys, `Group N` keys, the odd malformed plan), so replies are merged, re-read and retried. Qwen stays a `NEBIUS_LLM_MODEL` away. |
 | No HyDE / query2doc | Gains vanish or turn negative on strong embedders. |
 | Graded 0–4 judge with criteria, rank don't filter | Graded > binary (0.502 vs 0.477 nDCG@10). Criteria prompts: 97.7% vs 49% sensitivity zero-shot. Hard LLM filters lose recall. |
 | RRF fusion | Robust with no labels; citation + text fused beat either alone in every study (e.g. P@10 0.533 vs 0.315 / 0.226). |

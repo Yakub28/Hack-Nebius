@@ -3,7 +3,7 @@
 A research question plus seed papers a researcher trusts → new biomedical papers, ranked, each with where it
 was found, how it links to the seeds, and a verified quote. Built for the Nebius *Healthcare / Life Sciences:
 Research Paper Discovery* challenge: Nebius Token Factory runs the embeddings (Qwen3-Embedding-8B) and the LLM
-(Qwen3-235B), Tavily does web search. The brief is `CHALLENGE.md`: check scope decisions against it.
+(NVIDIA Nemotron 3.5 Lightning), Tavily does web search. The brief is `CHALLENGE.md`: check scope decisions against it.
 
 ## Commands
 
