@@ -54,7 +54,7 @@ export function Search({ recorded = false }: { recorded?: boolean }) {
   }, [recorded]);   // once per visit: the form check reads the form as it was on arrival, on purpose
 
   useEffect(() => { if (run?.status === "error") setError(run.error ?? "The search failed."); }, [run?.status, run?.error]);
-  useEffect(() => { document.title = recorded ? "Recorded run · Paper Discovery" : "Search · Paper Discovery"; }, [recorded]);
+  useEffect(() => { document.title = recorded ? "Recorded run · TUMor" : "Search · TUMor"; }, [recorded]);
 
   const data = recorded ? saved : run ? asDiscovery(run) : null;
   const live = !recorded && run?.status === "running";

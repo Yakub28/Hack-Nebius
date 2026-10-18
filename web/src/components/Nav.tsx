@@ -69,8 +69,8 @@ export function Nav() {
   return (
     <header className="nav">
       <div className="nav-inner">
-        <Link className="brand" to="/" aria-label="Paper Discovery, overview">
-          <BrandMark /><span>Paper Discovery</span>
+        <Link className="brand" to="/" aria-label="TUMor, overview">
+          <BrandMark /><span>TUMor</span>
         </Link>
         <nav className="nav-links" aria-label="Sections">
           <NavLink to="/" end>Overview</NavLink>
