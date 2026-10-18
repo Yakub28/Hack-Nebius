@@ -1,5 +1,10 @@
-from engine import web
-from engine.discover import rrf, verified_quote
+import asyncio
+
+import numpy as np
+
+from engine import europepmc, landscape, pubmed, web
+from engine.discover import resolve_seeds, rrf, verified_quote
+from engine.paper import Paper
 from engine.pubmed import parse_efetch
 
 EFETCH = """<PubmedArticleSet><PubmedArticle>
@@ -41,4 +46,47 @@ def test_web_urls_resolve_to_paper_ids():
     assert web.identify("https://pubmed.ncbi.nlm.nih.gov/33567185/") == ("pmid", "33567185")
     assert web.identify("https://www.medrxiv.org/content/10.1101/2024.01.02.24300712v2.full") == \
         ("doi", "10.1101/2024.01.02.24300712")
+    assert web.identify("https://pmc.ncbi.nlm.nih.gov/articles/PMC9272494/") == ("pmcid", "PMC9272494")
+    assert web.identify("https://www.nature.com/articles/s41591-021-01234-5") == ("doi", "10.1038/s41591-021-01234-5")
     assert web.identify("https://example.com/blog/obesity") is None
+
+
+def test_seeds_missing_from_pubmed_fall_back_to_europe_pmc(monkeypatch):
+    preprint = Paper(id="doi:10.1101/2024.01.02.24300712", title="A preprint", doi="10.1101/2024.01.02.24300712",
+                     preprint=True, epmc="PPR/PPR123")
+
+    async def resolve(ref):
+        return ref if ref.isdigit() else None
+
+    async def fetch(pmids):
+        return [Paper(id=f"pmid:{p}", pmid=p, title="In PubMed") for p in pmids if p == "33567185"]
+
+    async def by_doi(doi):
+        return preprint if doi == preprint.doi else None
+
+    async def by_title(title):
+        return None
+
+    monkeypatch.setattr(pubmed, "resolve", resolve)
+    monkeypatch.setattr(pubmed, "fetch", fetch)
+    monkeypatch.setattr(europepmc, "by_doi", by_doi)
+    monkeypatch.setattr(europepmc, "by_title", by_title)
+    warnings = []
+    seeds = asyncio.run(resolve_seeds(["33567185", preprint.doi, "No such title", "99999999", "33567185"], warnings))
+    assert [s.id for s in seeds] == ["pmid:33567185", preprint.id]
+    assert [w.split(":")[0] for w in warnings] == [
+        "Seed not in PubMed, so its Europe PMC preprint is used",
+        "Seed not found in PubMed or Europe PMC",
+        "Seed not found in PubMed",
+    ]
+    assert preprint.links["europepmc"] == "https://europepmc.org/article/PPR/PPR123"
+
+
+def test_themes_split_two_clear_groups_the_same_way_every_time():
+    rng = np.random.default_rng(1)
+    a, b = np.eye(8)[0], np.eye(8)[1]
+    vectors = np.vstack([a + rng.normal(0, 0.05, (8, 8)), b + rng.normal(0, 0.05, (6, 8))])
+    vectors /= np.linalg.norm(vectors, axis=1, keepdims=True)
+    labels = landscape.kmeans(vectors, 2)
+    assert labels.tolist() == [0] * 8 + [1] * 6     # the larger theme is numbered first
+    assert (landscape.kmeans(vectors, 2) == labels).all()

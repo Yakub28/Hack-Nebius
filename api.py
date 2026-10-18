@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from engine import http
+from engine import collection, http
 from engine.discover import Candidate, Discovery, discover
 from engine.paper import Paper
 
@@ -26,10 +26,17 @@ app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "*").
                    allow_methods=["*"], allow_headers=["*"])
 
 
+MAX_SEEDS = 30
+
+
 class DiscoverRequest(BaseModel):
     question: str = Field(min_length=3)
-    seeds: list[str] = Field(min_length=1, max_length=30, description="PMIDs, DOIs, PubMed URLs or titles")
+    seeds: list[str] = Field(min_length=1, max_length=MAX_SEEDS, description="PMIDs, DOIs, PubMed URLs or titles")
     limit: int = Field(50, ge=1, le=200)
+
+
+class CollectionRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=5_000_000, description="A RIS, MEDLINE, BibTeX or CSV export")
 
 
 @app.get("/health")
@@ -49,6 +56,18 @@ async def discover_route(req: DiscoverRequest) -> dict:
     return _discovery_json(found)
 
 
+@app.post("/collection")
+async def collection_route(req: CollectionRequest) -> dict:
+    """A reference-manager export → seed references, so the UI can fill the seed box. Nothing is looked up
+    here; the references are resolved when a search runs."""
+    parsed = collection.parse(req.text)
+    refs = list(dict.fromkeys(e.ref for e in parsed.entries if e.ref))
+    if not refs:
+        raise HTTPException(422, "No paper in this file has a PMID, DOI or title.")
+    return {"format": parsed.format, "refs": refs, "entries": len(parsed.entries),
+            "without_id": sum(e.ref is None for e in parsed.entries), "max_seeds": MAX_SEEDS}
+
+
 def _discovery_json(d: Discovery) -> dict:
     return {
         "question": d.question,
@@ -61,6 +80,8 @@ def _discovery_json(d: Discovery) -> dict:
         "warnings": d.warnings,
         "stats": d.stats,
         "timings": d.timings,
+        "web_trail": d.web_trail,
+        "map": d.map,
     }
 
 
@@ -72,6 +93,8 @@ def _result_json(c: Candidate, d: Discovery) -> dict:
         "likely_relevant": c.grade is not None and d.cutoff is not None and c.grade >= d.cutoff,
         "reason": c.reason,
         "quote": c.quote,
+        "sources": c.sources,
+        "theme": c.theme,
         "found_via": list(dict.fromkeys(h.note for h in c.hits)),
         "channels": sorted({h.channel for h in c.hits}),
         "cites_seeds": [f"S{i + 1}" for i in c.cites_seeds],

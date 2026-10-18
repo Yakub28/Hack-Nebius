@@ -8,8 +8,10 @@ Evidence and live probes behind every choice: [`docs/research/literature.md`](do
 ```
 seeds (PMID / DOI / title) + question
         │
- 1. Resolve      PubMed ESearch/EFetch → PMID, title, abstract, MeSH
+ 1. Resolve      PubMed ESearch/EFetch → PMID, title, abstract, MeSH; Europe PMC for seeds PubMed lacks
+        │        (preprints): their references and citers come from Europe PMC
         │        iCite → year, citations, RCR, cited_by, references
+        │        Seeds can be imported from a RIS / BibTeX / MEDLINE / CSV export (POST /collection)
         │
  2. Candidates   union of channels, each hit keeps its provenance
         │        ├─ similar   PubMed "Similar articles" per seed (ELink neighbor_score)
@@ -18,7 +20,8 @@ seeds (PMID / DOI / title) + question
         │        ├─ cocited   papers co-cited with the seeds by their citers (CoCites)
         │        ├─ query     LLM-written PubMed queries: 1 per seed + facets of the question
         │        ├─ preprint  same queries on Europe PMC SRC:PPR (bioRxiv, medRxiv…)
-        │        └─ web       Tavily on preprint/PubMed domains, URLs resolved to PMID/DOI
+        │        └─ web       Tavily agent: planner's searches, then a round the LLM picks from the pages it
+        │                     read; pages tied to a record by URL (PMID/DOI/PMCID) or exact title
         │
  3. First stage  Qwen3-Embedding-8B (Nebius): cosine to each seed (max, top-2 mean) and to the question
         │        + citation links to seeds + PubMed similarity rank → RRF fusion
@@ -27,8 +30,12 @@ seeds (PMID / DOI / title) + question
         │        criteria extracted from question + seeds; quotes the abstract as evidence.
         │        Seeds are graded too: the lowest seed grade is the "likely relevant" line.
         │
- 5. Output       sorted by grade, then fused score. Each card: metadata, links,
-                 "found via" provenance, links to seeds, nearest seed, verified quote.
+ 5. Context      trial IDs quoted in each abstract; Tavily pages about the top 8 (registries, commentary,
+        │        news, code), shown as links. Map: PCA of the ranking embeddings + spherical k-means
+        │        themes named by the LLM (title-word fallback), with the citation links.
+        │
+ 6. Output       sorted by grade, then fused score. Each card: metadata, links,
+                 "found via" provenance, links to seeds, nearest seed, verified quote, web context.
 ```
 
 ## Why this shape
@@ -45,6 +52,10 @@ seeds (PMID / DOI / title) + question
 | RRF fusion | Robust with no labels; citation + text fused beat either alone in every study (e.g. P@10 0.533 vs 0.315 / 0.226). |
 | Deterministic provenance + string-verified quote | LLMs fabricate 94.8% of biomedical references without retrieval. Every paper comes from an API record; the LLM never originates an ID. |
 | Thumbs-up → new seed | Rocchio with 1–3 good positives +0.05–0.09 nDCG@10. |
+| Web channel as an agent, every hit tied to a record | The brief asks for agentic search; the LLM only chooses *searches*, never papers, so the no-fabrication rule above still holds. Untested for recall. |
+| Web context is links, not claims | Pages about a paper (registries, commentary, news) help a reader judge it, but are unvetted; they are shown with their domain and never summarised into the result. |
+| Map reuses the ranking embeddings | No extra model or call except naming the themes; deterministic k-means seeds, so a result set always draws the same map. |
+| Preprint seeds via Europe PMC | Fast-moving fields cite preprints before PubMed has them; dropping them lost the seed entirely. |
 
 ## Sources: what works today (probed 2026-10-18)
 

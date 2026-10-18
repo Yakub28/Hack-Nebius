@@ -6,7 +6,7 @@ import re
 import xml.etree.ElementTree as ET
 
 from engine import http
-from engine.paper import Paper, paper_id
+from engine.paper import Paper, paper_id, title_key
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 FETCH_CHUNK = 200
@@ -23,10 +23,15 @@ async def resolve(ref: str) -> str | None:
         return m.group(1)
     if ref.isdigit():
         return ref
-    if m := _DOI_RE.search(ref):
-        hits = await search(f'"{m.group(0).rstrip(".")}"[doi]', limit=1)
+    if doi := find_doi(ref):
+        hits = await search(f'"{doi}"[doi]', limit=1)
         return hits[0] if hits else None
     return await _by_title(ref)
+
+
+def find_doi(ref: str) -> str | None:
+    m = _DOI_RE.search(ref)
+    return m.group(0).rstrip(".") if m else None
 
 
 async def _by_title(title: str) -> str | None:
@@ -35,12 +40,8 @@ async def _by_title(title: str) -> str | None:
     if not words:
         return None
     pmids = await search(" AND ".join(f"{w}[ti]" for w in words), limit=20)
-    wanted = _title_key(title)
-    return next((p.pmid for p in await fetch(pmids) if _title_key(p.title) == wanted), None)
-
-
-def _title_key(title: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", title.lower())
+    wanted = title_key(title)
+    return next((p.pmid for p in await fetch(pmids) if title_key(p.title) == wanted), None)
 
 
 async def search(term: str, *, limit: int) -> list[str]:
