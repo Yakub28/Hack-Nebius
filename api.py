@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from engine import http
@@ -32,11 +34,14 @@ class DiscoverRequest(BaseModel):
 
 @app.get("/health")
 async def health() -> dict:
-    return {"ok": True}
+    """Which keys are configured, so the UI can say why a search would fail before one is run."""
+    return {"ok": True, "nebius": bool(os.getenv("NEBIUS_API_KEY")), "web": bool(os.getenv("TAVILY_API_KEY"))}
 
 
 @app.post("/discover")
 async def discover_route(req: DiscoverRequest) -> dict:
+    if not os.getenv("NEBIUS_API_KEY"):
+        raise HTTPException(503, "NEBIUS_API_KEY is not set on the server; it runs the embeddings and the LLM.")
     try:
         found = await discover(req.question, req.seeds, limit=req.limit)
     except ValueError as exc:
@@ -81,3 +86,10 @@ def _paper_json(p: Paper) -> dict:
     return {"id": p.id, "title": p.title, "abstract": p.abstract, "year": p.year, "venue": p.venue,
             "authors": p.authors, "doi": p.doi, "pmid": p.pmid, "citations": p.citations,
             "rcr": p.rcr, "preprint": p.preprint, "types": p.types, "links": p.links}
+
+
+# The UI is static files: served here for one-container deploys, or hosted on its own (web/config.js).
+# Mounted last so the API routes above take precedence.
+WEB_DIR = Path(__file__).parent / "web"
+if WEB_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
