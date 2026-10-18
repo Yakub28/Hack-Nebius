@@ -811,15 +811,21 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
 
 /* --- paper drawer ---------------------------------------------------------------------- */
 @keyframes slide-in { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* The bar stays put and only the body scrolls, so neither the content nor its scrollbar runs under the bar. */
 .drawer {
-  position: fixed; top: var(--nav-h, 57px); left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw); overflow-y: auto;
+  position: fixed; top: var(--nav-h, 57px); left: 0; bottom: 0; z-index: 30; width: min(560px, 100vw);
+  display: flex; flex-direction: column;
   background: var(--surface); border-right: 1px solid var(--hairline); box-shadow: var(--shadow-2);
-  padding: 0 24px 32px; animation: slide-in 0.2s ease-out both; overscroll-behavior: contain;
+  animation: slide-in 0.2s ease-out both;
 }
 .drawer-bar {
-  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
-  margin: 0 -24px 14px; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--hairline);
+  flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; border-bottom: 1px solid var(--hairline);
 }
+.drawer-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 24px 32px; }
+/* Scrolled past its top, the page bounces (macOS) and the sticky nav bounces with it while the fixed drawer stays
+   put, so the nav slides over the drawer's bar. The page doesn't bounce while a paper is open. */
+html:has(.drawer) { overscroll-behavior-y: none; }
 .drawer-nav { display: flex; gap: 6px; }
 .drawer-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 16px; align-items: start; }
 .drawer-head h2 { font-size: 19px; line-height: 1.35; letter-spacing: -0.25px; }
@@ -931,8 +937,8 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .workspace .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 }
 @media (max-width: 600px) {
-  .drawer { padding: 0 16px 24px; }
-  .drawer-bar { margin: 0 -16px 12px; padding: 10px 16px; }
+  .drawer-body { padding: 12px 16px 24px; }
+  .drawer-bar { padding: 10px 16px; }
   .drawer-head { grid-template-columns: minmax(0, 1fr); }
   .drawer-nav .kbd-hint { display: none; }
   .live-head { flex-direction: column; gap: 6px; }
