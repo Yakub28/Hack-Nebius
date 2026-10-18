@@ -55,6 +55,7 @@ seeds (PMID / DOI / title) + question
 | Web channel as an agent, every hit tied to a record | The brief asks for agentic search; the LLM only chooses *searches*, never papers, so the no-fabrication rule above still holds. Untested for recall. |
 | Web context is links, not claims | Pages about a paper (registries, commentary, news) help a reader judge it, but are unvetted; they are shown with their domain and never summarised into the result. |
 | Map reuses the ranking embeddings | No extra model or call except naming the themes; deterministic k-means seeds, so a result set always draws the same map. |
+| Live results over server-sent events | A search takes ~2 minutes, most of it grading. Streaming shows the first ranking after ~1 minute and every grade as it lands, keeps proxies from timing out (keep-alives), and lets a closed tab cancel the run instead of spending tokens. |
 | Preprint seeds via Europe PMC | Fast-moving fields cite preprints before PubMed has them; dropping them lost the seed entirely. |
 
 ## Sources: what works today (probed 2026-10-18)

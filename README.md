@@ -25,8 +25,9 @@ The reasoning and evidence behind each choice are in [ARCHITECTURE.md](ARCHITECT
 
 ```bash
 make venv                         # .venv on Python 3.12, via uv
+make node                         # Node.js LTS into .tools/ (skip if you have Node 20+)
 cp .env.example .env              # set NEBIUS_API_KEY at least
-make run                          # http://localhost:8000/docs
+make run                          # builds the UI if needed; http://localhost:8000
 ```
 
 `make help` lists the other commands.
@@ -45,11 +46,13 @@ A query takes about 30–60 s, most of it judging.
 
 ## UI
 
-The API serves the web UI from `web/`: a landing page at http://localhost:8000 and the search tool at `/app.html`. It is plain HTML, CSS and JS with no build step. Each result card shows the LLM grade, the verified quote, how the paper links to your seeds, and which channels found it. A dashed line marks where results stop being as relevant as your seeds. You can filter by channel and export to RIS or CSV.
+A React app (Vite + TypeScript, in `web/`), served by the API from `web/dist`. Search is **live**: `POST /discover/stream` streams the pipeline as server-sent events, so you watch the seeds resolve, each channel's haul, the web agent's rounds and reasons, a first ranking, and then grades arriving batch by batch while the list re-ranks. Closing the page cancels the search.
 
-To host the UI separately from the API, serve `web/` from any static host and set `apiBase` in `web/config.js`.
+- `/search`: the form (type seeds, or import a Zotero/EndNote/PubMed export), the live run, then the results as a **list**, a **theme map** or a **3D citation graph**. Any paper opens in a side panel with its abstract, why it was found, its web context and its citations among the results, which you can walk; **J/K** step through the list. **Add as seed** on any result feeds the next run.
+- `/recorded`: a real search, saved, that opens instantly and needs no key. Record a new one with `make sample`.
+- `/`: the overview.
 
-`/app.html?sample` opens a recorded real search that needs no key and no wait, labelled as such with its date. Record a new one with `make sample` (needs the keys).
+`make web` runs the dev server with hot reload on :5173 (with `make run` alongside for the API). To host the UI separately, build with `VITE_API_BASE=https://<api>` and serve `web/dist` from any static host.
 
 ## Deploy
 

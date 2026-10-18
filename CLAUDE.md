@@ -11,9 +11,11 @@ Research Paper Discovery* challenge: Nebius Token Factory runs the embeddings (Q
 
 ```bash
 make venv     # .venv on Python 3.12 + dev deps (uv)
-make run      # API + UI on :8000, reads .env (NEBIUS_API_KEY at least)
+make node     # Node.js LTS into .tools/node if there is no system Node
+make run      # API + built UI on :8000, reads .env (NEBIUS_API_KEY at least)
+make web      # UI dev server with hot reload on :5173, proxying the API on :8000
 make check    # ruff + pytest. Run it before every commit.
-make sample   # record one real search into web/sample.json (needs the keys)
+make sample   # record one real search into web/public/sample.json (needs the keys)
 ```
 
 ## Layout
@@ -22,9 +24,12 @@ make sample   # record one real search into web/sample.json (needs the keys)
   first stage (embeddings + RRF) → judge. Start here.
 - `engine/{pubmed,icite,europepmc,web,nebius}.py`: one module per external service; `engine/http.py` is the
   shared client with retries; `engine/paper.py` is the record every source maps to.
-- `api.py`: FastAPI (`/health`, `/discover`) and serves `web/` as static files.
-- `web/`: plain HTML/CSS/JS, **no build step**. `config.js` sets `apiBase` for a separately hosted UI;
-  `app.html?sample` renders `sample.json` without a key.
+- `api.py`: FastAPI: `/health`, `/discover`, `/discover/stream` (server-sent events while the search runs:
+  `discover(emit=...)` reports progress, the API serialises it), `/collection`; serves `web/dist` with a
+  client-side-route fallback.
+- `web/`: React + Vite + TypeScript. `src/lib/run.ts` folds the event stream into a run shaped like a
+  finished search, so one set of components renders live, finished and recorded runs. `src/lib/session.tsx`
+  holds the form and the run for the whole app. `public/sample.json` is the recorded run (`/recorded`).
 - `tests/`: offline unit tests. `scripts/`: one-off tools.
 
 ## Decisions
@@ -55,6 +60,9 @@ the code that implements it. Don't quietly relitigate one in a refactor.
 - Hackathon pace: basic tests only, at most one or two per feature for its core logic, not exhaustive
   coverage. Verify the rest by running it (`make run`, or an in-process call). The suite runs offline and
   must never call a live API.
+- The UI follows `design.md`: one structural blue (actions, links, focus), the sticker palette for decoration
+  only (map themes, illustrations), hairlines over shadows, Inter. Tokens live at the top of
+  `web/src/styles/app.css`; the 3D graph's night canvas is the one dark island.
 - Comments say *why*, not what. Match the surrounding density.
 - One branch and PR per step. Commit subjects are `type: what changed` (`feat`, `fix`, `refactor`, `docs`,
   `chore`, `eval`), and the body says why when it isn't obvious.

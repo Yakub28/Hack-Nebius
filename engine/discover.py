@@ -18,7 +18,7 @@ from __future__ import annotations
 import asyncio
 import time
 from collections import Counter
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -113,39 +113,72 @@ class Discovery:
 
 
 Found = tuple[str, Hit, Paper | None]
+# Progress for a live view: emit("event", **data). The engine emits domain objects (Papers, Candidates);
+# the API layer decides how they go over the wire.
+Emit = Callable[..., None]
 
 
-async def discover(question: str, seed_refs: list[str], *, limit: int = 50) -> Discovery:
+def _quiet(event: str, **data) -> None:
+    pass
+
+
+async def discover(question: str, seed_refs: list[str], *, limit: int = 50, emit: Emit = _quiet) -> Discovery:
     """Rank new papers for `question`, starting from seeds given as PMIDs, DOIs, PubMed URLs or titles."""
     warnings: list[str] = []
     timings: dict[str, float] = {}
     clock = time.monotonic()
+    reported = 0
+
+    def start(stage: str) -> None:
+        emit("stage", stage=stage, status="start")
 
     def lap(stage: str) -> None:
-        nonlocal clock
+        nonlocal clock, reported
         timings[stage] = round(time.monotonic() - clock, 2)
         clock = time.monotonic()
+        for warning in warnings[reported:]:
+            emit("warning", message=warning)
+        reported = len(warnings)
+        emit("stage", stage=stage, status="done", seconds=timings[stage])
 
+    start("resolve")
     seeds = await resolve_seeds(seed_refs, warnings)
     lap("resolve")
+    emit("seeds", seeds=seeds)
+    start("plan")
     plan = await make_plan(question, seeds)
     lap("plan")
+    emit("plan", criteria=plan["criteria"],
+         queries={k: plan[k] for k in ("pubmed_queries", "preprint_queries", "web_queries")})
+    start("graph")
     graph = await seed_graph(seeds, warnings)
     lap("graph")
+    emit("graph", cited_by=len(set().union(*graph.citers.values())), cites=len(set().union(*graph.refs.values())),
+         cocited=sum(1 for n in graph.cocited.values() if n > 1))
+    start("candidates")
     trail: list[dict] = []
-    pool = await gather_candidates(question, seeds, plan, graph, warnings, trail)
+    pool = await gather_candidates(question, seeds, plan, graph, warnings, trail, emit)
     lap("candidates")
+    start("hydrate")
     candidates = await hydrate(pool, seeds, warnings)
     lap("hydrate")
+    emit("pool", size=len(candidates))
+    start("first_stage")
     seed_vectors = await first_stage(question, seeds, graph, candidates)
     lap("first_stage")
-    seed_grades = await judge(question, plan["criteria"], seeds, candidates, warnings)
+    # A provisional list while the judge reads: the first stage's order, replaced as grades arrive.
+    emit("ranked", candidates=sorted(candidates, key=lambda c: c.fused, reverse=True)[:limit])
+    start("judge")
+    seed_grades = await judge(question, plan["criteria"], seeds, candidates, warnings, emit)
     lap("judge")
+    emit("seed_grades", grades=seed_grades)
 
     candidates.sort(key=lambda c: (c.grade if c.grade is not None else -1, c.fused), reverse=True)
     results = candidates[:limit]
-    _, result_map = await asyncio.gather(add_context(results, warnings),
+    start("context")
+    _, result_map = await asyncio.gather(add_context(results, warnings, emit),
                                          build_map(seeds, seed_vectors, results, warnings))
+    emit("map", map=result_map)
     lap("context")
     stats = Counter(h.channel for c in candidates for h in c.hits)
     stats["pool"] = len(candidates)
@@ -276,7 +309,7 @@ def _by_seed_count(links: dict[str, set[str]]) -> list[str]:
 # --- 4. candidates ------------------------------------------------------------
 
 async def gather_candidates(question: str, seeds: list[Paper], plan: dict, graph: SeedGraph,
-                            warnings: list[str], trail: list[dict]) -> dict[str, Candidate]:
+                            warnings: list[str], trail: list[dict], emit: Emit = _quiet) -> dict[str, Candidate]:
     labels = {s.id: f"S{i}" for i, s in enumerate(seeds, 1)}
     pmids = [s.pmid for s in seeds if s.pmid]
     pool: dict[str, Candidate] = {}
@@ -285,6 +318,8 @@ async def gather_candidates(question: str, seeds: list[Paper], plan: dict, graph
                   + _cocited(graph, set(pmids)))
     for cid, hit, paper in from_graph:
         _add(pool, cid, [hit], paper)
+    for channel in ("cites", "refs", "cocited"):
+        emit("channel", channel=channel, name=channel, found=sum(h.channel == channel for _, h, _ in from_graph))
 
     channels: dict[str, Awaitable[list[Found]]] = {}
     if pmids:
@@ -294,16 +329,22 @@ async def gather_candidates(question: str, seeds: list[Paper], plan: dict, graph
     for q in plan["preprint_queries"]:
         channels[f"preprint query {q!r}"] = _preprints(q)
     if web.enabled():
-        channels["Web search agent (Tavily)"] = _web(question, plan["criteria"], plan["web_queries"], trail)
+        channels["Web search agent (Tavily)"] = _web(question, plan["criteria"], plan["web_queries"], trail, emit)
     else:
         warnings.append("Web search is off (TAVILY_API_KEY is not set): no web channel and no web context.")
 
-    results = await asyncio.gather(*channels.values(), return_exceptions=True)
-    for name, found in zip(channels, results, strict=True):
+    async def run(name: str, channel: Awaitable[list[Found]]) -> list[Found]:
         # One source being down must not sink the search, but the user is told which.
-        if isinstance(found, Exception):
-            warnings.append(f"{name} failed: {found}")
-            continue
+        try:
+            found = await channel
+        except Exception as exc:
+            warnings.append(f"{name} failed: {exc}")
+            return []
+        if found:
+            emit("channel", channel=found[0][1].channel, name=name, found=len(found))
+        return found
+
+    for found in await asyncio.gather(*(run(name, channel) for name, channel in channels.items())):
         for cid, hit, paper in found:
             _add(pool, cid, [hit], paper)
     return pool
@@ -340,8 +381,10 @@ async def _preprints(q: str) -> list[Found]:
             for rank, p in enumerate(await europepmc.preprints(q, limit=PREPRINT_HITS), 1)]
 
 
-async def _web(question: str, criteria: list[str], queries: list[str], trail: list[dict]) -> list[Found]:
-    explored = await web.explore(question, criteria, queries, rounds=WEB_ROUNDS, limit=WEB_HITS)
+async def _web(question: str, criteria: list[str], queries: list[str], trail: list[dict],
+               emit: Emit = _quiet) -> list[Found]:
+    explored = await web.explore(question, criteria, queries, rounds=WEB_ROUNDS, limit=WEB_HITS,
+                                 on_round=lambda step: emit("web_round", **step))
     trail.extend(explored.trail)
     found: list[Found] = []
     for ident, round_no, query, rank in explored.found:
@@ -468,7 +511,7 @@ abstract>"}]}, one entry per paper."""
 
 
 async def judge(question: str, criteria: list[str], seeds: list[Paper],
-                candidates: list[Candidate], warnings: list[str]) -> list[int | None]:
+                candidates: list[Candidate], warnings: list[str], emit: Emit = _quiet) -> list[int | None]:
     """Grade the strongest candidates 0-4 in place. Returns the seeds' grades under the same prompt,
     which calibrate what "relevant" means for this question."""
     by_fused = sorted(candidates, key=lambda c: c.fused, reverse=True)
@@ -482,6 +525,7 @@ async def judge(question: str, criteria: list[str], seeds: list[Paper],
     batches = [entries[i:i + JUDGE_BATCH] for i in range(0, len(entries), JUDGE_BATCH)]
     header = f"Research question: {question}\n\nCriteria:\n" + "\n".join(f"- {c}" for c in criteria)
     gate = asyncio.Semaphore(JUDGE_CONCURRENCY)
+    finished = 0
 
     async def grade(batch: list[Candidate]) -> int:
         """Grades the batch in place; returns how many papers the model skipped."""
@@ -498,6 +542,10 @@ async def judge(question: str, criteria: list[str], seeds: list[Paper],
             c.grade = value
             c.reason = str(entry.get("reason", ""))
             c.quote = verified_quote(str(entry.get("quote", "")), c.paper.text)
+        nonlocal finished
+        finished += 1
+        emit("graded", candidates=[c for c in batch if c not in seed_entries and c.grade is not None],
+             done=finished, total=len(batches), papers=len(to_judge))
         return sum(c.grade is None for c in batch)
 
     results = await asyncio.gather(*(grade(b) for b in batches), return_exceptions=True)
@@ -525,7 +573,7 @@ def _squash(text: str) -> str:
 
 # --- 8. context ---------------------------------------------------------------
 
-async def add_context(results: list[Candidate], warnings: list[str]) -> None:
+async def add_context(results: list[Candidate], warnings: list[str], emit: Emit = _quiet) -> None:
     """Supporting sources for each result: trial registrations its abstract quotes, and, for the strongest
     graded results, web pages about it (commentary, news, registries, code). Links, never claims."""
     for c in results:
@@ -537,7 +585,9 @@ async def add_context(results: list[Candidate], warnings: list[str]) -> None:
 
     async def one(c: Candidate) -> list[dict]:
         async with gate:
-            return await web.context(c.paper)
+            items = await web.context(c.paper)
+        emit("sources", id=c.id, sources=c.sources + [i for i in items if i["url"] not in {s["url"] for s in c.sources}])
+        return items
 
     found = await asyncio.gather(*(one(c) for c in top), return_exceptions=True)
     for c, items in zip(top, found, strict=True):

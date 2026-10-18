@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
@@ -119,7 +120,8 @@ earlier search. If the earlier searches already cover the question, return no se
 Return JSON only: {"searches": ["..."], "why": "<one sentence: what the new searches target, or why none>"}"""
 
 
-async def explore(question: str, criteria: list[str], first: list[str], *, rounds: int, limit: int) -> Exploration:
+async def explore(question: str, criteria: list[str], first: list[str], *, rounds: int, limit: int,
+                  on_round: Callable[[dict], None] = lambda step: None) -> Exploration:
     """Search, read, decide, search again: at most `rounds` rounds of up to 3 searches each."""
     out = Exploration()
     tried: list[str] = []
@@ -154,11 +156,13 @@ async def explore(question: str, criteria: list[str], first: list[str], *, round
         out.trail.append({"round": round_no, "searches": searches, "why": why,
                           "pages": sum(len(b) for b in batches if not isinstance(b, Exception)),
                           "papers": len(out.found) - found_before})
+        on_round(out.trail[-1])
         if round_no == rounds:
             break
         searches, why = await _follow_up(question, criteria, tried, pages)
         if not searches:
             out.trail.append({"round": round_no + 1, "searches": [], "why": why, "pages": 0, "papers": 0})
+            on_round(out.trail[-1])
             break
     return out
 

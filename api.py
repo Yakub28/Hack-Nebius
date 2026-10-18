@@ -1,13 +1,15 @@
 """HTTP API over the discovery engine. Run: uvicorn api:app"""
 from __future__ import annotations
 
+import asyncio
+import json
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from engine import collection, http
@@ -45,15 +47,61 @@ async def health() -> dict:
     return {"ok": True, "nebius": bool(os.getenv("NEBIUS_API_KEY")), "web": bool(os.getenv("TAVILY_API_KEY"))}
 
 
+NO_KEY = "NEBIUS_API_KEY is not set on the server; it runs the embeddings and the LLM."
+KEEP_ALIVE = 15     # seconds of silence before a comment line, so proxies keep a long search open
+
+
 @app.post("/discover")
 async def discover_route(req: DiscoverRequest) -> dict:
     if not os.getenv("NEBIUS_API_KEY"):
-        raise HTTPException(503, "NEBIUS_API_KEY is not set on the server; it runs the embeddings and the LLM.")
+        raise HTTPException(503, NO_KEY)
     try:
         found = await discover(req.question, req.seeds, limit=req.limit)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     return _discovery_json(found)
+
+
+@app.post("/discover/stream")
+async def discover_stream(req: DiscoverRequest) -> StreamingResponse:
+    """The same search as POST /discover, as server-sent events while it runs: stages, seeds, the plan, each
+    channel's haul, the web agent's rounds, a provisional ranking, grades batch by batch, web context, the map,
+    and finally `result` (the /discover payload) or `error`. Closing the connection cancels the search."""
+    if not os.getenv("NEBIUS_API_KEY"):
+        raise HTTPException(503, NO_KEY)
+    queue: asyncio.Queue[tuple[str, dict] | None] = asyncio.Queue()
+
+    def emit(event: str, **data) -> None:
+        queue.put_nowait((event, _event_json(event, data)))
+
+    async def work() -> None:
+        try:
+            emit("result", discovery=await discover(req.question, req.seeds, limit=req.limit, emit=emit))
+        except ValueError as exc:
+            emit("error", status=422, detail=str(exc))
+        except Exception as exc:
+            emit("error", status=500, detail=f"{type(exc).__name__}: {exc}")
+        finally:
+            queue.put_nowait(None)
+
+    async def events():
+        task = asyncio.create_task(work())
+        try:
+            while True:
+                try:
+                    item = await asyncio.wait_for(queue.get(), timeout=KEEP_ALIVE)
+                except TimeoutError:
+                    yield ": still working\n\n"
+                    continue
+                if item is None:
+                    return
+                event, data = item
+                yield f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+        finally:
+            task.cancel()     # the browser went away: stop spending tokens on a search nobody will read
+
+    return StreamingResponse(events(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.post("/collection")
@@ -68,6 +116,21 @@ async def collection_route(req: CollectionRequest) -> dict:
             "without_id": sum(e.ref is None for e in parsed.entries), "max_seeds": MAX_SEEDS}
 
 
+def _event_json(event: str, data: dict) -> dict:
+    """Engine objects in an event, as the same JSON shapes /discover returns."""
+    if event == "result":
+        return _discovery_json(data["discovery"])
+    if event == "seeds":
+        return {"seeds": [{"label": f"S{i}", **_paper_json(s), "grade": None} for i, s in enumerate(data["seeds"], 1)]}
+    if event == "ranked":
+        return {"results": [_result_json(c, None) for c in data["candidates"]]}
+    if event == "graded":
+        return {**{k: data[k] for k in ("done", "total", "papers")},
+                "grades": [{"id": c.id, "grade": c.grade, "reason": c.reason, "quote": c.quote}
+                           for c in data["candidates"]]}
+    return data
+
+
 def _discovery_json(d: Discovery) -> dict:
     return {
         "question": d.question,
@@ -76,7 +139,7 @@ def _discovery_json(d: Discovery) -> dict:
         "criteria": d.criteria,
         "queries": d.queries,
         "cutoff": d.cutoff,
-        "results": [_result_json(c, d) for c in d.results],
+        "results": [_result_json(c, d.cutoff) for c in d.results],
         "warnings": d.warnings,
         "stats": d.stats,
         "timings": d.timings,
@@ -85,12 +148,12 @@ def _discovery_json(d: Discovery) -> dict:
     }
 
 
-def _result_json(c: Candidate, d: Discovery) -> dict:
+def _result_json(c: Candidate, cutoff: int | None) -> dict:
     nearest = max(range(len(c.seed_sims)), key=c.seed_sims.__getitem__)
     return {
         **_paper_json(c.paper),
         "grade": c.grade,
-        "likely_relevant": c.grade is not None and d.cutoff is not None and c.grade >= d.cutoff,
+        "likely_relevant": c.grade is not None and cutoff is not None and c.grade >= cutoff,
         "reason": c.reason,
         "quote": c.quote,
         "sources": c.sources,
@@ -111,8 +174,22 @@ def _paper_json(p: Paper) -> dict:
             "rcr": p.rcr, "preprint": p.preprint, "types": p.types, "links": p.links}
 
 
-# The UI is static files: served here for one-container deploys, or hosted on its own (web/config.js).
-# Mounted last so the API routes above take precedence.
-WEB_DIR = Path(__file__).parent / "web"
-if WEB_DIR.is_dir():
-    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
+# The UI is the built React app (make web-build), served here for one-container deploys or hosted on its own
+# (VITE_API_BASE). Declared last so every API route above wins.
+DIST = (Path(__file__).parent / "web" / "dist").resolve()
+
+
+@app.get("/{path:path}", include_in_schema=False)
+async def web_app(path: str) -> FileResponse:
+    """Built files as they are; any other path is a client-side route, so it gets index.html."""
+    if not (DIST / "index.html").is_file():
+        raise HTTPException(404, "The web UI is not built. Run `make web-build`, or `make web` for the dev server.")
+    file = (DIST / path).resolve()
+    if path and file.is_file() and file.is_relative_to(DIST):
+        # Built assets have content hashes in their names, so they can be cached forever.
+        immutable = path.startswith("assets/")
+        return FileResponse(file, headers={"Cache-Control": "public, max-age=31536000, immutable" if immutable else "no-cache"})
+    if Path(path).suffix:     # a missing file, e.g. a stale chunk after a redeploy: a real 404, not the app
+        raise HTTPException(404, f"No file {path}")
+    # Never cached: an old index.html would ask for asset hashes that a rebuild has replaced.
+    return FileResponse(DIST / "index.html", headers={"Cache-Control": "no-cache"})

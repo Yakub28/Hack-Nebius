@@ -1,4 +1,4 @@
-"""Build web/sample.json: one real search, recorded, so the UI can show it instantly and without a key.
+"""Build web/public/sample.json: one real search, recorded, so the UI can show it instantly and without a key.
 
 Runs the full engine, so it needs NEBIUS_API_KEY, and TAVILY_API_KEY for the web agent and web context.
 The UI labels the page as a recorded run, with its date.
@@ -31,7 +31,7 @@ async def main() -> None:
         await http.close()
     data = _discovery_json(found)
     data["recorded"] = datetime.now(UTC).date().isoformat()
-    out = ROOT / "web" / "sample.json"
+    out = ROOT / "web" / "public" / "sample.json"
     out.write_text(json.dumps(data, indent=1, ensure_ascii=False))
     print(f"wrote {out}: {len(found.results)} results, {sum(found.timings.values()):.0f} s, "
           f"{len(found.warnings)} warnings")
