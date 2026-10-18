@@ -1,0 +1,352 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Seeds to Discoveries</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow reading column; the pipeline is a vertical track with a loop back from "You decide" to the start. */
+:root{
+  --bg:#f3f6f4; --surface:#ffffff; --ink:#14241f; --muted:#5b6b66; --line:#d6dfdb;
+  --seed:#c9821d; --seed-soft:#f7e9d3;
+  --cite:#1f7a6d; --cite-soft:#dcefeb;
+  --meaning:#5a4fb3; --meaning-soft:#e6e3f7;
+  --web:#b5552f; --web-soft:#f6e1d8;
+  --ok:#2f7d3c; --warn:#b03a2e;
+  --f-display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1715; --surface:#16211e; --ink:#e4ece9; --muted:#9aaba5; --line:#2a3a35;
+  --seed:#e3a24a; --seed-soft:#3a2c17;
+  --cite:#4cbfae; --cite-soft:#16322d;
+  --meaning:#a49bf0; --meaning-soft:#27234a;
+  --web:#ec8a62; --web-soft:#3d2219;
+  --ok:#6cc47a; --warn:#f07c70; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#16211e; --ink:#e4ece9; --muted:#9aaba5; --line:#2a3a35;
+  --seed:#e3a24a; --seed-soft:#3a2c17;
+  --cite:#4cbfae; --cite-soft:#16322d;
+  --meaning:#a49bf0; --meaning-soft:#27234a;
+  --web:#ec8a62; --web-soft:#3d2219;
+  --ok:#6cc47a; --warn:#f07c70; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding-block:40px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3.6vw,2.1rem);font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0;max-width:65ch}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.15rem;color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.mono{font-family:var(--f-mono);font-size:.8rem}
+
+/* hero */
+.hero{gap:24px}
+.hero h1 em{font-style:normal;color:var(--seed)}
+.io{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch}
+.io .box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.io .arrow{display:flex;align-items:center;font-size:1.8rem;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;padding:4px 10px;border-radius:999px;background:var(--seed-soft);color:var(--ink);width:fit-content;max-width:100%}
+.chip.new{background:var(--cite-soft)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.q{font-style:italic}
+@media (max-width:620px){.io{grid-template-columns:1fr}.io .arrow{justify-content:center;transform:rotate(90deg)}}
+
+/* pipeline */
+.track{position:relative;display:flex;flex-direction:column;gap:14px;padding-left:44px}
+.track::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;width:2px;background:var(--line)}
+.step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.step .n{position:absolute;left:-44px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--bg);border:2px solid var(--ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:.85rem;font-weight:500}
+.step p{color:var(--muted)}
+.hood{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.hood b{font-weight:500;color:var(--ink)}
+.routes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.route{border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.route strong{font-size:.95rem}
+.route span{font-size:.85rem;color:var(--muted)}
+.r-cite{background:var(--cite-soft)}.r-cite strong{color:var(--cite)}
+.r-mean{background:var(--meaning-soft)}.r-mean strong{color:var(--meaning)}
+.r-web{background:var(--web-soft)}.r-web strong{color:var(--web)}
+@media (max-width:620px){.routes{grid-template-columns:1fr}}
+.loop{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;border:2px dashed var(--seed);border-radius:14px;color:var(--ink)}
+.loop .ic{font-size:1.3rem;color:var(--seed);line-height:1.2}
+
+/* result card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 0 var(--line)}
+.card .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.rank{font-family:var(--f-display);font-weight:800;font-size:1.6rem;color:var(--seed)}
+.meta{color:var(--muted);font-size:.9rem}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid var(--line)}
+.badge.ev{border-color:var(--ok);color:var(--ok)}
+.why{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:10px;background:var(--bg)}
+.why li{font-size:.92rem}
+.why ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.src{display:flex;gap:8px;flex-wrap:wrap}
+.src span{font-family:var(--f-mono);font-size:.75rem;padding:3px 8px;border-radius:6px;background:var(--bg);border:1px solid var(--line)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.9rem;padding:7px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.yes{border-color:var(--ok);color:var(--ok)}
+.btn.no{border-color:var(--warn);color:var(--warn)}
+.retracted{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid var(--warn);color:var(--warn);font-size:.9rem}
+
+/* graph */
+.graph{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;overflow-x:auto}
+.graph svg{display:block;width:100%;min-width:520px;height:auto}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+
+/* journeys */
+.journeys{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:720px){.journeys{grid-template-columns:1fr}}
+.journey{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.who{display:flex;gap:12px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;color:var(--surface);flex:none}
+.who small{display:block;color:var(--muted);font-size:.85rem}
+.journey ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.journey li{font-size:.94rem}
+.journey li::marker{font-family:var(--f-mono);color:var(--muted)}
+.gain{font-size:.9rem;padding:10px 12px;border-radius:10px;background:var(--seed-soft)}
+
+/* stack */
+.stack{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+@media (max-width:640px){.stack{grid-template-columns:1fr}.stack .arrow{transform:rotate(90deg);justify-self:center}}
+.tier{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tier ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+.stack .arrow{font-size:1.6rem;color:var(--muted)}
+
+.proof{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.proof .hide{display:flex;gap:6px}
+.proof .hide i{width:26px;height:34px;border-radius:4px;background:var(--seed-soft);border:1px solid var(--seed)}
+.proof .hide i.gone{background:transparent;border-style:dashed}
+@media (max-width:560px){.proof{grid-template-columns:1fr}}
+.coverage{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.cov-head{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.pill{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid currentColor}
+.pill.thin{color:var(--warn)}.pill.solid{color:var(--ok)}
+.cov-rows{display:flex;flex-direction:column;gap:10px}
+.cov-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:12px;border-radius:10px;background:var(--bg)}
+.cov-row .facts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.cov-row .facts span{font-family:var(--f-mono);font-size:.75rem;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);font-variant-numeric:tabular-nums}
+.cov-note{font-size:.92rem;color:var(--muted)}
+.foot{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+:focus-visible{outline:2px solid var(--seed);outline-offset:2px}
+</style>
+
+<div class="wrap">
+
+  <header class="hero section">
+    <span class="eyebrow">Healthcare &amp; life sciences · Paper discovery</span>
+    <h1>Start with papers you trust. <em>Find the ones you’re missing.</em></h1>
+    <p class="lede">Keyword search only finds papers that use your words. This tool starts from a few papers you already know are good, follows how science actually connects, and returns new papers ranked, explained and traceable to their source.</p>
+    <div class="io" aria-label="What goes in and what comes out">
+      <div class="box">
+        <span class="eyebrow">You bring</span>
+        <span class="q">“Do GLP-1 drugs protect against neurodegeneration?”</span>
+        <span class="chip"><span class="dot" style="background:var(--seed)"></span>5 papers you trust</span>
+      </div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box">
+        <span class="eyebrow">You get</span>
+        <span class="chip new"><span class="dot" style="background:var(--cite)"></span>10 new papers, ranked</span>
+        <span class="chip new"><span class="dot" style="background:var(--meaning)"></span>A reason for each one</span>
+        <span class="chip new"><span class="dot" style="background:var(--web)"></span>A link to every source</span>
+        <span class="chip new"><span class="dot" style="background:var(--warn)"></span>A warning when evidence is thin</span>
+      </div>
+    </div>
+  </header>
+
+  <section aria-labelledby="how">
+    <span class="eyebrow">How it works</span>
+    <h2 id="how">Six steps from your seeds to new discoveries</h2>
+    <div class="track">
+      <div class="step"><span class="n">1</span>
+        <h3>You bring a question and your seed papers</h3>
+        <p>Paste DOIs, PubMed IDs or just titles. Five or six good papers are enough.</p>
+        <div class="hood"><b>Under the hood:</b> OpenAlex looks up each paper: abstract, year, journal, references, citations, retraction status.</div>
+      </div>
+      <div class="step"><span class="n">2</span>
+        <h3>We work out what your papers are about</h3>
+        <p>Your seeds often cover different angles. We group them into themes, for example “how the drug works” and “clinical trials”, so results cover every angle.</p>
+        <div class="hood"><b>Under the hood:</b> embeddings from Token Factory, clustering, Nemotron names each theme.</div>
+      </div>
+      <div class="step"><span class="n">3</span>
+        <h3>We explore three routes at once</h3>
+        <div class="routes">
+          <div class="route r-cite"><strong>Citations</strong><span>Papers your seeds cite, and papers that cite them. Linked to several seeds means stronger.</span></div>
+          <div class="route r-mean"><strong>Meaning</strong><span>Papers about the same thing in different words, which keyword search misses.</span></div>
+          <div class="route r-web"><strong>The web</strong><span>Fresh reviews, preprints and guidelines not yet well connected.</span></div>
+        </div>
+        <div class="hood"><b>Under the hood:</b> OpenAlex citation graph · semantic search · Tavily agentic web search. Every candidate remembers which route found it.</div>
+      </div>
+      <div class="step"><span class="n">4</span>
+        <h3>We score every candidate on several signals</h3>
+        <p>How many of your seeds it connects to, how close its meaning is to your seeds and question, how recent and how cited it is. Combining signals beats any single one.</p>
+        <div class="hood"><b>Under the hood:</b> co-citation, bibliographic coupling, cosine similarity → Reciprocal Rank Fusion → diversity by theme.</div>
+      </div>
+      <div class="step"><span class="n">5</span>
+        <h3>An AI reviewer checks the top 30 and explains each pick</h3>
+        <p>It may only use the facts we collected, so every explanation points to a real link or seed. Retracted papers get a warning. Each paper gets a study-type badge. On top of the list, an evidence check shows how well studied each theme is, and warns when the evidence is thin.</p>
+        <div class="hood"><b>Under the hood:</b> Nemotron on Token Factory, rule-based fact check, study types from Europe PMC.</div>
+      </div>
+      <div class="step"><span class="n">6</span>
+        <h3>You decide what is relevant</h3>
+        <p>Mark papers as useful or not. Accepted papers become new seeds, and the next round adapts to you.</p>
+      </div>
+      <div class="loop"><span class="ic" aria-hidden="true">↺</span><span><strong>The loop:</strong> accepted papers go back to step 1 as seeds. Each round digs deeper into what you actually need.</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="card">
+    <span class="eyebrow">What a result looks like</span>
+    <h2 id="card">Every recommendation shows why, and where from</h2>
+    <article class="card">
+      <div class="top">
+        <span class="rank">#1</span>
+        <span class="badges"><span class="badge ev">Meta-analysis</span><span class="badge">2024</span><span class="badge">Theme: clinical trials</span></span>
+      </div>
+      <h3>GLP-1 receptor agonists and risk of dementia in type 2 diabetes: a meta-analysis of randomized trials</h3>
+      <span class="meta">Example paper · Journal of Neurology · cited 112 times</span>
+      <div class="why">
+        <span class="eyebrow">Why this paper</span>
+        <ul>
+          <li><span style="color:var(--cite)">●</span> Cited by 3 of your 5 seed papers</li>
+          <li><span style="color:var(--meaning)">●</span> Very close in meaning to your seed “Liraglutide in Alzheimer’s” (0.87)</li>
+          <li>Directly answers your question: pooled data from 7 trials on dementia outcomes</li>
+        </ul>
+      </div>
+      <div class="src"><span>DOI</span><span>PubMed</span><span>OpenAlex</span><span style="color:var(--web)">Found via web: nature.com review</span></div>
+      <div class="actions"><button class="btn yes" id="b-yes" type="button">✓ Relevant</button><button class="btn no" id="b-no" type="button">✗ Not relevant</button></div>
+    </article>
+    <div class="retracted" role="note"><strong>⚠ Retracted</strong><span>We flag retracted papers, so they never end up in your grant or review by accident.</span></div>
+  </section>
+
+  <section aria-labelledby="coverage">
+    <span class="eyebrow">Evidence check</span>
+    <h2 id="coverage">We also tell you when science doesn’t have the answer yet</h2>
+    <p class="lede">Finding papers is half the job. The other half is knowing how much to trust what you found. For each theme we count what kind of evidence exists, and say plainly when it is thin.</p>
+    <div class="coverage">
+      <div class="cov-rows">
+        <div class="cov-row">
+          <h3>How the drug works</h3><span class="pill solid">Well studied</span>
+          <div class="facts"><span>18 relevant papers</span><span>4 reviews</span><span>6 since 2023</span></div>
+        </div>
+        <div class="cov-row">
+          <h3>Clinical trials in people</h3><span class="pill thin">⚠ Thin evidence</span>
+          <div class="facts"><span>3 relevant papers</span><span>0 randomized trials</span><span>5 animal studies</span><span>latest: 2021</span></div>
+        </div>
+      </div>
+      <p class="cov-note"><strong>What it means:</strong> be careful drawing conclusions about effects in patients. This may also be an open question worth a new study. Every number links to the papers behind it, and the rules are simple: for example, no randomized trials or meta-analyses means “thin”.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="map">
+    <span class="eyebrow">See the connections</span>
+    <h2 id="map">A map that shows why papers were recommended</h2>
+    <p class="lede">Seeds sit on the left. Lines show how each new paper connects to them. The more seeds it links to, the bigger the circle.</p>
+    <div class="graph">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Seed papers on the left connected to recommended papers on the right">
+        <g stroke-width="2" fill="none">
+          <path d="M120 50 C 300 50, 330 70, 480 70" stroke="var(--cite)"/>
+          <path d="M120 110 C 300 110, 330 70, 480 70" stroke="var(--cite)"/>
+          <path d="M120 230 C 300 230, 330 70, 480 70" stroke="var(--cite)"/>
+          <path d="M120 110 C 300 110, 330 150, 480 150" stroke="var(--cite)"/>
+          <path d="M120 170 C 300 170, 330 150, 480 150" stroke="var(--meaning)" stroke-dasharray="6 5"/>
+          <path d="M120 170 C 300 170, 330 230, 480 230" stroke="var(--meaning)" stroke-dasharray="6 5"/>
+          <path d="M120 230 C 300 230, 330 270, 560 270" stroke="var(--web)" stroke-dasharray="2 5"/>
+        </g>
+        <g fill="var(--seed)" stroke="var(--surface)" stroke-width="3">
+          <circle cx="110" cy="50" r="14"/><circle cx="110" cy="110" r="14"/><circle cx="110" cy="170" r="14"/><circle cx="110" cy="230" r="14"/>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--muted)">
+          <text x="20" y="54">Seed A</text><text x="20" y="114">Seed B</text><text x="20" y="174">Seed C</text><text x="20" y="234">Seed D</text>
+        </g>
+        <g stroke="var(--surface)" stroke-width="3">
+          <circle cx="490" cy="70" r="22" fill="var(--cite)"/>
+          <circle cx="490" cy="150" r="17" fill="var(--cite)"/>
+          <circle cx="490" cy="230" r="12" fill="var(--meaning)"/>
+          <circle cx="570" cy="270" r="11" fill="var(--web)"/>
+        </g>
+        <g font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink)">
+          <text x="522" y="66">#1 linked to</text><text x="522" y="82">3 seeds</text>
+          <text x="516" y="154">#2 · 2 seeds</text>
+          <text x="510" y="234">#3 · similar</text>
+          <text x="470" y="296">#4 · from web</text>
+        </g>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--seed)"></span>Your seed paper</span>
+      <span><span class="dot" style="background:var(--cite)"></span>Citation link</span>
+      <span><span class="dot" style="background:var(--meaning)"></span>Similar meaning</span>
+      <span><span class="dot" style="background:var(--web)"></span>Found on the web</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="who">
+    <span class="eyebrow">Two people, two journeys</span>
+    <h2 id="who">How researchers use it</h2>
+    <div class="journeys">
+      <article class="journey">
+        <div class="who"><span class="avatar" style="background:var(--meaning)">M</span><div><h3>Maya, PhD student</h3><small>Writing a literature review chapter</small></div></div>
+        <ol>
+          <li>Exports 6 papers from Zotero and pastes their DOIs, plus her question on GLP-1 drugs and neurodegeneration.</li>
+          <li>Sees her seeds split into two themes: how the drugs work, and clinical trials.</li>
+          <li>Gets 10 new papers. Three were found only through citations, one is a fresh preprint from the web.</li>
+          <li>Marks 4 as relevant and 2 as not. The next round leans toward clinical evidence.</li>
+          <li>Exports the list back to Zotero.</li>
+        </ol>
+        <p class="gain"><strong>Gain:</strong> papers she would not have found with keywords, each with a reason she can check.</p>
+      </article>
+      <article class="journey">
+        <div class="who"><span class="avatar" style="background:var(--cite)">W</span><div><h3>Dr. Weber, clinician-researcher</h3><small>Preparing a grant application</small></div></div>
+        <ol>
+          <li>Starts with 2 key papers and the question “Does metformin lower dementia risk in older adults?”</li>
+          <li>Sorts results by strength of evidence: meta-analyses and randomized trials first.</li>
+          <li>Sees the evidence check: lots of lab and animal work, but no randomized trials in older adults yet. He frames this as the open question his grant will answer.</li>
+          <li>Spots a warning: one widely cited paper was retracted. He drops it from the grant.</li>
+          <li>Opens the map to see which papers connect to both of his seeds, the most reliable picks.</li>
+          <li>Clicks through to PubMed and cites them in the background section.</li>
+        </ol>
+        <p class="gain"><strong>Gain:</strong> strongest evidence first, an honest view of what is still unknown, and no retracted papers in his application.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="where">
+    <span class="eyebrow">Where it runs</span>
+    <h2 id="where">Simple setup, deployed on Nebius</h2>
+    <div class="stack">
+      <div class="tier">
+        <h3>Our app on Nebius</h3>
+        <ul><li>Web interface</li><li>Backend that runs the six steps</li><li>Cache, so repeat searches are instant</li></ul>
+      </div>
+      <div class="arrow" aria-hidden="true">⇄</div>
+      <div class="tier">
+        <h3>Services it calls</h3>
+        <ul>
+          <li><strong>Token Factory</strong>: Nemotron AI model and embeddings, hosted separately</li>
+          <li><strong>OpenAlex</strong>: paper details and citation links</li>
+          <li><strong>Europe PMC</strong>: study types for medicine</li>
+          <li><strong>Tavily</strong>: web search for fresh sources</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="proof">
+    <span class="eyebrow">How we know it works</span>
+    <h2 id="proof">We test it by hiding papers we already know are right</h2>
+    <div class="proof">
+      <div class="hide" aria-hidden="true"><i></i><i></i><i class="gone"></i><i></i><i></i></div>
+      <p>Take a researcher’s seed papers, hide one, and run the tool on the rest. If the hidden paper comes back in the top 20, the tool found something a human already judged relevant. We repeat this for every seed and report how often it succeeds, and compare citations alone, meaning alone and both combined.</p>
+    </div>
+  </section>
+
+  <p class="foot">Healthcare / Life Sciences: Research Paper Discovery · Nebius challenge · concept overview. Example papers and numbers on this page are illustrative.</p>
+</div>
+
+</body></html>

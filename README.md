@@ -42,6 +42,14 @@ A query takes about 30–60 s, most of it judging.
 
 `TAVILY_API_KEY` turns on web search, and `NCBI_API_KEY` makes PubMed 3× faster. When a channel fails, the response's `warnings` names it; it is never silently empty.
 
+## UI
+
+The API serves the web UI from `web/`: a landing page at http://localhost:8000 and the search tool at `/app.html`. It is plain HTML, CSS and JS with no build step. Each result card shows the LLM grade, the verified quote, how the paper links to your seeds, and which channels found it. A dashed line marks where results stop being as relevant as your seeds. You can filter by channel and export to RIS or CSV.
+
+To host the UI separately from the API, serve `web/` from any static host and set `apiBase` in `web/config.js`.
+
+`/app.html?sample` opens a sample result set that needs no Nebius key: real PubMed records with placeholder grades, labelled as such. Rebuild it with `.venv/bin/python scripts/make_sample.py`.
+
 ## Deploy
 
 The `Dockerfile` serves the API on port 8000. Run it as a Nebius Serverless AI endpoint (CPU preset). The models stay on Token Factory, so the app and the model endpoint are hosted separately.

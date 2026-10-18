@@ -11,13 +11,13 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from engine import export, http, run, seeds
 
-WEB_DIST = Path(__file__).parent / "web" / "dist"
+WEB_DIR = Path(__file__).parent / "web"
 HEARTBEAT_SECONDS = 15
 MAX_CONCURRENT_RUNS = int(os.getenv("MAX_CONCURRENT_RUNS", "5"))
 
@@ -63,6 +63,13 @@ async def healthz() -> str:
     return "ok"
 
 
+@app.get("/api/status")
+async def status() -> dict:
+    """Which services are configured, so the UI can say why a run would fail before one starts."""
+    return {"nebius": bool(os.getenv("NEBIUS_API_KEY")), "tavily": bool(os.getenv("TAVILY_API_KEY")),
+            "openalex": bool(os.getenv("OPENALEX_API_KEY")), "ncbi": bool(os.getenv("NCBI_API_KEY"))}
+
+
 @app.post("/api/seeds/resolve")
 async def resolve_seeds(req: ResolveRequest) -> list[dict]:
     return [{"line": r.line, "status": r.status, "note": r.note,
@@ -73,6 +80,8 @@ async def resolve_seeds(req: ResolveRequest) -> list[dict]:
 
 @app.post("/api/runs")
 async def create_run(req: RunRequest) -> dict:
+    if not os.getenv("NEBIUS_API_KEY"):
+        raise HTTPException(503, "NEBIUS_API_KEY is not set on the server; it runs the embeddings and Nemotron.")
     if sum(r.status == "running" for r in run.RUNS.values()) >= MAX_CONCURRENT_RUNS:
         raise HTTPException(429, "Snowball is busy right now. Try again in a minute.")
     o = req.options
@@ -129,11 +138,7 @@ def _run(run_id: str) -> run.Run:
     return run.RUNS[run_id]
 
 
-if WEB_DIST.exists():
-    app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
-
-    @app.get("/{path:path}", include_in_schema=False)
-    async def web_app(path: str) -> FileResponse:
-        target = (WEB_DIST / path).resolve()
-        inside = target.is_relative_to(WEB_DIST.resolve())
-        return FileResponse(target if inside and target.is_file() else WEB_DIST / "index.html")
+# The UI is static files: served here for one-container deploys, or hosted on its own (web/config.js).
+# Mounted last so the API routes above take precedence.
+if WEB_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")

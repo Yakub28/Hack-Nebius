@@ -463,11 +463,10 @@ class Run:
             chips.append(f"Cites {', '.join(cites)}")
         if cited := c.via("citations", "cited_by"):
             chips.append(f"Cited by {', '.join(cited)}")
-        for p in c.found_by:
-            if p.channel == "cocited":
-                chips.append(f"Co-cited with {p.via} ({p.count}×)")
-        for p in sorted((p for p in c.found_by if p.channel == "similar"), key=lambda p: p.rank):
-            chips.append(f"PubMed similar to {p.via} (rank {p.rank})")
+        if cocited := sorted((p for p in c.found_by if p.channel == "cocited"), key=lambda p: -p.count):
+            chips.append("Co-cited with " + ", ".join(f"{p.via} ({p.count}×)" for p in cocited))
+        if similar := sorted((p for p in c.found_by if p.channel == "similar"), key=lambda p: p.rank):
+            chips.append("PubMed similar to " + ", ".join(f"{p.via} (rank {p.rank})" for p in similar))
         if c.shared_refs:
             chips.append(f"Shares {c.shared_refs} references with your seeds")
         if c.signals.get("meaning", 0) >= CLOSE_IN_MEANING and c.nearest_seed:
