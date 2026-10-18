@@ -10,28 +10,11 @@ export const EXAMPLE = {
   seeds: "33567185\nTirzepatide Once Weekly for the Treatment of Obesity",
 };
 
-export function SearchForm({ onError, onClose }: { onError: (message: string | null) => void; onClose?: () => void }) {
-  const { form, setForm, run, start, cancel } = useSession();
+/** Reads a reference-manager export into the seed box: shared by the centred search and the sidebar form. */
+export function useCollectionImport(onError: (message: string | null) => void) {
+  const { setForm } = useSession();
   const toast = useToast();
-  const navigate = useNavigate();
-  const fileInput = useRef<HTMLInputElement>(null);
-  const [dropping, setDropping] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const running = run?.status === "running";
-  const count = seedLines(form.seeds).length;
-
-  function submit() {
-    const problem = start();
-    onError(problem);
-    if (!problem) navigate("/search");
-  }
-
-  function onKey(e: KeyboardEvent) {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      if (!running) submit();
-    }
-  }
 
   async function importFile(file: File) {
     onError(null);
@@ -55,6 +38,31 @@ export function SearchForm({ onError, onClose }: { onError: (message: string | n
       toast(`Imported ${plural(kept.length, "seed")} from ${file.name}`);
     } catch (err) {
       onError(err instanceof ApiError && err.status === 0 ? err.message : `Could not import ${file.name}: ${(err as Error).message}`);
+    }
+  }
+
+  return { importFile, note };
+}
+
+export function SearchForm({ onError, onClose }: { onError: (message: string | null) => void; onClose?: () => void }) {
+  const { form, setForm, run, start, cancel } = useSession();
+  const navigate = useNavigate();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [dropping, setDropping] = useState(false);
+  const { importFile, note } = useCollectionImport(onError);
+  const running = run?.status === "running";
+  const count = seedLines(form.seeds).length;
+
+  function submit() {
+    const problem = start();
+    onError(problem);
+    if (!problem) navigate("/search");
+  }
+
+  function onKey(e: KeyboardEvent) {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (!running) submit();
     }
   }
 
