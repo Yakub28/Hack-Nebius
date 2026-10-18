@@ -2,3 +2,7 @@
 __pycache__/
 .pytest_cache/
 .env
+.tools/
+web/node_modules/
+web/dist/
+*.tsbuildinfo
