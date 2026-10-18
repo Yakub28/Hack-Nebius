@@ -7,6 +7,7 @@ import { LiveRun } from "../components/LiveRun";
 import { QueryPanel } from "../components/QueryPanel";
 import { Results } from "../components/Results";
 import { EXAMPLE, SearchForm } from "../components/SearchForm";
+import { SearchHero } from "../components/SearchHero";
 import { useToast } from "../components/Toast";
 import { CHANNELS, refOf, seedLines } from "../lib/format";
 import { asDiscovery } from "../lib/run";
@@ -72,6 +73,16 @@ export function Search({ recorded = false }: { recorded?: boolean }) {
     <QueryPanel data={data} question={baseline?.question ?? form.question} seedRefs={baseline?.seeds ?? []} running={live}
       compact={compact} onEdit={() => setEditing(true)} onCancel={cancel} />
   );
+
+  // Before any search the page is the search: one centred task on the night band, like the overview's hero.
+  if (!recorded && !run && !interrupted) {
+    return (
+      <section className="search-band">
+        {error && <div className="alert band-alert" role="alert">{error}</div>}
+        <SearchHero onError={setError} />
+      </section>
+    );
+  }
 
   return (
     <div className={`page workspace${drawerOpen ? " drawer-open" : ""}`}>
