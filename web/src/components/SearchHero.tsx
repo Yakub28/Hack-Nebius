@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { IS_MAC, MAX_SEEDS, seedLines } from "../lib/format";
+import { MAX_SEEDS, seedLines } from "../lib/format";
 import { useSession } from "../lib/session";
-import { useCollectionImport } from "./SearchForm";
+import { LimitField, useCollectionImport } from "./SearchForm";
 
 /** What a seed chip shows: the kind of reference, then the reference itself. */
 function chipLabel(ref: string): [string, string] {
@@ -131,13 +131,8 @@ export function SearchHero({ onError }: { onError: (message: string | null) => v
           </button>
           <input ref={fileInput} type="file" accept=".ris,.nbib,.txt,.bib,.bibtex,.csv" hidden
             onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) importFile(f); }} />
-          <select aria-label="Number of results" value={form.limit} onChange={(e) => setForm({ limit: Number(e.target.value) })}>
-            <option value={20}>Top 20</option>
-            <option value={50}>Top 50</option>
-            <option value={100}>Top 100</option>
-          </select>
+          <LimitField id="hero-limit" />
           <span className="spacer" />
-          <span className="hint"><kbd>{IS_MAC ? "⌘" : "Ctrl"}</kbd> <kbd>Enter</kbd></span>
           <button type="submit" className="btn primary">Discover papers</button>
         </div>
         {dropping && <div className="drop-hint">Drop a RIS, BibTeX, .nbib or CSV file to import its papers as seeds</div>}

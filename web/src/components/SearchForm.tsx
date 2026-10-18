@@ -1,7 +1,7 @@
-import { useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiError, api } from "../api/client";
-import { IS_MAC, MAX_SEEDS, plural, seedLines } from "../lib/format";
+import { MAX_SEEDS, plural, seedLines } from "../lib/format";
 import { useSession } from "../lib/session";
 import { useToast } from "./Toast";
 
@@ -42,6 +42,41 @@ export function useCollectionImport(onError: (message: string | null) => void) {
   }
 
   return { importFile, note };
+}
+
+// The API's bounds on how many results a search returns.
+const LIMIT_MIN = 1;
+const LIMIT_MAX = 200;
+const clampLimit = (n: number) => Math.min(LIMIT_MAX, Math.max(LIMIT_MIN, Math.round(n)));
+
+/** How many results to ask for: any number the API accepts, with − and + stepping between round tens. */
+export function LimitField({ id, disabled }: { id: string; disabled?: boolean }) {
+  const { form, setForm } = useSession();
+  // The box holds what is typed, so an empty or half-typed value doesn't snap back mid-keystroke.
+  const [draft, setDraft] = useState(String(form.limit));
+  useEffect(() => setDraft(String(form.limit)), [form.limit]);
+
+  function type(text: string) {
+    const digits = text.replace(/\D/g, "").slice(0, 3);
+    setDraft(digits);
+    if (digits) setForm({ limit: clampLimit(Number(digits)) });
+  }
+
+  const step = (dir: 1 | -1) =>
+    setForm({ limit: clampLimit(dir > 0 ? Math.floor(form.limit / 10) * 10 + 10 : Math.ceil(form.limit / 10) * 10 - 10) });
+
+  return (
+    <div className="limit">
+      <label htmlFor={id}>Top</label>
+      <div className={`limit-field${disabled ? " disabled" : ""}`}>
+        <button type="button" aria-label="Fewer results" disabled={disabled || form.limit <= LIMIT_MIN} onClick={() => step(-1)}>−</button>
+        <input id={id} type="text" inputMode="numeric" aria-describedby={`${id}-range`} value={draft} disabled={disabled}
+          onChange={(e) => type(e.target.value)} onBlur={() => setDraft(String(form.limit))} />
+        <button type="button" aria-label="More results" disabled={disabled || form.limit >= LIMIT_MAX} onClick={() => step(1)}>+</button>
+      </div>
+      <span id={`${id}-range`} className="visually-hidden">{LIMIT_MIN} to {LIMIT_MAX} results</span>
+    </div>
+  );
 }
 
 export function SearchForm({ onError, onClose }: { onError: (message: string | null) => void; onClose?: () => void }) {
@@ -109,12 +144,7 @@ export function SearchForm({ onError, onClose }: { onError: (message: string | n
       </div>
       {note && <p className="note">{note}</p>}
       <div className="form-foot">
-        <select aria-label="Number of results" value={form.limit} disabled={running}
-          onChange={(e) => setForm({ limit: Number(e.target.value) })}>
-          <option value={20}>Top 20</option>
-          <option value={50}>Top 50</option>
-          <option value={100}>Top 100</option>
-        </select>
+        <LimitField id="form-limit" disabled={running} />
         {running
           ? <button type="button" className="btn utility" onClick={cancel}>Cancel search</button>
           : <button type="submit" className="btn primary">Discover papers</button>}
@@ -122,7 +152,7 @@ export function SearchForm({ onError, onClose }: { onError: (message: string | n
       <div className="form-alt">
         <button type="button" className="link" disabled={running}
           onClick={() => setForm({ question: EXAMPLE.question, seeds: EXAMPLE.seeds })}>Fill in an example</button>
-        <span><kbd>{IS_MAC ? "⌘" : "Ctrl"}</kbd> <kbd>Enter</kbd> to run · usually 1–3 minutes</span>
+        <span>Usually 1–3 minutes</span>
       </div>
     </form>
   );
