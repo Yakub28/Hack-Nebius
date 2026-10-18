@@ -295,7 +295,7 @@ details.more summary {
   cursor: pointer; font-size: 14px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px;
 }
 details.more summary::-webkit-details-marker { display: none; }
-details.more summary::before, .fold > summary::before, .toggle::before {
+details.more summary::before, .fold > summary::before, .kept-abstract > summary::before, .toggle::before {
   content: ""; width: 6px; height: 6px; flex: none; margin: 0 8px 1px 2px;
   border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg);
   transition: transform 0.12s ease;
@@ -666,8 +666,8 @@ details[open] > summary::before, .toggle[aria-expanded="true"]::before { transfo
   .how .band svg { width: 112px; height: 63px; }
   .how-body { padding: 16px 18px; }
 }
-/* The full nav needs about 700px; below that it goes compact rather than wrapping. */
-@media (max-width: 720px) {
+/* The full nav needs about 780px; below that it goes compact rather than wrapping. */
+@media (max-width: 800px) {
   .nav-inner { padding: 8px 16px; gap: 10px; }
   .brand span { display: none; }
   .nav-links a { padding: 6px 8px; font-size: 14px; }
@@ -1026,4 +1026,38 @@ button.neighbor:hover { background: var(--surface-soft); color: var(--link); }
   .search-card { padding: 16px; }
   .hero-question { font-size: 19px; }
   .search-actions .btn.primary { flex: 1 1 100%; }
+}
+
+/* --- shortlist page: what was kept, grouped by the question it was kept for ------------------ */
+.nav-shortlist { display: inline-flex; align-items: center; gap: 6px; }
+.nav-shortlist svg { display: none; width: 16px; height: 16px; }
+.nav-count {
+  min-width: 20px; padding: 1px 6px; border-radius: var(--r-full); text-align: center;
+  background: var(--surface-soft); color: var(--ink-2); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.nav-shortlist[aria-current="page"] .nav-count { background: var(--primary-tint); color: var(--link); }
+.shortlist { max-width: 880px; }
+.shortlist-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin: 8px 0 20px; }
+.shortlist-head h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -0.5px; }
+.shortlist-head p { margin: 6px 0 0; font-size: 14px; }
+.shortlist-actions { display: flex; align-items: center; gap: 8px; }
+.shortlist-actions .link { margin-left: 6px; }
+.link:disabled { color: var(--faint); cursor: default; text-decoration: none; }
+.kept-group + .kept-group { margin-top: 28px; }
+.kept-group-head { margin-bottom: 10px; }
+.kept-group-head h2 { margin: 4px 0 0; font-size: 17px; line-height: 1.4; font-weight: 600; letter-spacing: -0.2px; }
+.kept-card { cursor: default; }
+.kept-title { color: var(--ink); }
+.kept-title:hover { color: var(--link); }
+.kept-card.out .act:first-child { opacity: 1; }      /* the star that puts a removed paper back is always in reach */
+.kept-abstract { margin-top: 8px; }
+.kept-abstract > summary {
+  display: inline-flex; align-items: center; cursor: pointer; list-style: none; font-size: 13px; font-weight: 500; color: var(--muted);
+}
+.kept-abstract > summary::-webkit-details-marker { display: none; }
+.kept-abstract > summary:hover { color: var(--ink); }
+.kept-abstract .abstract-full { margin-top: 6px; font-size: 14px; }
+@media (max-width: 600px) {
+  .nav-shortlist svg { display: block; }
+  .nav-word { display: none; }
 }

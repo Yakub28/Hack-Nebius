@@ -6,7 +6,7 @@ import { Facts, GradeBadge, Meta, PaperActions, Tags } from "./ResultCard";
 
 /** The abstract with the verified quote marked where it occurs. The engine checked the quote against the
  *  text with case and whitespace squashed, so the match here is just as forgiving. React escapes both parts. */
-function Highlighted({ text, quote }: { text: string; quote: string | null }) {
+export function Highlighted({ text, quote }: { text: string; quote: string | null }) {
   const match = useMemo(() => {
     if (!quote) return null;
     const words = quote.trim().split(/\s+/).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
